@@ -1,0 +1,36 @@
+spring:
+  application: 
+           name: auth-service
+  
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB;encrypt=false;trustServerCertificate=true
+    username: gairola
+    password: gairola
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+   
+jwt:
+  secret-key: my-very-secure-and-long-secret-key
+  token-validity: 3600000 # 1 hour in milliseconds
+
+server:
+  port: 9001 # Change the port to the desired value
+
+openapi: 3.0.0
+info:
+  title: My API
+  description: API documentation
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /users:
+    get:
+      summary: Get all users
+      responses:
+        200:
+          description: Successful response

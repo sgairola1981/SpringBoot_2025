@@ -1,0 +1,37 @@
+package com.vayam.kafaka.controller;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.vayam.kafaka.producer.KafkaConsumerService;
+import com.vayam.kafaka.producer.KafkaProducerService;
+
+@Controller
+public class KafkaController {
+
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
+
+    @Autowired
+    private KafkaConsumerService kafkaConsumerService;
+
+    @GetMapping("/")
+    public String showForm(Model model) {
+        model.addAttribute("messages", kafkaConsumerService.getMessages());
+        return "index";
+    }
+
+    @PostMapping("/sendMessage")
+    public String sendMessage(@RequestParam("message") String message, Model model) {
+        kafkaProducerService.sendMessage(message);
+        model.addAttribute("status", "Message sent successfully!");
+        model.addAttribute("messages", kafkaConsumerService.getMessages());
+        return "index";
+    }
+}
+

@@ -1,0 +1,70 @@
+spring:
+  application: 
+           name: auth-service
+  
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB;encrypt=false;trustServerCertificate=true
+    username: gairola
+    password: gairola
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+   
+jwt:
+  secret-key: my-very-secure-and-long-secret-key
+  token-validity: 3600000 # 1 hour in milliseconds
+  
+
+server:
+  port: 9001 # Change the port to the desired value
+
+# Enable Swagger API Docs
+springdoc:
+    api-docs:
+          enabled: true
+    swagger-ui:
+           enabled: true
+           
+# Optional: Configuration for Springdoc OpenAPI (Swagger)
+springdoc:
+  api-docs:
+    path: /api-docs # Customize the path to the OpenAPI JSON
+  swagger-ui:
+    path: /swagger-ui.html # Customize the path to the Swagger UI
+    disable: false # Set to true to disable Swagger UI in certain environments (e.g., production)
+    operationsSorter: alpha # Sort operations alphabetically (optional)
+    tagsSorter: alpha # Sort tags alphabetically (optional)
+    display-request-duration: true # Display request duration (optional)
+    try-it-out:
+      enabled: true # Enable the "Try it out" feature in Swagger UI (optional)
+info: # Information about your API (displayed in Swagger UI)
+  title: My Spring Boot API
+  description: A sample API with Swagger documentation
+  version: 1.0.0
+  contact:
+    name: Your Name
+    email: your.email@example.com
+    url: https://www.example.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+
+# Example of configuring different environments (optional)
+---
+spring:
+  profiles: production # Example: Production profile configuration
+springdoc:
+  swagger-ui:
+    disable: true # Disable Swagger UI in production
+
+---
+spring:
+  profiles: development # Example: Development profile configuration
+springdoc:
+  swagger-ui:
+    disable: false # Enable Swagger UI in developmen
+           
+    

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email Notification</title>
+</head>
+<body>
+<h2>Hello, <span th:text="${name}"></span>!</h2>
+<p>Your confirmation code is: <strong th:text="${code}"></strong></p>
+<hr>
+<p th:text="${body}"></p>
+<p>Best regards,</p>
+<p>Your Team</p>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kafka Messages</title>
+    <script>
+        let socket = new WebSocket("ws://localhost:8988/kafka-messages");
+        socket.onmessage = function(event) {
+            document.body.innerHTML += "<p>" + event.data + "</p>";
+        };
+    </script>
+</head>
+<body>
+    <h2>Kafka Messages</h2>
+</body>
+</html>

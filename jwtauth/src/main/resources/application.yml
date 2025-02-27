@@ -1,0 +1,43 @@
+spring:
+  application:
+     name: auth-service
+
+  datasource:
+   url: jdbc:mysql://localhost:3306/GAIROLA-DB?allowPublicKeyRetrieval=true&useSSL=false
+   username: gairola
+   password: gairola
+   driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+jwt:
+  secret-key: my-very-secure-and-long-secret-key
+  token-validity: 3600000 # 1 hour in milliseconds
+  
+
+server:
+  port: 9001 # Change the port to the desired value
+  
+# Enable Swagger API Docs
+springdoc:
+    api-docs:
+          enabled: true
+    swagger-ui:
+           enabled: true
+           
+logging:
+  level:
+    root: INFO
+  pattern:
+    console: '{"service":"auth-service", "timestamp":"%d{yyyy-MM-dd HH:mm:ss}", "level":"%p", "message":"%m"}'
+  file:
+    name: /var/log/auth-service.log
+    
+    management:
+       endpoints:
+            web:
+              exposure:
+                     include:*
+  

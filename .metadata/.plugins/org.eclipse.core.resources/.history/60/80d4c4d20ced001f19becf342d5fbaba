@@ -1,0 +1,44 @@
+spring:
+  application: 
+           name: auth-service
+  
+  datasource:
+    url: jdbc:oracle:thin:@GAIROLA-DB:1555/XEPDB1
+    username: system
+    password: gairola
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+   
+jwt:
+  secret-key: my-very-secure-and-long-secret-key
+  token-validity: 3600000 # 1 hour in milliseconds
+  
+
+server:
+  port: 9001 # Change the port to the desired value
+  
+# Enable Swagger API Docs
+springdoc:
+    api-docs:
+          enabled: true
+    swagger-ui:
+           enabled: true
+           
+logging:
+  level:
+    root: INFO
+  pattern:
+    console: '{"service":"auth-service", "timestamp":"%d{yyyy-MM-dd HH:mm:ss}", "level":"%p", "message":"%m"}'
+  file:
+    name: /var/log/auth-service.log
+    
+    management:
+       endpoints:
+            web:
+              exposure:
+                     include:*
+  

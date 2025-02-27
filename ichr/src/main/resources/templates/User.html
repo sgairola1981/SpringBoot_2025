@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Form</title>
+    <!-- Include Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            vertical-align: middle;
+        }
+        th {
+            text-align: left;
+            font-weight: bold;
+        }
+        .btn-submit {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+       
+</head>
+<body>
+    <div class="container" >
+        <div class="form-container">
+            <h1 th:text="${user.id == null ? 'Create New User' : 'Edit User'}"></h1>
+            <form id="userform" th:object="${user}" method="post" action="/ICHR/saveuser" >
+                <!-- Hidden field for ID -->
+                <input type="hidden" th:field="*{id}" />
+
+                <!-- Form in Table Format -->
+                <table>
+                    <tr>
+                        <th><label for="name">Name:</label></th>
+                        <td><input type="text" id="name" th:field="*{username}" class="form-control" required /></td>
+                    </tr>
+                    <tr>
+                        <th><label for="email">Email:</label></th>
+                        <td><input type="email" id="email" th:field="*{email}" class="form-control" required /></td>
+                    </tr>
+                    <tr>
+                        <th><label for="password">Password:</label></th>
+                        <td><input type="password" id="password" th:field="*{password}" class="form-control" required /></td>
+                    </tr>
+                    </table>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-primary" onclick="TEST()">TEST</button>
+
+             
+            </form>
+<DIV>
+               <p th:text="${message}" style="color: green;"></p>
+                <p th:text="${error}" style="color: red;"></p>
+            </DIV>
+        </div>
+    </div>
+<script>
+    $(document).ready(function () {
+    // Handle form submission via AJAX
+    $("#userform").submit(function (event) {
+        alert('1234');
+        event.preventDefault(); // Prevent default form submission
+
+        let formData = $(this).serialize(); // Serialize form data
+        let actionUrl = "/ICHR/saveuser"; // Change action name here
+        $.ajax({
+            url:actionUrl, // URL to send the form data
+            type: "POST",
+            data: formData,
+            success: function (response) {
+                // Update the content window with the new user list
+                 $("#content").html(response);
+              //document.getElementById("content").innerHTML = html;
+            },
+            error: function (xhr, status, error) {
+                console.error("Error saving user:", error);
+                alert("An error occurred while saving the user.");
+            }
+        });
+    });
+
+   });
+
+  
+</script>
+<script>
+    function TEST() {
+        alert('1234');
+    }
+</script>
+
+<script>
+    function loadContent(url) {
+                fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Set the content of the "content" div
+                document.getElementById("content").innerHTML = html;
+            })
+            .catch(error => {
+                console.error("Error loading content:", error);
+                document.getElementById("content").innerHTML = "<p>Error loading content.</p>";
+            });
+    }
+
+   
+</script>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+package com.vayam.kafaka.consumer;
+
+public class KafkaConsumer {
+
+}

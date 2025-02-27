@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ICHR</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #f4f4f4;
+            height: 100%;
+            position: fixed;
+            top: 50px;
+            left: 0;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+            margin-top: 50px;
+            flex: 1;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome Page</h1>
+        <nav>
+            <a href="" style="color: on white; text-decoration: none; margin-right: 15px;">Home</a>
+             <form th:action="@{/ICHR/logout}" method="post" style="display: inline;">
+                <button type="submit" style="background-color: red; color: white; border: none; padding: 5px 10px;">Logout</button>
+            </form>
+        </nav>
+    </header>
+
+    <div class="sidebar">
+        <a onclick="loadContent('/ICHR/registration')"  >Dashboard</a>
+        <a onclick="loadContent('/ICHR/test')" >Profile</a>
+        <a onclick="loadContent('/ICHR/listuser')" >Settings</a>
+        <a onclick="loadContent('/ICHR/newuser')">Add User</a>
+    </div>
+
+    <div id="content" class="content" th:fragment="content">
+        <h2>Welcome,<th:text= ${message}/> !</h2>
+        <p>This is your dashboard. Navigate using the sidebar.</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Vayam. All rights reserved.</p>
+    </footer>
+    <script>
+        function loadContent(url) {
+                    fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Set the content of the "content" div
+                    document.getElementById("content").innerHTML = html;
+                })
+                .catch(error => {
+                    console.error("Error loading content:", error);
+                    document.getElementById("content").innerHTML = "<p>Error loading content.</p>";
+                });
+        }
+      
+    </script>
+</body>
+</html>
+

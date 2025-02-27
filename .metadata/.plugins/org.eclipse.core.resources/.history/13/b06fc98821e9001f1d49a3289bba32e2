@@ -1,0 +1,24 @@
+package com.vayam.kafaka.controller;
+
+
+import org.springframework.web.bind.annotation.*;
+
+import com.vayam.kafaka.model.User;
+import com.vayam.kafaka.producer.KafkaProducer;
+
+@RestController
+@RequestMapping("/api/kafka")
+public class KafkaController {
+
+    private final KafkaProducer kafkaProducer;
+
+    public KafkaController(KafkaProducer kafkaProducer) {
+        this.kafkaProducer = kafkaProducer;
+    }
+
+    @PostMapping("/send")
+    public String sendMessage(@RequestBody User user) {
+        kafkaProducer.sendMessage(user);
+        return "Message sent!";
+    }
+}

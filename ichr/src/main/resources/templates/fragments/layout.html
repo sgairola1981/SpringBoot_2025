@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Layout</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button id="sidebar-toggle">☰</button>
+        <h2>MyApp</h2>
+        <a th:href="@{/}"><span>🏠 Home</span></a>
+        <a th:href="@{/dashboard}"><span>📊 Dashboard</span></a>
+        <a th:href="@{/profile}"><span>👤 Profile</span></a>
+        <a th:href="@{/settings}"><span>⚙ Settings</span></a>
+        <a th:href="@{/logout}"><span>🚪 Logout</span></a>
+    </div>
+
+    <!-- Main Content Fragment -->
+    <div class="main-content" th:fragment="content">
+        <th:block th:insert="~{::content}"></th:block>
+    </div>
+
+    <script>
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+    </script>
+
+</body>
+</html>

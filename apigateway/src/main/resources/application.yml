@@ -1,0 +1,41 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    zookeeper:
+      connect-string: localhost:2181
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/orders/**
+        - id: emp-service
+          uri: lb://emp-service
+          predicates:
+            - Path=/employees/**
+        - id: ichr-service
+          uri: lb://ichr-service
+          predicates:
+            - Path=/ICHR/**
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+
+
+        

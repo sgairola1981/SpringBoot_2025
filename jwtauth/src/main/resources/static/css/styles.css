@@ -1,0 +1,45 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 2em;
+}
+
+h2 {
+    color: #333;
+}
+
+form {
+    width: 300px;
+    margin: 0 auto;
+}
+
+div {
+    margin-bottom: 1em;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5em;
+}
+
+input {
+    width: 100%;
+    padding: 0.5em;
+}
+
+button {
+    padding: 0.5em 1em;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+pp
+{
+    color: red;
+
+}

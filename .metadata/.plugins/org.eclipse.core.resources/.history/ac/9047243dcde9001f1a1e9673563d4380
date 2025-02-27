@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kafka Real-Time Messages</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Send Message to Kafka</h2>
+
+    <form action="/send" method="post">
+        <input type="text" name="message" placeholder="Enter message" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <p th:if="${msg}" th:text="${msg}" style="color:green;"></p>
+
+    <h2>Received Messages (Real-Time)</h2>
+    <ul id="messages"></ul>
+
+    <script>
+    var socket = new SockJS('/ws');
+    var stompClient = Stomp.over(socket);
+
+    function connect() {
+        stompClient.connect({}, function(frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/messages', function(response) {
+                var message = response.body;
+                var messageList = document.getElementById("messages");
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode(message));
+                messageList.appendChild(li);
+            });
+        }, function(error) {
+            console.error('WebSocket disconnected. Reconnecting in 3 seconds...');
+            setTimeout(connect, 3000); // Reconnect after 3 seconds
+        });
+    }
+
+    connect(); // Call the function to start the connection
+    </script>
+</body>
+</html>

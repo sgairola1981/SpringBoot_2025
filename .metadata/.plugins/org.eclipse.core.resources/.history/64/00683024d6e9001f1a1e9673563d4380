@@ -1,0 +1,24 @@
+input {
+  tcp {
+    port => 5044
+    codec => json
+  }
+}
+
+filter {
+  json {
+    source => "message"
+  }
+
+  mutate {
+    add_field => { "service" => "%{[json][service]}" }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "microservices-logs"
+  }
+  stdout { codec => rubydebug }
+}

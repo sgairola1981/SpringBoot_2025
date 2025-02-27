@@ -1,0 +1,23 @@
+
+spring:
+  application: 
+           name:emp-service
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB;encrypt=false;trustServerCertificate=true
+    username: gairola
+    password: gairola
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    Properties:
+       hibernate:
+          format_sql: true
+  cloud:
+    zookeeper:
+      connect-string: localhost:2181
+server:
+  port:9002
+

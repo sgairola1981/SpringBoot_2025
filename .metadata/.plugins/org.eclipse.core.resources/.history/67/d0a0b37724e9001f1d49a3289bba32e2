@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kafka Message Sender</title>
+</head>
+<body>
+    <h2>Send a Message to Kafka</h2>
+    <form action="/sendMessage" method="post">
+        <input type="text" name="message" placeholder="Enter message" required>
+        <button type="submit">Send</button>
+    </form>
+    <p th:if="${status}" th:text="${status}" style="color: green;"></p>
+</body>
+</html>

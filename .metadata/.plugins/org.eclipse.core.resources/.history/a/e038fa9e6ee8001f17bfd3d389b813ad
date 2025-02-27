@@ -1,0 +1,20 @@
+package com.vayam.kafaka.producer;
+
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class KafkaProducer {
+
+    private static final String TOPIC = "user-topic";
+    private final KafkaTemplate<String, User> kafkaTemplate;
+
+    public KafkaProducer(KafkaTemplate<String, User> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void sendMessage(User user) {
+        kafkaTemplate.send(TOPIC, user);
+        System.out.println("Sent message: " + user);
+    }
+}

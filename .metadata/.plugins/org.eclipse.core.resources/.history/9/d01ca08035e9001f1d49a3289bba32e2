@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Received Kafka Messages</title>
+</head>
+<body>
+    <h2>Received Messages from Kafka</h2>
+    <ul>
+        <li th:each="msg : ${messages}" th:text="${msg}"></li>
+    </ul>
+
+    <br>
+    <a href="/send">Send a New Message</a>
+</body>
+</html>

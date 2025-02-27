@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Send Email</title>
+    <style>
+        /* General page styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            padding: 185px;
+        }
+
+        /* Form container */
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        /* Form header */
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Form labels */
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 10px 0 5px;
+            text-align: left;
+        }
+
+        /* Input fields */
+        input, textarea {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Textarea styling */
+        textarea {
+            resize: none;
+        }
+
+        /* Submit button */
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Send Email</h2>
+    <form action="/email/send" method="post">
+        <label for="to">To:</label>
+        <input type="email" id="to" name="to" required>
+
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="code">Code:</label>
+        <input type="text" id="code" name="code" required>
+
+        <label for="body">Message:</label>
+        <textarea id="body" name="body" rows="4" required></textarea>
+
+        <button type="submit">Send Email</button>
+    </form>
+</div>
+</body>
+</html>

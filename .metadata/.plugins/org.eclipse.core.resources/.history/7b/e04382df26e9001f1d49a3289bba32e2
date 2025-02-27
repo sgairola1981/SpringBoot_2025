@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafka Messages</title>
+    <script>
+        let socket = new WebSocket("ws://localhost:8080/kafka-messages");
+
+        socket.onmessage = function(event) {
+            let messageBox = document.getElementById("messages");
+            let newMessage = document.createElement("p");
+            newMessage.textContent = event.data;
+            messageBox.appendChild(newMessage);
+        };
+    </script>
+</head>
+<body>
+    <h2>Kafka Messages</h2>
+    <div id="messages" style="border:1px solid black; padding:10px; height:200px; overflow:auto;"></div>
+</body>
+</html>

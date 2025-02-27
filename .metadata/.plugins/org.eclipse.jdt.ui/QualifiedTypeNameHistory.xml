@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="com.vayam.kafaka.producer.KafkaProducer"/>
+    <fullyQualifiedTypeName name="com.vayam.kafaka.model.User"/>
+    <fullyQualifiedTypeName name="com.vayam.kafkacomsumer.handeller.WebSocketMessageHandler"/>
+    <fullyQualifiedTypeName name="com.vayam.kafaka.producer.KafkaConsumerService"/>
+    <fullyQualifiedTypeName name="com.vayam.kafaka.producer.KafkaProducerService"/>
+    <fullyQualifiedTypeName name="org.apache.kafka.common.serialization.StringSerializer"/>
+    <fullyQualifiedTypeName name="java.util.Map"/>
+    <fullyQualifiedTypeName name="java.util.concurrent.ConcurrentHashMap"/>
+    <fullyQualifiedTypeName name="java.util.Properties"/>
+    <fullyQualifiedTypeName name="com.vayam.kafaka.service.KafkaProducerService"/>
+    <fullyQualifiedTypeName name="com.vayam.kafaka.service.KafkaConsumerService"/>
+    <fullyQualifiedTypeName name="org.springframework.ui.Model"/>
+    <fullyQualifiedTypeName name="com.vayam.kafkacomsumer.service.KafkaProducerService"/>
+    <fullyQualifiedTypeName name="org.springframework.boot.SpringApplication"/>
+    <fullyQualifiedTypeName name="org.springframework.boot.autoconfigure.SpringBootApplication"/>
+    <fullyQualifiedTypeName name="org.slf4j.Logger"/>
+    <fullyQualifiedTypeName name="org.slf4j.LoggerFactory"/>
+</qualifiedTypeNameHistroy>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Real-time Kafka Messages</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Real-time Received Messages</h2>
+    <ul id="messageList"></ul>
+
+    <script>
+        var socket = new SockJS('/ws');
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            stompClient.subscribe('/topic/messages', function(message) {
+                var msg = document.createElement("li");
+                msg.textContent = message.body;
+                document.getElementById("messageList").appendChild(msg);
+            });
+        });
+    </script>
+
+    <br>
+    <a href="/send">Send a New Message</a>
+</body>
+</html>

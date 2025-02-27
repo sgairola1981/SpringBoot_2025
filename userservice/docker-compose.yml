@@ -1,0 +1,76 @@
+version: "3.7"
+services:
+  mysql-db:
+    image: mysql:8.0  # Use MySQL 8.0 (or change version if needed)
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: GAIROLA-DB
+      MYSQL_USER: gairola
+      MYSQL_PASSWORD: gairola
+    ports:
+      - "3306:3306"
+    networks:
+        - mynetwork
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - mynetwork
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.5.1
+    container_name: logstash
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.1
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - mynetwork
+  ichr-service:
+    build:
+      context: E:/MICRO_SERVCE_ECLIPSE/ichr/
+    container_name: ichr-service
+    depends_on:
+      - logstash
+    ports:
+      - "9000:9000"
+    networks:
+      - mynetwork
+    environment:
+      - LOGSTASH_HOST=logstash:5044
+
+  auth-service:
+    build:
+      context: E:/MICRO_SERVCE_ECLIPSE/jwtauth/
+    container_name: auth-service
+    depends_on:
+      - logstash
+    ports:
+      - "9001:9001"
+    environment:
+      - LOGSTASH_HOST=logstash:5044
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/GAIROLA-DB?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=gairola
+      - SPRING_DATASOURCE_PASSWORD=gairola
+  # Define the network properly
+networks:
+  mynetwork:
+      driver: bridge

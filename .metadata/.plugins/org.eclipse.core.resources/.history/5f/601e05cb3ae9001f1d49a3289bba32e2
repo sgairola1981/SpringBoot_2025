@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kafka WebSocket Demo - Page 2</title>
+</head>
+<body>
+<h1>Kafka WebSocket Demo - Page 2</h1>
+
+<div id="messages"></div>  </body>
+<script th:inline="javascript">
+    // ... (JavaScript code - almost identical to previous example)
+    var socket = new WebSocket("ws://localhost:8080/my-websocket-endpoint");
+    // ... (rest of the javascript)
+</script>
+
+</body>
+</html>

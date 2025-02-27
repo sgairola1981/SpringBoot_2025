@@ -1,0 +1,159 @@
+package com.vayam.kafkacomsumer;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@SpringBootApplication
+@Controller
+@EnableWebSocket
+public class KafkaWebSocketApplication implements WebSocketConfigurer {
+
+    public static void main(String[] args) {
+        SpringApplication.run(KafkaWebSocketApplication.class, args);
+    }
+
+    @Bean
+    public KafkaConsumer<String, String> kafkaConsumer() {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "my-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return new KafkaConsumer<>(props);
+    }
+
+    @Bean
+    public KafkaProducer<String, String> kafkaProducer() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        return new KafkaProducer<>(props);
+    }
+
+    @Bean
+    public MyWebSocketHandler myWebSocketHandler(KafkaProducer<String, String> kafkaProducer, KafkaConsumer<String, String> kafkaConsumer) {
+        return new MyWebSocketHandler(kafkaProducer, kafkaConsumer);
+    }
+
+   
+
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>(); // Store sessions
+
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(myWebSocketHandler(kafkaProducer(), kafkaConsumer()), "/my-websocket-endpoint");
+    }
+
+    @GetMapping("/")
+    public String index(Model model) {
+        model.addAttribute("topic", "my-topic");
+        return "index"; // index.html
+    }
+
+    @GetMapping("/page2") // New endpoint for the second page
+    public String page2(Model model) {
+        model.addAttribute("topic", "my-topic");
+        return "page2"; // page2.html
+    }
+
+
+    public static class MyWebSocketHandler extends TextWebSocketHandler {
+
+        private final KafkaProducer<String, String> kafkaProducer;
+        private final KafkaConsumer<String, String> kafkaConsumer;
+        private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+        private WebSocketSession session;
+
+        public MyWebSocketHandler(KafkaProducer<String, String> kafkaProducer, KafkaConsumer<String, String> kafkaConsumer) {
+            this.kafkaProducer = kafkaProducer;
+            this.kafkaConsumer = kafkaConsumer;
+        }
+
+        @Override
+        public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+            String sessionId = session.getId(); // Or a custom ID if you have one
+            sessions.put(sessionId, session); // Store the session
+            kafkaConsumer.subscribe(Collections.singletonList("my-topic"));
+            startKafkaConsumer();
+        }
+
+        @Override
+        public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+            String messagePayload = message.getPayload();
+            System.out.println("Received from WebSocket (Session " + session.getId() + "): " + messagePayload);
+            kafkaProducer.send(new ProducerRecord<>("my-topic", null, messagePayload));
+        }
+
+        private void startKafkaConsumer() {
+            executorService.submit(() -> {
+                try {
+                    while (true) {
+                        ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(100));
+                        records.forEach(record -> {
+                            System.out.println("Received from Kafka: " + record.value());
+
+                            // Broadcast to all connected sessions:
+                            for (WebSocketSession s : sessions.values()) {
+                                if (s.isOpen()) {
+                                    try {
+                                        s.sendMessage(new TextMessage(record.value()));
+                                    } catch (Exception e) {
+                                        e.printStackTrace(); // Handle appropriately
+                                    }
+                                }
+                            }
+
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    kafkaConsumer.close();
+                }
+            });
+        }
+
+
+        @Override
+        public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
+            try {
+				sessions.remove(session.getId());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} // Remove the session
+            executorService.shutdown();
+        }
+    }
+
+        
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kafka WebSocket Demo</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>Kafka WebSocket Demo</h1>
+
+<label for="message">Message:</label>
+<input type="text" id="message" name="message">
+<button onclick="sendMessage()">Send</button>
+
+<div id="messages"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var topic = /*[[${topic}]]*/ 'default_topic';
+    var socket = new WebSocket("ws://localhost:8080/my-websocket-endpoint");
+
+    socket.onopen = function() {
+        console.log("WebSocket connection opened");
+    };
+
+    socket.onmessage = function(event) {
+        var message = event.data;
+        $("#messages").append("<p>Received: " + message + "</p>");
+    };
+
+    socket.onclose = function() {
+        console.log("WebSocket connection closed");
+    };
+
+    function sendMessage() {
+        var message = $("#message").val();
+        socket.send(message);
+        $("#messages").append("<p>Sent: " + message + "</p>");
+        $("#message").val("");
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

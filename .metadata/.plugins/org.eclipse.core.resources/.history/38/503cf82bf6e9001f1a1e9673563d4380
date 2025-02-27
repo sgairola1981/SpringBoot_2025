@@ -1,0 +1,18 @@
+
+server:
+  port: 9000
+
+spring:
+  application:
+    name: ichr-service
+    
+logging:
+  level:
+    root: INFO
+  pattern:
+    console: '{"service":"ichr-service", "timestamp":"%d{yyyy-MM-dd HH:mm:ss}", "level":"%p", "message":"%m"}'
+  file:
+    name: /var/log/ichr-service.log
+                             
+
+

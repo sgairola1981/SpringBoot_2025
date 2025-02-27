@@ -1,0 +1,5 @@
+package com.vayam.kafaka.producer;
+
+public class KafkaProducer {
+
+}
