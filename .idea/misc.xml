@@ -11,6 +11,8 @@
         <option value="$PROJECT_DIR$/userservice/pom.xml" />
         <option value="$PROJECT_DIR$/demo/pom.xml" />
         <option value="$PROJECT_DIR$/email/pom.xml" />
+        <option value="$PROJECT_DIR$/zipkinmicrometer/pom.xml" />
+        <option value="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-starter-parent/3.4.3/spring-boot-starter-parent-3.4.3.pom" />
       </list>
     </option>
   </component>
