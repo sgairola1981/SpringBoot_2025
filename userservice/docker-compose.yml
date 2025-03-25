@@ -1,16 +1,17 @@
 version: "3.7"
 services:
-  mysql-db:
+  mysql:
     image: mysql:8.0  # Use MySQL 8.0 (or change version if needed)
-    container_name: mysql-db
+    container_name: gairola-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: GAIROLA-DB
+      MYSQL_ROOT_PASSWORD: gairola
+      MYSQL_DATABASE: gairola_db
       MYSQL_USER: gairola
       MYSQL_PASSWORD: gairola
     ports:
       - "3306:3306"
+
     networks:
         - mynetwork
 
@@ -34,6 +35,8 @@ services:
     ports:
       - "5044:5044"
       - "9600:9600"
+    networks:
+      - mynetwork
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.5.1
@@ -56,6 +59,7 @@ services:
       - mynetwork
     environment:
       - LOGSTASH_HOST=logstash:5044
+      - AUTH_SERVICE_URL=http://auth-service:9001  # Use service name instead of localhost
 
   auth-service:
     build:
@@ -65,9 +69,11 @@ services:
       - logstash
     ports:
       - "9001:9001"
+    networks:
+      - mynetwork  # Add this to ensure it's in the correct network
     environment:
       - LOGSTASH_HOST=logstash:5044
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/GAIROLA-DB?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_URL=jdbc:mysql://gairola-mysql:3306/gairola_db?allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=gairola
       - SPRING_DATASOURCE_PASSWORD=gairola
   # Define the network properly

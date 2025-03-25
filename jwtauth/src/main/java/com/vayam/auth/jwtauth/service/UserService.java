@@ -1,8 +1,13 @@
 package com.vayam.auth.jwtauth.service;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.vayam.auth.jwtauth.exception.DuplicateDataExeception;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +17,7 @@ import com.vayam.auth.jwtauth.model.User;
 import com.vayam.auth.jwtauth.repository.BlacklistedTokenRepository;
 import com.vayam.auth.jwtauth.repository.UserRepository;
 
-import io.jsonwebtoken.Jwts;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -25,25 +30,42 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.tokenRepository = tokenRepository;
     }
-
-    public void registerUser(UserRegistrationDto  userDto) {
+    @Transactional
+    public UserRegistrationDto registerUser(UserRegistrationDto  userDto) {
         // Check if username or email already exists
            if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username is already taken");
+               System.out.println("User name avaliable !");
+            throw new DuplicateDataExeception("Username is already taken");
+
         }
 
         if (userRepository.findAll().stream().anyMatch(user -> user.getEmail().equals(userDto.getEmail()))) {
-            throw new IllegalArgumentException("Email is already registered");
+            System.out.println("User Email avaliable !");
+            throw new DuplicateDataExeception("Email is already registered");
+        }
+        Optional<User> existingUser ;
+        User user;
+       if (userDto.getId() != null) {
+            existingUser = userRepository.findById(userDto.getId());
+           System.out.println("User ID  avaliable !");
+            if (existingUser.isPresent()) {
+                user = existingUser.get();
+                user.setUsername(userDto.getUsername());
+                user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                user.setEmail(userDto.getEmail());
+                user.setRoles("USERS");
+                userRepository.save(user);
+            }
+        } else {
+            user = new User();
+            user.setUsername(userDto.getUsername());
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            user.setEmail(userDto.getEmail());
+            user.setRoles("USERS");
+            userRepository.save(user);
         }
 
-        // Create and save the new user
-        User user = new User();
-        user.setUsername(userDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword())); // Hash the password
-        user.setEmail(userDto.getEmail());
-        user.setRoles("USERS");
-
-        userRepository.save(user);
+        return userDto;
     }
      public boolean logout(String token) {
 
@@ -70,7 +92,16 @@ public class UserService {
 
     }
 
+
     public void deleteById(Long id) {
         userRepository.deleteById(id);
+    }
+    public Page<User> getUsers(int page, int size, String sortField, String sortDirection) {
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+
+        ////return userRepository.findAll(pageable).getContent(); // Convert Page to List
+        return userRepository.findAll(pageable);
     }
 }

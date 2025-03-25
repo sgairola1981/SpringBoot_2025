@@ -1,7 +1,11 @@
 package com.vayam.auth.jwtauth.controller;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.vayam.auth.jwtauth.dto.PageDTO;
+import com.vayam.auth.jwtauth.exception.DuplicateDataExeception;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,24 +36,23 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
         this.UserService = UserService;
     }
-
-    // @PostMapping("/register")
-  /*  public String register(@Valid @RequestBody UserRegistrationDto userDto,Model model) {
-          try {
-            System.out.println(userDto.getEmail()+"------------------------");
-            UserService.registerUser(userDto);
-               model.addAttribute("message", "User registered successfully!");
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto userData) {
+        System.out.println("---registerUser!!");
+        try {
+            UserRegistrationDto savedUser = UserService.registerUser(userData); // Corrected method call
+            return ResponseEntity.ok(savedUser);
+        } catch (DuplicateDataExeception e) {
+            // Handle user already exists error
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
-            model.addAttribute("error", "Registration failed: " + e.getMessage());
+            // Handle other unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.singletonMap("error", "An unexpected error occurred."));
         }
-        return "User registered successfully";
-    }*/
-     @PostMapping("/register")
-    public ResponseEntity<UserRegistrationDto> registerUser(@RequestBody UserRegistrationDto userData) {
-        UserService.registerUser(userData);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON) // Ensure JSON response
-                .body(userData);
     }
     @PostMapping("/login")
     public String login(@RequestBody User user) {
@@ -100,6 +103,26 @@ public class AuthController {
     }
 
   
+    @GetMapping("/findList")
+    public ResponseEntity<PageDTO<User>> listUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortField,
+            @RequestParam(defaultValue = "asc") String sortDirection
+          ) {
+System.out.println("findList-->");
+        Page<User> usersPage = UserService.getUsers(page, size, sortField, sortDirection);
+        System.out.println("findList-->22222222222222222222221");
+
+        PageDTO<User> pageDTO = new PageDTO<>();
+        pageDTO.setContent(usersPage.getContent());
+        pageDTO.setTotalPages(usersPage.getTotalPages());
+        pageDTO.setTotalElements(usersPage.getTotalElements());
+        pageDTO.setSize(usersPage.getSize());
+        pageDTO.setNumber(usersPage.getNumber());
+        return ResponseEntity.ok(pageDTO);
+    }
+
     @GetMapping("/FIND_ALL_USER")
     public List<User> listUsers(Model model) {
        // model.addAttribute("users", UserService.findAll());

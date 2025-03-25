@@ -1,32 +1,21 @@
 package com.vayam.ichr.controller;
-
-
-
 import java.util.List;
-
+import com.vayam.ichr.client.ClientService;
+import com.vayam.ichr.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vayam.ichr.client.AuthServiceClient;
-import com.vayam.ichr.dto.AuthRequest;
-import com.vayam.ichr.dto.Employee;
-import com.vayam.ichr.dto.UserData;
-
-import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import reactor.core.publisher.Mono;
-
 
 @Controller
 @RequestMapping("/ICHR")
@@ -36,27 +25,15 @@ public class ClientController {
 
     @Autowired
     private WebClient webClient;
-   /* 
-     private final String AUTH_URL = "http://localhost:8888/api/auth";
-    private final String AUTH_URL_LOGIN = "http://localhost:8888/api/auth/login";
-    private final String AUTH_URL_LOGOUT = "http://localhost:8888/api/auth/logout";
-    private final String AUTH_URL_REG = "http://localhost:8888/api/auth/register";
-    private final String AUTH_URL_LIST = "http://localhost:8888/api/auth/register";
-*/
-    private final String AUTH_URL = "http://localhost:9001/api/auth";
-    private final String AUTH_URL_LOGIN = "http://localhost:9001/api/auth/login";
-    private final String AUTH_URL_LOGOUT = "http://localhost:9001/api/auth/logout";
-    private final String AUTH_URL_REG = "http://localhost:9001/api/auth/register";
-    private final String AUTH_URL_LIST = "http://localhost:9001/api/auth/register";
-    //9001
-    
-
+    @Value("${auth.service.url}")
+     private String ServiceUrl;
     private final AuthServiceClient authServiceClient;
-
+    @Autowired
+    private ClientService userClient;
     public ClientController(AuthServiceClient authServiceClient) {
         this.authServiceClient = authServiceClient;
     }
-      
+
     @GetMapping("/m")
     public String welcome() {
         return "index"; // Refers to the login.html Thymeleaf template
@@ -72,21 +49,16 @@ public class ClientController {
     public String submitForm(@ModelAttribute AuthRequest user, Model model,HttpServletResponse response) {
         // Use WebClient to send data to the backend microservice
         String url;
-        try {  
-        String jwttoken=  webClient.post()
-                 .uri(AUTH_URL_LOGIN)
-                 .bodyValue(user)
-                 .retrieve()
-                 .bodyToMono(String.class)
-                 .block(); // Blocking for simplicity; in production, use reactive programming
-                 System.out.println("00000000000000"+jwttoken);
+        try {
+
+            String jwttoken=userClient.Login(user);
                 model.addAttribute("message", "Login successful! Token: " + jwttoken);
                 model.addAttribute("username", user.getUsername());
                 // Add JWT to the response as an HTTP-only cookie
+            System.out.println("Login Data---->"+ServiceUrl+"/api/auth/register");
                  System.out.println("Token ===="+jwttoken);
                  Cookie cookie = new Cookie("token",jwttoken);
                  cookie.setMaxAge(Integer.MAX_VALUE);
-                 
                  response.addCookie(cookie);
                  
                 url="index";
@@ -124,13 +96,8 @@ String jwtToken="";
 		  }
         }
           System.out.println("sssssssssssssssssssssssssssssssssss" +jwtToken);
-        webClient.post()
-                 .uri(AUTH_URL_LOGOUT)
-                 .header("Authorization", "Bearer " + jwtToken)
-                 .retrieve()
-                 .toBodilessEntity()
-                 .block(); // Blocking for simplicity; in production, use reactive programming
-                 System.out.println("wwwwwwwwwwwwwwwwwwwwwwwww");
+            userClient.Logout(jwtToken);
+           System.out.println("wwwwwwwwwwwwwwwwwwwwwwwww");
                url="login";
                 } catch (Exception e) {
                     System.out.println("ffffffffffffffffffffffffffffffff"+e);
@@ -169,78 +136,76 @@ String jwtToken="";
      }
 
 
-     
+    @PostMapping("/saveuser")
+    public String registerUser(@ModelAttribute UserData userData, Model model) {
+        try {
+            // Save the user
+            UserData savedUser=userClient.registerUser(userData);
 
-        @PostMapping("/saveuser")
-        public String registerUser(UserData userData ,Model model) {
-           webClient.post()
-                .uri(AUTH_URL_REG)
-                .bodyValue(userData)
-                .retrieve()
-                .onStatus(status -> status.isError(), response -> 
-                    response.bodyToMono(String.class)
-                            .flatMap(error -> Mono.error(new RuntimeException("Error: " + error)))
-                )
-                .bodyToMono(UserData.class);
-                model.addAttribute("message", "Data Save Sucessfully !");
-              //  model.addAttribute("userData", new UserData());
+            if (savedUser != null) {
+                model.addAttribute("message", "Data saved successfully!");
+            } else {
+                model.addAttribute("message", "Failed to save data.");
+            }
 
-              List<UserData> users = webClient.get()
-               .uri(AUTH_URL+"/FIND_ALL_USER")
-               .retrieve()
-               .bodyToFlux(UserData.class)
-               .collectList()
-               .block(); // Blocking for simplicity
-       model.addAttribute("users", users);
-                return "listusers";
+        } catch (Exception e) {
+            model.addAttribute("message", "Error saving data: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        List<UserData> users=userClient.GetUserList();
+        model.addAttribute("users", users);
+        return "listusers";
     }
 
-       @GetMapping("/listuser")
+    @GetMapping("/listuser")
     public String listUsers(Model model) {
         // Fetch users from the backend API
-        List<UserData> users = webClient.get()
-                .uri(AUTH_URL+"/FIND_ALL_USER")
-                .retrieve()
-                .bodyToFlux(UserData.class)
-                .collectList()
-                .block(); // Blocking for simplicity
-        model.addAttribute("users", users);
-        return "listusers"; // Thymeleaf template
+        List<UserData> users=userClient.GetUserList();
+      model.addAttribute("users", users);
+      return "listusers"; // Thymeleaf template
     }
+
+    @GetMapping("/listData")
+          public String  getUsers(@RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "5") int size,
+                                 @RequestParam(defaultValue = "id") String sortField,
+                                 @RequestParam(defaultValue = "asc") String sortDirection,
+                                 Model model) {
+
+
+        PageDTO<UserData> userPage = userClient.getUsers(page, size, sortField, sortDirection);
+        System.out.println("findList-->11111111111111111111");
+        model.addAttribute("userPage", userPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDirection", sortDirection);
+        model.addAttribute("reverseSortDirection", sortDirection.equals("asc") ? "desc" : "asc");
+
+
+        return "userDetails"; // Thymeleaf template
+          }
+
+
 
      @GetMapping("/users/{id}/delete")
     public String deleteUser(@PathVariable Long id,Model model) {
         // Delete user by ID
-        webClient.delete()
-                .uri(AUTH_URL+"/FIND_ALL_USER/{id}/delete", id)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
-                model.addAttribute("message", "record Delete Sucessfully !"); 
-               /////////////////////////////////
-               List<UserData> users = webClient.get()
-               .uri(AUTH_URL+"/FIND_ALL_USER")
-               .retrieve()
-               .bodyToFlux(UserData.class)
-               .collectList()
-               .block(); // Blocking for simplicity
+
+         userClient.DeleteUser(id);
+         model.addAttribute("message", "record Delete Sucessfully !");
+         List<UserData> users=userClient.GetUserList();
        model.addAttribute("users", users);
-         /////////////////////////////////
-       return "listusers"; // Thymeleaf template         
+        return "listusers"; // Thymeleaf template
         
     }
     
     @GetMapping("/users/{id}/edit")
     public String editUserForm(@PathVariable Long id, Model model) {
-        // Fetch user by ID
-        UserData user = webClient.get()
-                .uri(AUTH_URL+"/FIND_ALL_USER/{id}/edit", id)
-                .retrieve()
-                .bodyToMono(UserData.class)
-                .block();
+         UserData user= userClient.EditUserDetails(id);
         model.addAttribute("user", user);
         return "newuser";
     }
 
-     
 }

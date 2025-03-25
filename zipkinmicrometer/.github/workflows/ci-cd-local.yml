@@ -1,0 +1,49 @@
+name: Local CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Run when code is pushed to main branch
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Run Tests
+        run: mvn test
+
+  docker-build-and-load:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t myapp:latest .
+
+      - name: Load image into Minikube
+        run: |
+          minikube image load myapp:latest
+
+  deploy:
+    needs: docker-build-and-load
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply Kubernetes Deployment
+        run: |
+          kubectl apply -f k8s-deployment.yaml
+          kubectl rollout status deployment/myapp

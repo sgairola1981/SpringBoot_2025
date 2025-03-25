@@ -6,7 +6,8 @@ server:
 spring:
   application:
     name: ichr-service
-    
+
+
 logging:
   level:
     root: INFO
@@ -14,11 +15,15 @@ logging:
     console: '{"service":"ichr-service", "timestamp":"%d{yyyy-MM-dd HH:mm:ss}", "level":"%p", "message":"%m"}'
   file:
     name: /var/log/ichr-service.log
-                             
-management:
-       endpoints:
-            web:
-              exposure:
-                     include:*
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include:*
+
+
+auth:
+  service:
+    url: http://localhost:9001
 

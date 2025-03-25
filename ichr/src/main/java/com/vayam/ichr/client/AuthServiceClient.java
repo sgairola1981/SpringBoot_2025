@@ -32,15 +32,6 @@ public class AuthServiceClient {
                     .block();
        return response;
        
-      /*   return webClient.post()
-                .uri("/login")
-                .contentType(MediaType.APPLICATION_JSON) // Set Content-Type header
-                .bodyValue(authRequest)
-                .retrieve()
-                .onStatus(status -> status.is4xxClientError(), response -> 
-                    Mono.error(new RuntimeException("Authentication failed!"))
-                                    )
-                .bodyToMono(String.class)
-                      .block(); */
+
                     }
 }

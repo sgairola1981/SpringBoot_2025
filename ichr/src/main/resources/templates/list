@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <p th:text="${message}" style="color: green;"></p>
+        <h1>User List</h1>
+        <a onclick="loadContent('/ICHR/newuser')" class="btn btn-success mb-3">Add New User</a>
+
+
+
+             <table class="table table-striped">
+                 <thead>
+                 <tr>
+                     <th><a th:href="@{/ICHR/listuser(page=0, sortField='id', sortDirection=${reverseSortDirection})}">ID</a></th>
+                     <th><a th:href="@{/ICHR/listuser(page=0, sortField='username', sortDirection=${reverseSortDirection})}">Username</a></th>
+                     <th><a th:href="@{/ICHR/listuser(page=0, sortField='email', sortDirection=${reverseSortDirection})}">Email</a></th>
+                     <th>Actions</th>
+                 </tr>
+                 </thead>
+                 <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td th:text="${user.email}"></td>
+
+                    <td>
+                        <a href="#" th:attr="onclick='loadContent(\'/ICHR/listuser/'+ ${user.id} + '/edit\'); return false;'" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="#" th:attr="onclick='loadContent(\'/ICHR/listuser/'+ ${user.id} + '/delete\'); return false;'" class="btn btn-danger btn-sm">Delete</a>
+                      </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
+        <!-- Pagination Controls -->
+        <div>
+            <a th:if="${currentPage > 0}" th:href="@{/ICHR/users(page=${currentPage - 1}, sortField=${sortField}, sortDirection=${sortDirection})}">Previous</a>
+            <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span>
+            <a th:if="${currentPage < totalPages - 1}" th:href="@{/ICHR/users(page=${currentPage + 1}, sortField=${sortField}, sortDirection=${sortDirection})}">Next</a>
+        </div>
+    </div>
+    <script>
+        function loadContent(url) {
+                    fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Set the content of the "content" div
+                    document.getElementById("content").innerHTML = html;
+                })
+                .catch(error => {
+                    console.error("Error loading content:", error);
+                    document.getElementById("content").innerHTML = "<p>Error loading content.</p>";
+                });
+        }
+    </script>
+</body>
+</html>

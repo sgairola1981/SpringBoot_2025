@@ -9,6 +9,9 @@ docker-compose up --build
 docker-compose up -d
 docker exec -it GAIROLA-DB bash
 
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+
+
      #url: jdbc:oracle:thin:@localhost:1521:XE
      #username: HR
      #password: HR
@@ -32,6 +35,22 @@ docker run `
    -p 4444:1433 `
    --name sqlserver `
    -d mcr.microsoft.com/mssql/server:latest
+
+Oracle
+--------------------------------------------------------------------
+
+   username: HR
+   password: HR
+   driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update  # Use `create` for the first run, then change to `update`
+      format_sql: true
+      use_sql_comments: true
+
+
 
 docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost:4444 -U gairola -P sgairola@1981
 
@@ -64,11 +83,16 @@ jdbc:oracle:thin:@localhost:1555/XEPDB1
 
 MS SQL Connection
 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+apt update && apt install -y curl
+
 spring:
   application: 
            name: microServiceDemo
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB
+   url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB;encrypt=true;trustServerCertificate=true
+
     username: gairola
     password: gairola
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -78,11 +102,36 @@ spring:
       ddl-auto: update
     show-sql: true
 
+
+
+mysql
+========================================   
+  datasource:
+   url: jdbc:mysql://localhost:3306/gairola_db?allowPublicKeyRetrieval=true&useSSL=false
+   username: gairola
+   password: gairola
+   driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+========================================================================================
+curl -X POST http://auth-service:9001/api/auth/register -H "Content-Type: application/json" -d '{"username":"test","email":"admin123@gmail.com","password":"1234"}'
+
+http://auth-service:9001/api/auth/register 
+http://auth-service:9001/api/auth/register
+
 creating mysql docker container
 --------------------------------------------------------
+docker run --name gairola-mysql -e "MYSQL_ROOT_PASSWORD=gairola" -e "MYSQL_DATABASE=gairola_db" -e "MYSQL_USER=gairola" -e "MYSQL_PASSWORD=gairola" -p 3306:3306 -d mysql:latest
 
-docker exec -it mysql-db mysql -u root -p
-GRANT ALL PRIVILEGES ON `GAIROLA-DB`.* TO 'gairola'@'%'
+
+docker exec -it gairola-mysql mysql -u root -p
+
+GRANT ALL PRIVILEGES ON `GAIROLA_DB`.* TO 'gairola'@'%';
+
+ALTER USER 'gairola'@'%' IDENTIFIED WITH mysql_native_password BY 'gairola';
+FLUSH PRIVILEGES;
+
 
 docker exec -it <container_name> sh
 
@@ -372,6 +421,7 @@ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' GAI
 
 Start-Process -FilePath "C:\Users\Admin\Desktop\Docker Desktop Installer.exe" -ArgumentList "install", "--installation-dir=E:\Docker" -Wait -NoNewWindow
 
-
+docker run --name gairola-mysql -e "MYSQL_ROOT_PASSWORD=gairola" -e "MYSQL_DATABASE=gairola_db" -e "MYSQL_USER=gairola" -e "MYSQL_PASSWORD=gairola" -p 3306:3306 -d mysql:latest
 
 933596764396
+Sha352

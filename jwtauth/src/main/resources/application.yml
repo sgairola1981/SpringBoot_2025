@@ -3,15 +3,18 @@ spring:
      name: auth-service
 
   datasource:
-   url: jdbc:mysql://localhost:3306/GAIROLA-DB?allowPublicKeyRetrieval=true&useSSL=false
-   username: gairola
+   url: jdbc:oracle:thin:@//localhost:1555/XE
+   username: system
    password: gairola
-   driver-class-name: com.mysql.cj.jdbc.Driver
+   driver-class-name: oracle.jdbc.OracleDriver
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.OracleDialect
+    show-sql: true
     hibernate:
-      ddl-auto: update
-      show-sql: true
+      ddl-auto: update  # Use `create` for the first run, then change to `update`
+      format_sql: true
+      use_sql_comments: true
+
 jwt:
   secret-key: my-very-secure-and-long-secret-key
   token-validity: 3600000 # 1 hour in milliseconds
@@ -30,6 +33,10 @@ springdoc:
 logging:
   level:
     root: INFO
+    org.springframework.transaction: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: '{"service":"auth-service", "timestamp":"%d{yyyy-MM-dd HH:mm:ss}", "level":"%p", "message":"%m"}'
   file:
