@@ -24,8 +24,11 @@
 
                     <form th:object="${user}" method="post" th:action="@{/ICHR/saveuser}">
                         <!-- Hidden ID Field -->
-                        <input type="hidden" th:field="*{id}" />
 
+                        <div class="mb-3">
+                            <label for="name" class="form-label">User ID</label>
+                            <input type="text" th:readonly="${user.id != null}" id="id" th:field="*{id}" class="form-control" required />
+                        </div>
                         <!-- Name -->
                         <div class="mb-3">
                             <label for="name" class="form-label">Name:</label>

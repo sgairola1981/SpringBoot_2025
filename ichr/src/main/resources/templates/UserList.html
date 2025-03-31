@@ -15,7 +15,7 @@
              <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>User ID</th>
                     <th>Name</th>
                     <th>Email</th>
                                  <th>Actions</th>
@@ -31,6 +31,8 @@
                     <td>
                         <a href="#" th:attr="onclick='loadContent(\'/ICHR/users/'+ ${user.id} + '/edit\'); return false;'" class="btn btn-primary btn-sm">Edit</a>
                         <a href="#" th:attr="onclick='loadContent(\'/ICHR/users/'+ ${user.id} + '/delete\'); return false;'" class="btn btn-danger btn-sm">Delete</a>
+
+
                       </td>
                 </tr>
             </tbody>

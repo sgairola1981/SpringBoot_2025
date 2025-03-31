@@ -57,6 +57,10 @@
                 <!-- Form in Table Format -->
                 <table>
                     <tr>
+                        <th><label for="name">User Id:</label></th>
+                        <td><input type="text" id="id" th:field="*{id}" class="form-control" required /></td>
+                    </tr>
+                    <tr>
                         <th><label for="name">Name:</label></th>
                         <td><input type="text" id="name" th:field="*{username}" class="form-control" required /></td>
                     </tr>

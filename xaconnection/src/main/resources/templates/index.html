@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Form</title>
+</head>
+<body>
+<h2>User Registration</h2>
+<form action="/saveUser" method="post">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <button type="submit">Save</button>
+</form>
+<p th:if="${message}" th:text="${message}"></p>
+</body>
+</html>

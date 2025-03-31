@@ -43,7 +43,7 @@ login-container {
 }
 
 .nav-link:hover {
-    color: #007bff;
+    color: #FFE500;
 }
 
 /* Main content area */
@@ -77,8 +77,8 @@ login-container {
 }
 
 .table th {
-    background-color: #007bff;
-    color: white;
+    background-color: #01FF3D;
+    color: black;
 }
 
 /* Footer styling */

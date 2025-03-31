@@ -13,18 +13,19 @@ import jakarta.validation.constraints.Email;
 @AllArgsConstructor
 @Entity
 @Table(name = "users_data")
-@SequenceGenerator(name = "user_seq", sequenceName = "USER_SEQ", allocationSize = 1)
+
 public class User {
 
-    @Id
-   // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    private Long id;
 
-    @Column(nullable = false, unique = true)
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
-    
+	@Id
+    @Column(name="Userid" ,  nullable = false, unique = true)
+    @NotBlank(message = "User ID is required")
+    @Size(min = 3, max = 20, message = "User ID must be between 3 and 20 characters")
+	private String id;
+
+	@Column(nullable = false)
+	@NotBlank(message = "User Name is required")
+	@Size(min = 3, max = 20, message = "User Name must be between 3 and 20 characters")
     private String username;
 
     @Column(nullable = false)
@@ -34,20 +35,19 @@ public class User {
 
     @Column(nullable = false)
     private String roles; // Example: "ROLE_USER,ROLE_ADMIN"
-   
-    @Column(nullable = false)
-    @NotBlank(message = "Email is required")
-    @Email
-    @Size(min = 6, message = "Password must be at least 6 characters long")
-    private String Email;
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
+
+	@Column(nullable = false)
+    @NotBlank(message = "Email is required")
+    @Email
+    private String email;
 
 	public String getUsername() {
 		return username;
@@ -74,11 +74,11 @@ public class User {
 	}
 
 	public String getEmail() {
-		return Email;
+		return email;
 	}
 
 	public void setEmail(String email) {
-		Email = email;
+		this.email = email;
 	}
 
 }

@@ -107,7 +107,7 @@ public class AuthController {
     public ResponseEntity<PageDTO<User>> listUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortField,
+            @RequestParam(defaultValue = "userid") String sortField,
             @RequestParam(defaultValue = "asc") String sortDirection
           ) {
 System.out.println("findList-->");
@@ -129,12 +129,12 @@ System.out.println("findList-->");
         return UserService.findAll();
     }
     @GetMapping("/FIND_ALL_USER/{id}/edit")
-    public User  editUserForm(@PathVariable Long id, Model model) {
+    public User  editUserForm(@PathVariable String id, Model model) {
       //  model.addAttribute("user", UserService.findById(id));
         return UserService.findById(id);
     }
     @DeleteMapping("FIND_ALL_USER/{id}/delete")
-    public void deleteUser(@PathVariable Long id) {
+    public void deleteUser(@PathVariable String id) {
         
         UserService.deleteById(id);
       

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vayam.ichr.dto.AuthRequest;
 import com.vayam.ichr.dto.PageDTO;
 import com.vayam.ichr.dto.UserData;
+import com.vayam.ichr.security.JwtTokenStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,8 @@ public class ClientService {
                                 queryParam("sortField", sortField)
                                 .queryParam("sortDirection", sortDirection)
                                 .build())
-                        .retrieve()
+                .headers(headers -> headers.setBearerAuth(JwtTokenStorage.getToken())) // Send JWT token
+                .retrieve()
                         .bodyToMono(new ParameterizedTypeReference<PageDTO<UserData>>() {})
                         .block();
 
@@ -48,6 +50,7 @@ return userPage;
     {
         List<UserData> users = webClient.get()
                 .uri(userServiceUrl+"/api/auth/FIND_ALL_USER")
+                .headers(headers -> headers.setBearerAuth(JwtTokenStorage.getToken())) // Send JWT token
                 .retrieve()
                 .bodyToFlux(UserData.class)
                 .collectList()
@@ -56,18 +59,20 @@ return userPage;
     }
 
 
-    public void DeleteUser(Long id) {
+    public void DeleteUser(String userid) {
 
         webClient.delete()
-                .uri(userServiceUrl+"/api/auth/FIND_ALL_USER/{id}/delete", id)
+                .uri(userServiceUrl+"/api/auth/FIND_ALL_USER/{id}/delete", userid)
+                .headers(headers -> headers.setBearerAuth(JwtTokenStorage.getToken())) // Send JWT token
                 .retrieve()
                 .bodyToMono(Void.class)
                 .block();
     }
 
-    public UserData EditUserDetails(Long id) {
+    public UserData EditUserDetails(String userid) {
         UserData user = webClient.get()
-                .uri(userServiceUrl+"/api/auth/FIND_ALL_USER/{id}/edit", id)
+                .uri(userServiceUrl+"/api/auth/FIND_ALL_USER/{id}/edit", userid)
+                .headers(headers -> headers.setBearerAuth(JwtTokenStorage.getToken())) // Send JWT token
                 .retrieve()
                 .bodyToMono(UserData.class)
                 .block();

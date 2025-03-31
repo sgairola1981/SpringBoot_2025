@@ -3,12 +3,12 @@ spring:
      name: auth-service
 
   datasource:
-   url: jdbc:oracle:thin:@//localhost:1555/XE
-   username: system
+   url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB;encrypt=true;trustServerCertificate=true
+   username: gairola
    password: gairola
-   driver-class-name: oracle.jdbc.OracleDriver
+   driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
-    database-platform: org.hibernate.dialect.OracleDialect
+    database-platform: org.hibernate.dialect.SQLServerDialect
     show-sql: true
     hibernate:
       ddl-auto: update  # Use `create` for the first run, then change to `update`

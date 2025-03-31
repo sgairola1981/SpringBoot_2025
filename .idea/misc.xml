@@ -13,6 +13,10 @@
         <option value="$PROJECT_DIR$/email/pom.xml" />
         <option value="$PROJECT_DIR$/zipkinmicrometer/pom.xml" />
         <option value="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-starter-parent/3.4.3/spring-boot-starter-parent-3.4.3.pom" />
+        <option value="$PROJECT_DIR$/Clenetapp/pom.xml" />
+        <option value="$PROJECT_DIR$/firstservice/firstservice/pom.xml" />
+        <option value="$PROJECT_DIR$/secondservice/secondservice/pom.xml" />
+        <option value="$PROJECT_DIR$/xaconnection/pom.xml" />
       </list>
     </option>
   </component>

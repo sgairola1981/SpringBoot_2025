@@ -2,6 +2,7 @@ package com.vayam.ichr.controller;
 import java.util.List;
 import com.vayam.ichr.client.ClientService;
 import com.vayam.ichr.dto.*;
+import com.vayam.ichr.security.JwtTokenStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,8 @@ public class ClientController {
                 // Add JWT to the response as an HTTP-only cookie
             System.out.println("Login Data---->"+ServiceUrl+"/api/auth/register");
                  System.out.println("Token ===="+jwttoken);
+            // ✅ Store JWT Token
+            JwtTokenStorage.setToken(jwttoken);
                  Cookie cookie = new Cookie("token",jwttoken);
                  cookie.setMaxAge(Integer.MAX_VALUE);
                  response.addCookie(cookie);
@@ -190,7 +193,7 @@ String jwtToken="";
 
 
      @GetMapping("/users/{id}/delete")
-    public String deleteUser(@PathVariable Long id,Model model) {
+    public String deleteUser(@PathVariable String id,Model model) {
         // Delete user by ID
 
          userClient.DeleteUser(id);
@@ -202,7 +205,7 @@ String jwtToken="";
     }
     
     @GetMapping("/users/{id}/edit")
-    public String editUserForm(@PathVariable Long id, Model model) {
+    public String editUserForm(@PathVariable String id, Model model) {
          UserData user= userClient.EditUserDetails(id);
         model.addAttribute("user", user);
         return "newuser";

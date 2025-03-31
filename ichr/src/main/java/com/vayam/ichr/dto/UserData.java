@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class UserData {
-
-    private Long id;
-    
+    @NotBlank
+    private String  id;
     @NotBlank
     private String username;
     @NotBlank
@@ -16,15 +15,6 @@ public class UserData {
     @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
     
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return this.username;
     }
@@ -48,5 +38,12 @@ public class UserData {
     public void setPassword(String password) {
         this.password = password;
     }
-  
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

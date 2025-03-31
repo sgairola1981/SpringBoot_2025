@@ -11,15 +11,17 @@ import com.vayam.auth.jwtauth.model.User;
 import java.util.List;
 import java.util.Optional;
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
-    @Query(value = """
+public interface UserRepository extends JpaRepository<User, String> {
+   @Query(value = """
         SELECT * FROM (
             SELECT u.*, ROWNUM AS rn FROM (
-                SELECT * FROM users_data ORDER BY id
+                SELECT * FROM users_data ORDER BY userid
             ) u WHERE ROWNUM <= :pageSize + (:page * :pageSize)
         ) WHERE rn > (:page * :pageSize)
         """,
             nativeQuery = true)
     List<User> findUsersWithPagination(@Param("page") int page, @Param("pageSize") int pageSize);
+
+
+    Optional<User> findById(String id);
 }
