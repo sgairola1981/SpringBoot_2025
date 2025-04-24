@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Report Viewer</title>
+</head>
+<body>
+<h2>Generate Report</h2>
+
+<form th:action="@{/view-report}" method="get" target="reportFrame">
+    <label>Department ID:</label>
+    <input type="text" name="deptId" required />
+    <button type="submit">View Report</button>
+</form>
+
+<hr/>
+
+<iframe name="reportFrame" width="100%" height="600px" style="border:1px solid #ccc;">
+    PDF report will be shown here
+</iframe>
+
+</body>
+</html>

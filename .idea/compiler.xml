@@ -6,26 +6,21 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="userservice" />
+        <module name="Idempotency" />
+        <module name="demo" />
+        <module name="micrometer" />
         <module name="apigateway" />
         <module name="ichr" />
         <module name="firstservice" />
-        <module name="userservice" />
+        <module name="xaconnection" />
+        <module name="chat" />
         <module name="Clenetapp" />
         <module name="jwtauth" />
-        <module name="demo" />
+        <module name="kafaka" />
+        <module name="keylock" />
         <module name="secondservice" />
         <module name="email" />
-        <module name="micrometer" />
-      </profile>
-      <profile name="Annotation profile for xaconnection" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="xaconnection" />
-        <module name="kafaka" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -35,16 +30,19 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Clenetapp" options="-parameters" />
+      <module name="Idempotency" options="-parameters" />
       <module name="apigateway" options="-parameters" />
+      <module name="chat" options="-parameters" />
       <module name="email" options="-parameters" />
-      <module name="firstservice" options="-parameters" />
-      <module name="ichr" options="-parameters" />
-      <module name="jwtauth" options="-parameters" />
-      <module name="kafaka" options="-parameters" />
+      <module name="firstservice" options="" />
+      <module name="ichr" options="" />
+      <module name="jwtauth" options="" />
+      <module name="kafaka" options="" />
+      <module name="keylock" options="-parameters" />
       <module name="micrometer" options="-parameters" />
       <module name="secondservice" options="-parameters" />
-      <module name="userservice" options="-parameters" />
-      <module name="xaconnection" options="-parameters" />
+      <module name="userservice" options="" />
+      <module name="xaconnection" options="" />
       <module name="zipkinmicrometer" options="-parameters" />
     </option>
   </component>

@@ -17,6 +17,9 @@
         <option value="$PROJECT_DIR$/firstservice/firstservice/pom.xml" />
         <option value="$PROJECT_DIR$/secondservice/secondservice/pom.xml" />
         <option value="$PROJECT_DIR$/xaconnection/pom.xml" />
+        <option value="$PROJECT_DIR$/Idempotency/pom.xml" />
+        <option value="$PROJECT_DIR$/keylock/pom.xml" />
+        <option value="$PROJECT_DIR$/chat/pom.xml" />
       </list>
     </option>
   </component>
