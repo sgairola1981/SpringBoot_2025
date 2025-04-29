@@ -19,6 +19,7 @@ public class OnlineUserController {
     @MessageMapping("/online")
     public void handleOnlineUser(Principal principal) {
         onlineUsers.add(principal.getName());
+
         messagingTemplate.convertAndSend("/topic/online", onlineUsers);
     }
 }

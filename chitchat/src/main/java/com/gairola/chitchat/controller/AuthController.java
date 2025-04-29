@@ -1,24 +1,22 @@
-package com.gairola.chat.controller;
+package com.gairola.chitchat.controller;
 
-import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
-public class LoginController {
+public class AuthController {
 
     @GetMapping("/")
     public String loginPage() {
         return "login";
     }
-
     @PostMapping("/login")
     public String login(@RequestParam String username, HttpSession session) {
         session.setAttribute("username", username);
-        System.out.println("User Name: " + username);
+        System.out.println("User Name:  using   login/" + username);
         return "redirect:/chat";
     }
     @PostMapping("/logout")
@@ -30,7 +28,7 @@ public class LoginController {
     @GetMapping("/chat")
     public String chatPage(HttpSession session, Model model) {
         String username = (String) session.getAttribute("username");
-        System.out.println("User Name:  using CHAT/" + username);
+        System.out.println("User Name:  using   chat/" + username);
         if (username == null || username.isEmpty()) {
             return "redirect:/";
         }

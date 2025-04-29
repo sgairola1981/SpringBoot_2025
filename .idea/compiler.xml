@@ -11,6 +11,7 @@
         <module name="demo" />
         <module name="micrometer" />
         <module name="apigateway" />
+        <module name="chitchat" />
         <module name="ichr" />
         <module name="firstservice" />
         <module name="xaconnection" />
@@ -33,6 +34,7 @@
       <module name="Idempotency" options="-parameters" />
       <module name="apigateway" options="-parameters" />
       <module name="chat" options="-parameters" />
+      <module name="chitchat" options="-parameters" />
       <module name="email" options="-parameters" />
       <module name="firstservice" options="" />
       <module name="ichr" options="" />

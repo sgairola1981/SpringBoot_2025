@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat Room</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        body {
+          margin: 0;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: #f0f2f5;
+        }
+
+        .container {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          width: 100%;
+          max-width: 1200px;
+          margin: auto;
+          background: white;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+          background: #008069;
+          padding: 1rem;
+          color: white;
+          font-size: 1.2rem;
+          font-weight: bold;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .user-select {
+          padding: 10px;
+          background: #ededed;
+          border-bottom: 1px solid #ccc;
+        }
+
+        .user-select select {
+          width: 100%;
+          padding: 10px;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+        }
+
+        .chat-area {
+          flex: 1;
+          overflow-y: auto;
+          padding: 1rem;
+          background: #e5ddd5;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .message {
+          background: white;
+          padding: 10px 15px;
+          margin: 5px 0;
+          border-radius: 10px;
+          max-width: 60%;
+          word-wrap: break-word;
+          box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .message.sent {
+          align-self: flex-end;
+          background: #dcf8c6;
+        }
+
+        .message.received {
+          align-self: flex-start;
+          background: white;
+        }
+
+        .input-area {
+          display: flex;
+          padding: 10px;
+          background: #f0f2f5;
+          border-top: 1px solid #ccc;
+        }
+
+        .input-area input {
+          flex: 1;
+          padding: 10px;
+          border-radius: 20px;
+          border: 1px solid #ccc;
+          outline: none;
+        }
+
+        .input-area button {
+          background: #008069;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          margin-left: 10px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+
+        .videos {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 10px;
+          background: #ededed;
+          gap: 20px;
+        }
+
+        .videos video {
+          width: 45%;
+          height: auto;
+          background: black;
+          border-radius: 10px;
+        }
+
+        .buttons {
+          padding: 10px;
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+          background: #ededed;
+        }
+
+        .buttons button {
+          background: #008069;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 1rem;
+        }
+
+        .buttons button.end {
+          background: #e53935;
+        }
+    </style>
+    <script>
+        let stompClient;
+        let username;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            username = document.getElementById("username").textContent.trim();
+
+            if (!username) {
+                alert("Username is missing!");
+                return;
+            }
+
+            connect();
+
+            document.querySelector("button[onclick='sendMessage()']").addEventListener("click", sendMessage);
+        });
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, () => {
+                stompClient.subscribe('/user/queue/messages', (message) => {
+                    const msg = JSON.parse(message.body);
+                    showMessage(msg.from + ": " + msg.content);
+                });
+
+                stompClient.subscribe("/topic/online", (message) => {
+                    let users = JSON.parse(message.body);
+                    let select = document.getElementById("toUser");
+                    if (!select) return;
+                    select.innerHTML = "<option value=''>-- Select User --</option>";
+                    users.forEach(user => {
+                        if (user !== username) {
+                            select.innerHTML += `<option value="${user}">${user}</option>`;
+                        }
+                    });
+                });
+
+                console.log("Sending username to the server:", username);
+                stompClient.send("/app/online", {}, username); // ✅ Raw string payload
+            });
+        }
+
+        function sendMessage() {
+            const content = document.getElementById('messageInput').value;
+            const toUser = document.getElementById('toUser').value;
+
+            if (content && toUser) {
+                const chatMessage = {
+                    from: username,
+                    to: toUser,
+                    content: content
+                };
+                stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+                showMessage("You: " + content);
+                document.getElementById('messageInput').value = '';
+            } else {
+                alert('Please enter a message and select a user.');
+            }
+        }
+
+        function showMessage(message) {
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML += `<div>${message}</div>`;
+        }
+
+    </script>
+
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        Hello, <span id="username" th:text="${username}"></span>!
+    </header>
+
+    <div class="user-select">
+        <select id="toUser">
+            <option value="">-- Select User to Chat/Call --</option>
+        </select>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+        <!-- Chat messages will appear here -->
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div class="buttons">
+        <button onclick="startCall()">📞 Start Call</button>
+        <button class="end" onclick="endCall()">🔴 End Call</button>
+    </div>
+
+    <div class="videos">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+
+</div>
+
+
+</body>
+</html>

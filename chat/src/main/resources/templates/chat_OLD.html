@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+
+        .chat-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 40px auto 0;
+        }
+
+        h3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #1f2b6c;
+        }
+
+        .logout-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background-color: #e60000;
+        }
+
+        #users {
+            width: 100%;
+            padding: 8px;
+            font-size: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .chat-popup {
+            position: fixed;
+            bottom: 20px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.4;
+            clear: both;
+        }
+
+        .self {
+            background: #d1ffe2;
+            float: right;
+            color: #064420;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .other {
+            background: #e0e7ff;
+            float: left;
+            color: #1f2b6c;
+            text-align: left;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h3>
+        Welcome: <span id="username" th:text="${username}"></span>
+        <form action="/logout" method="post" style="display:inline;">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </h3>
+
+    <select id="users">
+        <option value="">-- Select User --</option>
+    </select>
+</div>
+
+<!-- Chat popup windows will be added dynamically here -->
+<div id="chatWindows"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+    let stompClient;
+    let username = document.getElementById("username").textContent;
+    const chatWindows = {};
+
+    function connect() {
+      const socket = new SockJS('/ws');
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, function () {
+        stompClient.subscribe('/user/queue/messages', function (message) {
+          const msg = JSON.parse(message.body);
+          openChatWindow(msg.from);
+          appendMessage(msg.from, msg.from, msg.content);
+        });
+
+        stompClient.subscribe("/topic/online", function (message) {
+          let users = JSON.parse(message.body);
+          let select = document.getElementById("users");
+          if (!select) return;
+          select.innerHTML = "<option value=''>-- Select User --</option>";
+          users.forEach(user => {
+            if (user !== username) {
+              select.innerHTML += `<option value="${user}">${user}</option>`;
+            }
+          });
+        });
+
+        stompClient.send("/app/online", {}, username);
+      });
+    }
+
+    function openChatWindow(user) {
+      if (chatWindows[user]) return;
+
+      const container = document.getElementById("chatWindows");
+      const windowDiv = document.createElement("div");
+      windowDiv.className = "chat-popup";
+      windowDiv.id = `chat-${user}`;
+      windowDiv.style.right = (Object.keys(chatWindows).length * 320 + 20) + "px";
+
+      windowDiv.innerHTML = `
+        <div style="background:#1f74ff;color:white;padding:10px;border-radius:8px 8px 0 0;">
+          Chat with ${user}
+          <button style="float:right;color:white;background:none;border:none;font-size:16px;cursor:pointer;" onclick="closeChat('${user}')">&times;</button>
+        </div>
+        <div id="messages-${user}" style="height:200px;overflow:auto;padding:10px;background:#fafbff;border:1px solid #ccc;"></div>
+        <div style="display:flex;padding:10px;border-top:1px solid #ccc;">
+          <input type="text" id="input-${user}" placeholder="Type a message..." style="flex:1;padding:5px;">
+          <button onclick="sendTo('${user}')" style="
+  background-color: #1f74ff;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+" onmouseover="this.style.backgroundColor='#155cd3'" onmouseout="this.style.backgroundColor='#1f74ff'">
+  Send
+</button>
+
+        </div>
+      `;
+
+      container.appendChild(windowDiv);
+      chatWindows[user] = windowDiv;
+    }
+
+    function appendMessage(user, from, message) {
+      const box = document.getElementById(`messages-${user}`);
+      if (!box) return;
+
+      const msgDiv = document.createElement("div");
+      msgDiv.className = (from === username) ? 'message self' : 'message other';
+      msgDiv.innerHTML = `<b>${from === username ? "You" : from}:</b> ${message}`;
+      box.appendChild(msgDiv);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendTo(toUser) {
+      const input = document.getElementById(`input-${toUser}`);
+      const content = input.value.trim();
+      if (!content) {
+        alert("Cannot send a blank message.");
+        return;
+      }
+
+      const msg = {
+        from: username,
+        to: toUser,
+        content: content
+      };
+
+      stompClient.send("/app/chat", {}, JSON.stringify(msg));
+      appendMessage(toUser, username, content);
+      input.value = '';
+    }
+
+    function closeChat(user) {
+      const windowDiv = chatWindows[user];
+      if (windowDiv) {
+        windowDiv.remove();
+        delete chatWindows[user];
+      }
+    }
+
+    document.getElementById("users").addEventListener("change", function () {
+      const selectedUser = this.value;
+      if (selectedUser) openChatWindow(selectedUser);
+    });
+
+    connect();
+</script>
+</body>
+</html>
