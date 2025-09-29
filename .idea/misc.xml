@@ -21,6 +21,11 @@
         <option value="$PROJECT_DIR$/keylock/pom.xml" />
         <option value="$PROJECT_DIR$/chat/pom.xml" />
         <option value="$PROJECT_DIR$/chitchat/pom.xml" />
+        <option value="$PROJECT_DIR$/ai/pom.xml" />
+        <option value="$PROJECT_DIR$/LoggingTracing/pom.xml" />
+        <option value="$PROJECT_DIR$/api-gateway-tracing/pom.xml" />
+        <option value="$PROJECT_DIR$/booking-service/pom.xml" />
+        <option value="$PROJECT_DIR$/paymentservice/pom.xml" />
       </list>
     </option>
   </component>

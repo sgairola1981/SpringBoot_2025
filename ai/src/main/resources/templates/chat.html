@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat with OpenAI</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h1>Chat with OpenAI</h1>
+
+<form method="post" action="/chat">
+        <textarea name="message" rows="4" cols="50" placeholder="Enter your message here..." required
+                  th:text="${userMessage}"></textarea><br/>
+    <button type="submit">Send</button>
+</form>
+
+<div th:if="${botResponse}">
+    <h2>Response:</h2>
+    <p th:text="${botResponse}"></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: booking-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+endpoint:
+  prometheus:
+    enabled: true
+# Zipkin config
+management.tracing.sampling.probability: 1.0

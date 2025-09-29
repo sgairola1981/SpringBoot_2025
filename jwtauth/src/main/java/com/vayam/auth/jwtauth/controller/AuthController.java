@@ -51,7 +51,7 @@ public class AuthController {
             // Handle other unexpected errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(Collections.singletonMap("error", "An unexpected error occurred."));
+                    .body(Collections.singletonMap("error", "An unexpected error occurred."+e.getMessage()));
         }
     }
     @PostMapping("/login")

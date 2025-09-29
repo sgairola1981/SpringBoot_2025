@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  payment-service:
+    build: ./paymentservice
+    container_name: payment-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - zipkin
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - spring-net
+
+  booking-service:
+    build: ./booking-service
+    container_name: booking-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - zipkin
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - spring-net
+
+  api-gateway:
+    build: ./api-gateway-tracing
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - payment-service
+      - booking-service
+    networks:
+      - spring-net
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - spring-net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheustracing
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - spring-net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafanatrcing
+    ports:
+      - "3000:3000"
+    networks:
+      - spring-net
+
+networks:
+  spring-net:
+    driver: bridge

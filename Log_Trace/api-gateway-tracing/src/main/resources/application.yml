@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: booking-service
+          uri: http://booking-service:8081
+          predicates:
+            - Path=/booking/**
+          filters:
+            - StripPrefix=1
+
+        - id: payment-service
+          uri: http://payment-service:8082
+          predicates:
+            - Path=/payment/**
+          filters:
+            - StripPrefix=1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    prometheus:
+      enabled: true

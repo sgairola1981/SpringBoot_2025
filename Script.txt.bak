@@ -1,0 +1,452 @@
+docker exec -it zookeeper /bin/bash
+bin/zkCli.sh
+ls /services
+
+docker run -d --name zookeeper -p 2181:2181 -e ALLOW_ANONYMOUS_LOGIN=yes bitnami/zookeeper
+
+docker-compose down
+docker-compose up --build
+docker-compose up -d
+docker exec -it GAIROLA-DB bash
+
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+
+
+     #url: jdbc:oracle:thin:@localhost:1521:XE
+     #username: HR
+     #password: HR
+docker exec -it ichr-service netstat -tulnp
+
+ docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' GAIROLA-DB
+
+ url: jdbc:sqlserver://sqlserver:4444;databaseName=GAIROLA;encrypt=false;trustServerCertificate=true
+docker exec -it ichr-service sh
+apk add lsof  # For Alpine Linux
+apt-get update && apt-get install lsof -y  # For Debian/Ubuntu
+lsof -i :9000
+
+docker pull mcr.microsoft.com/mssql/server:latest
+
+mvn package
+
+docker run `
+   -e "ACCEPT_EULA=Y" `
+   -e "SA_PASSWORD=gairola@1981" `
+   -p 4444:1433 `
+   --name sqlserver `
+   -d mcr.microsoft.com/mssql/server:latest
+
+Oracle
+--------------------------------------------------------------------
+
+   username: HR
+   password: HR
+   driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update  # Use `create` for the first run, then change to `update`
+      format_sql: true
+      use_sql_comments: true
+
+
+
+docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost:4444 -U gairola -P sgairola@1981
+
+sqlcmd -S localhost,4444 -U gairola -P gairola@1981
+
+
+sqlcmd -S localhost,4444 -U sa -P YourStrong!Passw0rd
+
+CREATE LOGIN GAIROLA WITH PASSWORD = 'gairola@1981';
+GO
+
+netsh advfirewall firewall add rule name="SQL Server TCP 1433" dir=in action=allow protocol=TCP localport=1433
+
+
+CREATE USER GAIROLA IDENTIFIED BY "Gairola@1981"
+GRANT CONNECT, RESOURCE TO GAIROLA;
+ALTER USER GAIROLA DEFAULT TABLESPACE users;
+GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW, CREATE PROCEDURE TO GAIROLA;
+
+
+
+New-NetFirewallRule -DisplayName "Allow SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action Allow
+net stop MSSQLSERVER && net start MSSQLSERVER
+
+sqlcmd -S localhost -U gairola -P "gairola"
+
+http://localhost:9001/swagger-ui/index.html
+
+docker run --name GAIROLA-DB -e ORACLE_PASSWORD=gairola `
+  --publish 1555:1521 `
+  -d gvenzl/oracle-xe:latest
+
+
+jdbc:oracle:thin:@localhost:1555/XEPDB1
+
+MS SQL Connection
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+apt update && apt install -y curl
+
+spring:
+  application: 
+           name: microServiceDemo
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB
+   url: jdbc:sqlserver://localhost:1433;databaseName=GAIROLA_DB;encrypt=true;trustServerCertificate=true
+
+    username: gairola
+    password: gairola
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+
+mysql
+========================================   
+  datasource:
+   url: jdbc:mysql://localhost:3306/gairola_db?allowPublicKeyRetrieval=true&useSSL=false
+   username: gairola
+   password: gairola
+   driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+========================================================================================
+curl -X POST http://auth-service:9001/api/auth/register -H "Content-Type: application/json" -d '{"username":"test","email":"admin123@gmail.com","password":"1234"}'
+
+http://auth-service:9001/api/auth/register 
+http://auth-service:9001/api/auth/register
+
+creating mysql docker container
+--------------------------------------------------------
+docker run --name gairola-mysql -e "MYSQL_ROOT_PASSWORD=gairola" -e "MYSQL_DATABASE=gairola_db" -e "MYSQL_USER=gairola" -e "MYSQL_PASSWORD=gairola" -p 3306:3306 -d mysql:latest
+
+
+docker exec -it gairola-mysql mysql -u root -p
+
+GRANT ALL PRIVILEGES ON `GAIROLA_DB`.* TO 'gairola'@'%';
+
+ALTER USER 'gairola'@'%' IDENTIFIED WITH mysql_native_password BY 'gairola';
+FLUSH PRIVILEGES;
+
+
+docker exec -it <container_name> sh
+
+mysql -h mysql-db -P 3306 -u gairola -p
+
+---------------------------------------------------------
+
+
+jakarta.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [The TCP/IP connection to the host localhost, port 1433 has failed. Error: "Connection refused. Verify the connection properties. Make sure that an instance of SQL Server is running on the host and accepting TCP/IP connections at the port. Make sure that TCP connections to the port are not blocked by a firewall.".] [n/a]
+
+Hibernate Connection
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+spring.application.name=microServiceDemo
+server.port=9001
+# H2 Database configuration for local testing
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+
+# Enable JPA/Hibernate settings
+spring.jpa.hibernate.ddl-auto=update
+//////////////////////////////////////
+
+http://localhost:9001/v3/api-docs
+//@EnableDiscoveryClient
+<dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+    </dependency>
+
+<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+// Complete code for Thymeleaf client and backend with JWT integration
+
+// --- Backend Microservice ---
+// Pom.xml dependencies:
+// Add spring boot web, spring security, and JJWT dependencies
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>0.9.1</version>
+    </dependency>
+</dependencies>
+
+// JwtUtil.java
+package com.example.jwtbackend.util;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import java.util.Date;
+
+public class JwtUtil {
+    private static final String SECRET_KEY = "your-secret-key";
+
+    public static String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+
+    public static String validateToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+}
+
+// AuthController.java
+package com.example.jwtbackend.controller;
+
+import com.example.jwtbackend.util.JwtUtil;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        String username = credentials.get("username");
+        String password = credentials.get("password");
+
+        if ("user".equals(username) && "password".equals(password)) {
+            String token = JwtUtil.generateToken(username);
+            return ResponseEntity.ok(Map.of("token", token));
+        }
+
+        return ResponseEntity.status(401).body("Invalid credentials");
+    }
+}
+
+// JwtInterceptor.java
+package com.example.jwtbackend.interceptor;
+
+import com.example.jwtbackend.util.JwtUtil;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@Component
+public class JwtInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
+        }
+
+        String jwt = token.substring(7);
+        try {
+            String username = JwtUtil.validateToken(jwt);
+            request.setAttribute("username", username);
+            return true;
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
+        }
+    }
+}
+
+// WebConfig.java
+package com.example.jwtbackend.config;
+
+import com.example.jwtbackend.interceptor.JwtInterceptor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    private final JwtInterceptor jwtInterceptor;
+
+    public WebConfig(JwtInterceptor jwtInterceptor) {
+        this.jwtInterceptor = jwtInterceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor).addPathPatterns("/api/**");
+    }
+}
+
+// --- Frontend Thymeleaf Client ---
+
+// Pom.xml dependencies
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+</dependencies>
+
+// LoginController.java
+package com.example.thymeleafclient.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
+
+@Controller
+public class LoginController {
+
+    private final WebClient webClient;
+
+    public LoginController(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://localhost:8081/auth").build();
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password, Model model) {
+        try {
+            Map<String, String> response = webClient.post()
+                    .uri("/login")
+                    .bodyValue(Map.of("username", username, "password", password))
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            String token = response.get("token");
+            model.addAttribute("message", "Login successful! Token: " + token);
+        } catch (Exception e) {
+            model.addAttribute("message", "Invalid credentials");
+        }
+
+        return "result";
+    }
+}
+
+// login.html (Thymeleaf Template)
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form th:action="@{/login}" method="post">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <br><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+
+// result.html (Thymeleaf Template)
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login Result</title>
+</head>
+<body>
+    <h1>Login Result</h1>
+    <p th:text="${message}"></p>
+    <a href="/">Go Back</a>
+</body>
+</html>
+GAIROLA-DB =
+  DESCRIPTION =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1555))
+  (CONNECT_DATA =
+    (SERVICE_NAME = XEPDB1)
+  )
+)
+
+
+DESCRIPTION =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1555))
+  (CONNECT_DATA =
+    (SERVICE_NAME = XEPDB1)
+  )
+)
+
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' GAIROLA-DB
+
+Start-Process -FilePath "C:\Users\Admin\Desktop\Docker Desktop Installer.exe" -ArgumentList "install", "--installation-dir=E:\Docker" -Wait -NoNewWindow
+
+docker run --name gairola-mysql -e "MYSQL_ROOT_PASSWORD=gairola" -e "MYSQL_DATABASE=gairola_db" -e "MYSQL_USER=gairola" -e "MYSQL_PASSWORD=gairola" -p 3306:3306 -d mysql:latest
+
+933596764396
+Sha352
+
+
+***********************
+
+docker exec -it GAIROLA-DB sqlplus system/gairola@localhost/XEPDB1
+CREATE USER GAIROLA IDENTIFIED BY "Gairola1981";
+GRANT CONNECT, RESOURCE TO GAIROLA;
+GRANT UNLIMITED TABLESPACE TO GAIROLA;
+docker exec -it GAIROLA-DB sqlplus GAIROLA/Gairola1981@localhost/XEPDB1
+
+
+ALTER USER GAIROLA IDENTIFIED BY Gairola1981";
+
+
+
+
+GRANT CREATE SESSION TO GAIROLA;
+GRANT CREATE TABLE TO GAIROLA;
+GRANT UNLIMITED TABLESPACE TO GAIROLA;
+GRANT DBA TO GAIROLA;

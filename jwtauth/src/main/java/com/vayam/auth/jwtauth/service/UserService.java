@@ -32,7 +32,7 @@ public class UserService {
     }
     @Transactional
     public UserRegistrationDto registerUser(UserRegistrationDto  userDto) {
-
+        System.out.println("UserRegistrationDto !");
         Optional<User> existingUser ;
         User user;
        existingUser = userRepository.findById(userDto.getId());
