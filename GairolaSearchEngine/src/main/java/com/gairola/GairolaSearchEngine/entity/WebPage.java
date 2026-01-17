@@ -1,67 +1,78 @@
 package com.gairola.GairolaSearchEngine.entity;
 
-
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "web_pages")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class WebPage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "url", length = 2000, nullable = false)
     private String url;
 
+    @Column(name = "title", length = 500)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "content", columnDefinition = "CLOB")
     private String content;
 
-    private int depth;
+    @Column(name = "depth", nullable = false)
+    private int depth = 0;
 
+    @Column(name = "scraped_at", nullable = false)
     private LocalDateTime scrapedAt = LocalDateTime.now();
 
-    public String getUrl() {
-        return url;
-    }
+    // Transient - computed during scraping, not persisted
+    @Transient
+    private List<String> childLinks = new ArrayList<>();
 
-    public void setUrl(String url) {
+    // Default constructor for JPA
+    public WebPage(String url) {
         this.url = url;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
+    // Convenience constructors
+    public WebPage(String url, String title, String content, int depth) {
+        this.url = url;
         this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
         this.content = content;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
-
-    public void setDepth(int depth) {
         this.depth = depth;
+        this.scrapedAt = LocalDateTime.now();
     }
 
-    public LocalDateTime getScrapedAt() {
-        return scrapedAt;
+    // Business methods
+    public boolean isHomepage() {
+        return depth == 0;
     }
 
-    public void setScrapedAt(LocalDateTime scrapedAt) {
-        this.scrapedAt = scrapedAt;
+    public String getDomain() {
+        return url.replaceAll("https?://([^/]+).*", "$1");
+    }
+
+    public String getSnippet(int maxLength) {
+        if (content == null || content.isEmpty()) return "";
+        return content.length() > maxLength
+                ? content.substring(0, maxLength).trim() + "..."
+                : content.trim();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("WebPage{id=%d, title='%s', url='%s', depth=%d}",
+                id, title, url, depth);
     }
 }

@@ -8,11 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-
-@Service
+import java.util.Optional;@Service
 public class SearchService {
-
     private final WebPageRepository repo;
 
     public SearchService(WebPageRepository repo) {
@@ -21,46 +18,35 @@ public class SearchService {
 
     public SearchResult search(String query, int page) {
         if (query == null || query.trim().isEmpty()) {
-            return new SearchResult(List.of(), null, 0);
+            return new SearchResult(List.of(),
+                    generateSummary(0, query, repo.count()), repo.count());
         }
 
+        String searchQuery = "%" + query.trim().toLowerCase() + "%";
         var pageable = PageRequest.of(page, 20);
-        var resultsPage = repo.findByContentOrTitleContainingIgnoreCase(query.trim(), pageable);
+        var resultsPage = repo.searchPages(searchQuery, pageable);  // ✅ Native query
 
-        // ✅ Convert Page to List for Thymeleaf
         List<WebPage> results = resultsPage.getContent();
-        String summary = generateSummary(resultsPage.getTotalElements(), query);
+        String summary = generateSummary(resultsPage.getTotalElements(), query, repo.count());
 
-        return new SearchResult(results, summary, resultsPage.getTotalElements());
+        return new SearchResult(results, summary, repo.count());
     }
 
-    private String generateSummary(long count, String query) {
-        if (count == 0) return null;
-
-        return String.format("Found %d pages about \"%s\". Top results include Spring Boot tutorials, Java documentation, and web development resources.",
-                count, query);
-    }
-
-    // ✅ FIXED: Proper record (Java 17+) OR regular class
-    public record SearchResult(List<WebPage> results, String summary, long total) {}
-
-    // OR use this regular class if Java < 17:
-    /*
-    public static class SearchResult {
-        private final List<WebPage> results;
-        private final String summary;
-        private final long total;
-
-        public SearchResult(List<WebPage> results, String summary, long total) {
-            this.results = results;
-            this.summary = summary;
-            this.total = total;
+    private String generateSummary(long foundCount, String query, long totalIndexed) {
+        if (foundCount == 0) {
+            return String.format("""
+                    🔍 No results for "%s" (%d/%d indexed pages).
+                    
+                    💡 **Quick fixes:**
+                    • Try "spring", "html", "thymeleaf", or "boot"
+                    • Index more sites using buttons below
+                    • Check spelling
+                    
+                    📊 %d pages ready!""",
+                    query, foundCount, totalIndexed, totalIndexed);
         }
-
-        // Getters
-        public List<WebPage> getResults() { return results; }
-        public String getSummary() { return summary; }
-        public long getTotal() { return total; }
+        return String.format("✅ Found %d/%d pages about \"%s\".", foundCount, totalIndexed, query);
     }
-    */
+
+    public record SearchResult(List<WebPage> results, String summary, long total) {}
 }
