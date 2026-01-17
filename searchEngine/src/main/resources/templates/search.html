@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Search Engine - Index & Search Websites</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-primary: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-light: #e2e8f0;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .main-container { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; }
+
+        .logo {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline { font-size: 1.25rem; color: var(--text-secondary); font-weight: 400; }
+
+        .search-section {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-light);
+            margin: 3rem 0;
+        }
+
+        .search-input {
+            border: 2px solid var(--border-light);
+            border-radius: 20px;
+            padding: 1.3rem 1.8rem;
+            font-size: 1.15rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fefefe;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 8px 30px rgba(0,0,0,0.1);
+            outline: none;
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .search-btn, .web-search-btn {
+            border-radius: 20px;
+            padding: 1.3rem 2.8rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 160px;
+        }
+
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5); }
+
+        .web-search-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .web-search-btn:hover { background: #667eea; color: white; transform: translateY(-3px); }
+
+        .ai-summary {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border-left: 6px solid #667eea;
+            margin: 3rem 0;
+            box-shadow: 0 15px 50px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-light);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+
+        .result-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .result-title a { color: inherit; text-decoration: none; }
+        .result-title a:hover { text-decoration: underline; }
+
+        .result-url {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            word-break: break-word;
+            margin-bottom: 1.5rem;
+            background: #f8fafc;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            border-right: 4px solid #e2e8f0;
+        }
+
+        .result-snippet {
+            color: #475569;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-light);
+            gap: 1rem;
+        }
+
+        .citation {
+            background: linear-gradient(135deg, #10b98120, #05966920);
+            border-radius: 16px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            color: #059669;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 3rem;
+            background: var(--card-bg);
+            border-radius: 32px;
+            border: 2px dashed var(--border-light);
+        }
+
+        .empty-icon { font-size: 8rem; color: #cbd5e1; margin-bottom: 2rem; }
+
+        .url-textarea {
+            border: 2px solid var(--border-light);
+            border-radius: 20px;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .url-textarea:focus {
+            border-color: var(--success);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            outline: none;
+        }
+
+        .url-count {
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .search-section { padding: 2rem 1.5rem; margin: 2rem 0; }
+            .result-card { padding: 2rem 1.5rem; margin-bottom: 1.5rem; }
+            .result-meta { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <!-- Header -->
+    <div class="text-center mb-6">
+        <h1 class="logo mb-3">🔍 AI Search</h1>
+        <p class="tagline mb-0">Index websites • Search content • Instant results</p>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-section">
+        <form class="mb-0">
+            <div class="input-group">
+                <input type="text"
+                       name="q"
+                       th:value="${query}"
+                       class="form-control search-input"
+                       placeholder="Search indexed content... (Spring Boot, Java, etc.)"
+                       autocomplete="off"/>
+                <button type="submit" formaction="/search" class="search-btn">
+                    <i class="bi bi-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- AI Summary -->
+    <div th:if="${summary}" class="ai-summary">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-warning bg-opacity-20 p-3 rounded-circle me-4">
+                <i class="bi bi-lightbulb-fill fs-1 text-warning"></i>
+            </div>
+            <div>
+                <h4 class="mb-1 fw-semibold">Quick Summary</h4>
+                <p class="fs-5 mb-0 opacity-90" th:text="${summary}"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div th:if="${results != null and !#lists.isEmpty(results)}">
+        <div th:each="result : ${results}" class="result-card">
+            <h5 class="result-title">
+                <a th:href="${result.url}" th:text="${result.title}" target="_blank" rel="noopener"></a>
+            </h5>
+
+            <div class="result-url">
+                <i class="bi bi-link-45deg me-2 text-muted"></i>
+                <span th:text="${result.url}"></span>
+            </div>
+
+            <p class="result-snippet"
+               th:text="${#strings.abbreviate(result.content, 280)}"></p>
+
+            <div class="result-meta">
+                    <span class="citation">
+                        <i class="bi bi-clock me-2"></i>
+                        <span th:text="${#temporals.format(result.scrapedAt, 'MMM dd, yyyy HH:mm')}"></span>
+                    </span>
+                <a th:href="${result.url}" target="_blank" class="btn btn-sm btn-outline-primary px-3">
+                    <i class="bi bi-box-arrow-up-right"></i> Visit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🆕 BATCH INDEXING + TEXT INPUT -->
+    <div th:if="${results == null or #lists.isEmpty(results)}" class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-search"></i>
+        </div>
+        <h2 class="display-5 fw-semibold text-muted mb-4">Ready to Index</h2>
+        <p class="lead text-muted mb-5">Paste websites below (one per line) to search their content:</p>
+
+        <!-- TEXTAREA BATCH FORM -->
+        <form id="batchForm" class="mb-5">
+            <div class="row">
+                <div class="col-12">
+                        <textarea id="urlList" class="form-control url-textarea mb-3" rows="6" placeholder="https://spring.io
+https://example.com
+https://httpbin.org/html
+https://news.ycombinator.com
+https://medium.com
+Paste more websites here...">https://spring.io
+https://example.com
+https://httpbin.org/html</textarea>
+                    <div class="text-end mb-4">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="urlCount">3</span> websites ready
+                            <span class="url-count" id="liveCount"></span>
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-collection-play me-3"></i>
+                        🚀 Index All Websites
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Quick Single Buttons -->
+        <div class="text-center">
+            <div class="row g-3">
+                <div class="col-md-4 col-6">
+                    <a th:href="@{/scrape(url='https://spring.io')}" class="btn btn-outline-primary btn-lg w-100">
+                        <i class="bi bi-spring me-2"></i>Spring
+                    </a>
+                </div>
+                <div class="col-md-4 col-6">
+                    <a th:href="@{/scrape(url='https://example.com')}" class="btn btn-outline-primary btn-lg w-100">
+                        <i class="bi bi-star me-2"></i>Example
+                    </a>
+                </div>
+                <div class="col-md-4 col-12">
+                    <a th:href="@{/scrape(url='https://httpbin.org/html')}" class="btn btn-outline-secondary btn-lg w-100">
+                        <i class="bi bi-code-slash me-2"></i>Test HTML
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🆕 BATCH JAVASCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Auto-focus search
+    document.querySelector('input[name="q"]').focus();
+
+    // Live URL counter
+    const urlList = document.getElementById('urlList');
+    const urlCount = document.getElementById('urlCount');
+    const liveCount = document.getElementById('liveCount');
+
+    urlList.addEventListener('input', function() {
+        const urls = this.value.trim().split('\n')
+            .map(u => u.trim()).filter(u => u && u.startsWith('http'));
+        urlCount.textContent = urls.length;
+        liveCount.textContent = urls.length > 0 ? `(${urls.length})` : '';
+        liveCount.className = urls.length > 0 ? 'url-count' : '';
+    });
+
+    // Batch submit
+    document.getElementById('batchForm').onsubmit = async function(e) {
+        e.preventDefault();
+
+        const urls = urlList.value.trim().split('\n')
+            .map(u => u.trim()).filter(u => u && u.startsWith('http'));
+
+        if (urls.length === 0) {
+            alert('Please enter at least one URL!');
+            return;
+        }
+
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2 spinner-border spinner-border-sm"></i>Indexing...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/batch-scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(urls)
+            });
+
+            if (response.ok) {
+                alert(`✅ Successfully indexed ${urls.length} websites!\nRefresh and search above.`);
+                location.reload();
+            } else {
+                alert('❌ Some websites failed. Check console.');
+            }
+        } catch (error) {
+            alert('❌ Network error. Check console for details.');
+            console.error(error);
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    // Smooth scroll to results
+    if (window.location.search.includes('q=')) {
+        setTimeout(() => {
+            document.querySelector('.result-card, .empty-state')?.scrollIntoView({
+                behavior: 'smooth', block: 'start'
+            });
+        }, 800);
+    }
+</script>
+</body>
+</html>

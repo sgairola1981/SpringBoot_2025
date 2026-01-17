@@ -434,11 +434,13 @@ Sha352
 
 ***********************
 
-docker exec -it GAIROLA-DB sqlplus system/gairola@localhost/XEPDB1
+docker exec -it GAIROLA-DB sqlplus gairola/gairola@localhost/XEPDB1
 CREATE USER GAIROLA IDENTIFIED BY "Gairola1981";
-GRANT CONNECT, RESOURCE TO GAIROLA;
-GRANT UNLIMITED TABLESPACE TO GAIROLA;
-docker exec -it GAIROLA-DB sqlplus GAIROLA/Gairola1981@localhost/XEPDB1
+
+CREATE USER TEST IDENTIFIED BY "Gairola1981";
+GRANT CONNECT, RESOURCE TO TEST;
+GRANT UNLIMITED TABLESPACE TO TEST;
+docker exec -it GAIROLA-DB1 sqlplus TEST/Gairola1981@localhost/XEPDB1
 
 
 ALTER USER GAIROLA IDENTIFIED BY Gairola1981";
@@ -452,10 +454,24 @@ GRANT UNLIMITED TABLESPACE TO GAIROLA;
 GRANT DBA TO GAIROLA;
 
 
+
+GRANT CREATE SESSION TO gairola;
+
 system/gairola@XEPDB1 as sysdba
 
+docker exec -it GAIROLA-DB1 sqlplus / as sysdba
 
 /**********************************************************
+
+docker pull gvenzl/oracle-xe:21-full
+
+docker run -d --name GAIROLA-DB `
+  -p 1521:1521 `
+  -e ORACLE_PASSWORD=gairola `
+  -e APP_USER=gairola `
+  -e APP_USER_PASSWORD=gairola `
+  gvenzl/oracle-xe:21-full
+
 
 docker exec -it GAIROLA-DB bash
 
@@ -475,3 +491,7 @@ ALTER USER GAIROLA QUOTA UNLIMITED ON USERS;
 EXIT;
 
 /*********************************************************
+
+
+
+CREATE USER TEST IDENTIFIED BY "Gairola1981";

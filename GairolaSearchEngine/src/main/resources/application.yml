@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: GairolaSearchEngine
+  thymeleaf:
+    cache: false
+    mode: HTML
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1522:XE
+    username: TEST
+    password: Gairola1981
+  jpa:
+    hibernate:
+      ddl-auto: update   # NEVER use create-drop on Oracle
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect  # Critical: Oracle 11g dialect
+        format_sql: true
+
+server:
+  port: 8888
