@@ -5,9 +5,9 @@ spring:
     cache: false
     mode: HTML
   datasource:
-    url: jdbc:oracle:thin:@localhost:1522:XE
-    username: TEST
-    password: Gairola1981
+    url: jdbc:oracle:thin:@localhost:1521:XE
+    username: hr
+    password: vayam
   jpa:
     hibernate:
       ddl-auto: update   # NEVER use create-drop on Oracle

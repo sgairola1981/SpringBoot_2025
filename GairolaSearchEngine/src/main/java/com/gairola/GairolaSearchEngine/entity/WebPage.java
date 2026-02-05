@@ -17,7 +17,8 @@ import java.util.List;
 public class WebPage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "web_pages_seq")
+    @SequenceGenerator(name = "web_pages_seq", sequenceName = "web_pages_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "url", length = 2000, nullable = false)
