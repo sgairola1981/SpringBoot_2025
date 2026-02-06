@@ -3,6 +3,8 @@ package com.gairola.GairolaSearchEngine.controller;
 import com.gairola.GairolaSearchEngine.entity.WebPage;
 import com.gairola.GairolaSearchEngine.service.SearchService;
 import com.gairola.GairolaSearchEngine.service.WebScraperService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,8 @@ public class WebController {
         return "index";
     }
 
-    @GetMapping("/search")
-    public String search(@RequestParam(required = false) String q,
+    @GetMapping("/searchN")
+    public String searchN(@RequestParam(required = false) String q,
                          @RequestParam(defaultValue = "0") int page,
                          Model model) {
         if (q != null && !q.trim().isEmpty()) {
@@ -36,6 +38,14 @@ public class WebController {
             model.addAttribute("total", result.total());
             model.addAttribute("query", q);
         }
+        return "index";
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam String q, Pageable pageable, Model model) {
+        Page<WebPage> results = searchService.search(q, pageable);
+        model.addAttribute("results", results);
+        model.addAttribute("query", q);
         return "index";
     }
 

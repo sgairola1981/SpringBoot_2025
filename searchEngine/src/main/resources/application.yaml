@@ -24,7 +24,7 @@ spring:
         trace: true              # ✅ FIX 2: Debug mode
 
 server:
-  port: 8080
+  port: 8888
 logging:
   level:
     org.h2: DEBUG            # ✅ FIX 3: See H2 logs

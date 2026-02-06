@@ -4,7 +4,9 @@ package com.gairola.GairolaSearchEngine.service;
 import com.gairola.GairolaSearchEngine.entity.WebPage;
 import com.gairola.GairolaSearchEngine.repository.WebPageRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,28 @@ public class SearchService {
     public SearchService(WebPageRepository repo) {
         this.repo = repo;
     }
+
+
+    //********************************
+
+    public Page<WebPage> search(String query, Pageable pageable) {
+        long offset = pageable.getOffset();
+        int pageSize = pageable.getPageSize();
+
+        List<WebPage> content = repo.searchPagesManual(
+                "%" + query.toLowerCase() + "%",  // Add % wildcards
+                offset,
+                offset + pageSize
+        );
+
+        long total = repo.countByQuery("%" + query.toLowerCase() + "%");
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+
+
+    //*************************************
 
     public SearchResult search(String query, int page) {
         if (query == null || query.trim().isEmpty()) {

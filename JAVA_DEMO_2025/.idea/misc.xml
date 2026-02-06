@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../demo/pom.xml" />
         <option value="$PROJECT_DIR$/../GairolaSearchEngine/pom.xml" />
+        <option value="$PROJECT_DIR$/../searchEngine/pom.xml" />
       </list>
     </option>
   </component>

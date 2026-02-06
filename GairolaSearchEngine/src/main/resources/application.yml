@@ -8,6 +8,7 @@ spring:
     url: jdbc:oracle:thin:@localhost:1521:XE
     username: hr
     password: vayam
+    driver-class-name: oracle.jdbc.OracleDriver  # ✅ Add this
   jpa:
     hibernate:
       ddl-auto: update   # NEVER use create-drop on Oracle
