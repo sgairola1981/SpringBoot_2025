@@ -37,6 +37,10 @@ public class WebPage {
     @Column(name = "scraped_at", nullable = false)
     private LocalDateTime scrapedAt = LocalDateTime.now();
 
+    // ✅ NEW: Session tracking (36 chars)
+    @Column(name = "session_id", length = 64)
+    private String sessionId;
+
     // Transient - computed during scraping, not persisted
     @Transient
     private List<String> childLinks = new ArrayList<>();
@@ -46,34 +50,31 @@ public class WebPage {
         this.url = url;
     }
 
-    // Convenience constructors
+    // Convenience constructors (UPDATED)
     public WebPage(String url, String title, String content, int depth) {
+        this(url, title, content, depth, null);
+    }
+
+    public WebPage(String url, String title, String content, int depth, String sessionId) {
         this.url = url;
         this.title = title;
         this.content = content;
         this.depth = depth;
         this.scrapedAt = LocalDateTime.now();
+        this.sessionId = sessionId;  // ✅ Set sessionId
     }
 
-    // Business methods
-    public boolean isHomepage() {
-        return depth == 0;
-    }
-
-    public String getDomain() {
-        return url.replaceAll("https?://([^/]+).*", "$1");
-    }
-
+    // Business methods (unchanged)
+    public boolean isHomepage() { return depth == 0; }
+    public String getDomain() { return url.replaceAll("https?://([^/]+).*", "$1"); }
     public String getSnippet(int maxLength) {
         if (content == null || content.isEmpty()) return "";
-        return content.length() > maxLength
-                ? content.substring(0, maxLength).trim() + "..."
-                : content.trim();
+        return content.length() > maxLength ? content.substring(0, maxLength).trim() + "..." : content.trim();
     }
 
     @Override
     public String toString() {
-        return String.format("WebPage{id=%d, title='%s', url='%s', depth=%d}",
-                id, title, url, depth);
+        return String.format("WebPage{id=%d, title='%s', url='%s', depth=%d, sessionId='%s'}",
+                id, title, url, depth, sessionId);
     }
 }

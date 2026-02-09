@@ -3,74 +3,98 @@ package com.gairola.GairolaSearchEngine.service;
 
 import com.gairola.GairolaSearchEngine.entity.WebPage;
 import com.gairola.GairolaSearchEngine.repository.WebPageRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;@Service
+import java.util.Optional;
+@Service
 public class SearchService {
+
     private final WebPageRepository repo;
 
     public SearchService(WebPageRepository repo) {
         this.repo = repo;
     }
 
-
-    //********************************
-
     public Page<WebPage> search(String query, Pageable pageable) {
+
         long offset = pageable.getOffset();
         int pageSize = pageable.getPageSize();
 
+        String clean = query.toLowerCase().trim();
+
         List<WebPage> content = repo.searchPagesManual(
-                "%" + query.toLowerCase() + "%",  // Add % wildcards
+                clean,                    // for DBMS_LOB.INSTR
+                "%" + clean + "%",        // for LIKE title
                 offset,
                 offset + pageSize
         );
 
-        long total = repo.countByQuery("%" + query.toLowerCase() + "%");
+        long total = repo.countByQuery(
+                clean,
+                "%" + clean + "%"
+        );
 
         return new PageImpl<>(content, pageable, total);
     }
 
+    // ----------------------------
 
-
-    //*************************************
 
     public SearchResult search(String query, int page) {
-        if (query == null || query.trim().isEmpty()) {
+
+        if (query == null || query.isBlank()) {
+            long total = repo.count();
             return new SearchResult(List.of(),
-                    generateSummary(0, query, repo.count()), repo.count());
+                    generateSummary(0, query, total), total);
         }
 
-        String searchQuery = "%" + query.trim().toLowerCase() + "%";
-        var pageable = PageRequest.of(page, 20);
-        var resultsPage = repo.searchPages(searchQuery, pageable);  // ✅ Native query
+        String clean = query.toLowerCase().trim();
+        Pageable pageable = PageRequest.of(page, 20);
 
-        List<WebPage> results = resultsPage.getContent();
-        String summary = generateSummary(resultsPage.getTotalElements(), query, repo.count());
+        Page<WebPage> resultsPage =
+                repo.searchPages(clean, "%" + clean + "%", pageable);
 
-        return new SearchResult(results, summary, repo.count());
+        String summary = generateSummary(
+                resultsPage.getTotalElements(), query, repo.count());
+
+        return new SearchResult(
+                resultsPage.getContent(),
+                summary,
+                repo.count()
+        );
     }
 
-    private String generateSummary(long foundCount, String query, long totalIndexed) {
-        if (foundCount == 0) {
-            return String.format("""
-                    🔍 No results for "%s" (%d/%d indexed pages).
-                    
-                    💡 **Quick fixes:**
-                    • Try "spring", "html", "thymeleaf", or "boot"
-                    • Index more sites using buttons below
-                    • Check spelling
-                    
-                    📊 %d pages ready!""",
-                    query, foundCount, totalIndexed, totalIndexed);
+    private String generateSummary(long found, String query, long total) {
+        if (found == 0) {
+            return "🔍 No results for \"" + query + "\" (" + total + " indexed pages)";
         }
-        return String.format("✅ Found %d/%d pages about \"%s\".", foundCount, totalIndexed, query);
+        return "✅ Found " + found + "/" + total + " pages for \"" + query + "\"";
     }
+
+    public Page<WebPage> searchOracle(String q, int page, int size) {
+
+        int start = page * size;
+        int end   = start + size;
+
+        List<WebPage> data = repo.searchOracle(
+                q,
+                "%" + q + "%",
+                start,
+                end
+        );
+
+        long total = repo.countOracle(
+                q,
+                "%" + q + "%"
+        );
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return new PageImpl<>(data, pageable, total);
+    }
+
 
     public record SearchResult(List<WebPage> results, String summary, long total) {}
 }

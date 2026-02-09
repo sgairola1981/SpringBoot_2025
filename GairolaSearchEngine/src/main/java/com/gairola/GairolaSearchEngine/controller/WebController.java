@@ -24,10 +24,12 @@ public class WebController {
 
     @GetMapping("/")
     public String index(Model model) {
+        model.addAttribute("page", Page.empty());
+        model.addAttribute("query", "");
         return "index";
     }
 
-    @GetMapping("/searchN")
+    @GetMapping("/searchNNNN")
     public String searchN(@RequestParam(required = false) String q,
                          @RequestParam(defaultValue = "0") int page,
                          Model model) {
@@ -40,8 +42,32 @@ public class WebController {
         }
         return "index";
     }
+    @GetMapping("/searchN")
+    public String search(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
 
-    @GetMapping("/search")
+        if (q == null || q.trim().isEmpty()) {
+            model.addAttribute("results", null);
+            model.addAttribute("page", Page.empty());
+            model.addAttribute("query", "");
+            return "index";
+        }
+
+        Page<WebPage> resultPage =
+                searchService.searchOracle(q.trim(), page, size);
+
+        model.addAttribute("results", resultPage.getContent());
+        model.addAttribute("page", resultPage);   // 🔴 REQUIRED for pagination
+        model.addAttribute("query", q);
+
+        return "index";
+    }
+
+    @GetMapping("/search_DATA")
     public String search(@RequestParam String q, Pageable pageable, Model model) {
         Page<WebPage> results = searchService.search(q, pageable);
         model.addAttribute("results", results);

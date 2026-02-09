@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
@@ -14,11 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -28,131 +26,154 @@ public class DepthScraperService {
     private final WebPageRepository repository;
     private final @Qualifier("crawlerExecutor") TaskExecutor executor;
 
+    /** Prevent duplicate crawling */
+    private final Set<String> visited = ConcurrentHashMap.newKeySet();
+
+    /** 🔍 In-memory search index (keyword -> URLs) */
+    private final Map<String, Set<String>> searchIndex = new ConcurrentHashMap<>();
+
     public void startDepthIndex(String rootUrl, HttpSession session) {
+
+        visited.clear();
+        searchIndex.clear();
+
+        DepthIndexStatus status = new DepthIndexStatus(rootUrl, 3, 100);
+        status.setStatus("running");
+        session.setAttribute("depthIndex", status);
+
+        // ✅ Run root crawl with completion safety net
         executor.execute(() -> {
-            System.out.println("startDepthIndex********************* -> " + rootUrl);
-            DepthIndexStatus status = new DepthIndexStatus(rootUrl, 3, 100);
-            session.setAttribute("depthIndex", status);
-            crawlSite(rootUrl, 0, status, session);
+            try {
+                crawl(rootUrl, 0, status, session);
+            } finally {
+                // ✅ Safety net: always complete if not stopped
+                if (!"completed".equals(status.getStatus()) &&
+                        !"stopped".equals(status.getStatus())) {
+                    status.setStatus("completed");
+                    session.setAttribute("depthIndex", status);
+                    log.info("✅ Depth indexing completed: {}", rootUrl);
+                }
+            }
         });
     }
 
-    private void crawlSite(String url, int depth, DepthIndexStatus status, HttpSession session) {
-        System.out.println("crawlSite[" + depth + "] ********************* " + url);
+    private void crawl(String url, int depth,
+                       DepthIndexStatus status,
+                       HttpSession session) {
 
-        session.setAttribute("currentUrl", url);
-        session.setAttribute("currentDepth", depth);
-        session.setAttribute("currentTitle", "Loading...");
-
-        if (status.getTotalPages().get() >= status.getMaxPages() || depth > status.getMaxDepth()) {
-            status.setStatus("completed");
+        // ✅ STOP CONDITIONS FIRST
+        if ("stopped".equals(status.getStatus()) ||
+                "completed".equals(status.getStatus())) {
             return;
         }
 
-        // 🔥 THREAD-SAFE UPDATE/INSERT
-        synchronized (url.intern()) {
-            Optional<WebPage> existingOpt = repository.findByUrl(url);
-            WebPage page;
+        if (depth > status.getMaxDepth()) return;
 
-            if (existingOpt.isPresent()) {
-                // ✅ UPDATE existing (fresher content)
-                System.out.println("🔄 Updating existing: " + url);
-                page = existingOpt.get();
-                WebPage freshData = scrape(url, depth);
-                if (freshData != null) {
-                    page.setTitle(freshData.getTitle());
-                    page.setContent(freshData.getContent());
-                    page.setDepth(Math.max(page.getDepth(), depth));  // Keep deepest
-                    page.setScrapedAt(LocalDateTime.now());
-                    repository.save(page);
-
-                    // Refresh in status
-                    status.getIndexedPages().removeIf(p -> p.getUrl().equals(url));
-                    status.getIndexedPages().add(page);
-                    session.setAttribute("currentTitle", page.getTitle());
-
-                    log.info("🔄 Updated: {} (D{}) - Fresh content", url, page.getDepth());
-                }
-                updateStatus(status, session);
-                return;
-            }
-
-            // ✅ NEW page
-            page = scrape(url, depth);
-            if (page != null) {
-                repository.save(page);
-                status.getIndexedPages().add(page);
-                status.getTotalPages().incrementAndGet();
-                session.setAttribute("currentTitle", page.getTitle());
-                log.info("✅ NEW: {} (D{}) [{} total]", url, depth, status.getTotalPages().get());
-
-                // Spawn children
-                if (depth < status.getMaxDepth()) {
-                    List<String> children = getInternalLinks(page, status.getRootUrl());
-                    children.stream().limit(3)
-                            .forEach(child -> executor.execute(() ->
-                                    crawlSite(child, depth + 1, status, session)));
-                }
-            }
+        // ✅ COMPLETE WHEN MAX REACHED
+        if (status.getTotalPages().get() >= status.getMaxPages()) {
+            status.setStatus("completed");
+            session.setAttribute("depthIndex", status);
+            log.info("✅ Max pages reached: {}", status.getMaxPages());
+            return;
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {}
-    }
+        if (!visited.add(url)) return;
 
-    private void updateStatus(DepthIndexStatus status, HttpSession session) {
-        long startTimeMs = status.getStartTime().toInstant(ZoneOffset.UTC).toEpochMilli();
-        status.updateProgress(startTimeMs);
-        session.setAttribute("depthIndex", status);
-    }
-
-    private WebPage scrape(String url, int depth) {
         try {
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (GairolaSearchBot/1.0)")
                     .timeout(10000)
                     .get();
 
-            WebPage page = new WebPage();
-            page.setUrl(url);
-            page.setTitle(truncate(doc.title(), 200));
-            page.setContent(truncate(doc.body().text(), 5000));
-            page.setDepth(depth);
-            page.setScrapedAt(LocalDateTime.now());
-            return page;
+            WebPage page = saveOrUpdate(url, depth, doc);
+
+            status.getIndexedPages().add(page);
+            status.getTotalPages().incrementAndGet();
+
+            indexPage(page);           // 🔍 build search index
+            updateProgress(status, session);
+
+            // ✅ Only recurse if not completed
+            if (depth < status.getMaxDepth() && !"completed".equals(status.getStatus())) {
+                for (String link : extractInternalLinks(doc, status.getRootUrl())) {
+                    executor.execute(() ->
+                            crawl(link, depth + 1, status, session));
+                }
+            }
 
         } catch (Exception e) {
-            log.error("Scrape failed: {}", url, e);
-            return null;
+            log.warn("❌ Failed to crawl: {}", url, e);
         }
     }
 
-    private List<String> getInternalLinks(WebPage page, String rootDomain) {
-        try {
-            Document doc = Jsoup.connect(page.getUrl()).get();
-            Elements links = doc.select("a[href]");
-            String baseDomain = rootDomain.replaceAll("https?://([^/]+).*", "$1");
+    // -------------------------------------------------
+    // 🔍 SEARCH INDEX
+    // -------------------------------------------------
 
-            return links.stream()
-                    .map(link -> link.attr("abs:href"))
-                    .filter(this::isValidLink)
-                    .filter(link -> link.contains(baseDomain))
-                    .distinct()
-                    .limit(10)
-                    .collect(Collectors.toList());
+    public Set<String> search(String keyword) {
+        if (keyword == null || keyword.isBlank()) return Set.of();
+        return searchIndex.getOrDefault(keyword.toLowerCase(), Set.of());
+    }
 
-        } catch (Exception e) {
-            log.warn("Link extraction failed: {}", page.getUrl(), e);
-            return new ArrayList<>();
+    private void indexPage(WebPage page) {
+        String text = (page.getTitle() + " " + page.getContent()).toLowerCase();
+        String[] tokens = text.split("\\W+");
+
+        for (String token : tokens) {
+            if (token.length() < 3) continue;
+            searchIndex.computeIfAbsent(token, k -> ConcurrentHashMap.newKeySet())
+                    .add(page.getUrl());
         }
     }
 
-    private boolean isValidLink(String link) {
-        return link.startsWith("http") && link.length() < 2000 && !link.contains("#");
+    // -------------------------------------------------
+    // HELPERS
+    // -------------------------------------------------
+
+    private WebPage saveOrUpdate(String url, int depth, Document doc) {
+        WebPage page = repository.findByUrl(url).orElse(new WebPage());
+
+        page.setUrl(url);
+        page.setTitle(truncate(doc.title(), 200));
+        page.setContent(truncate(doc.body().text(), 5000));
+        page.setDepth(depth);
+        page.setScrapedAt(LocalDateTime.now());
+
+        repository.save(page);
+        log.info("✅ Indexed [D{}] {}", depth, url);
+
+        return page;
+    }
+
+    private List<String> extractInternalLinks(Document doc, String rootUrl) {
+        String domain = rootUrl.replaceAll("https?://([^/]+).*", "$1");
+        Elements links = doc.select("a[href]");
+
+        return links.stream()
+                .map(link -> link.attr("abs:href"))
+                .filter(this::isValid)
+                .filter(abs -> abs.contains(domain))
+                .distinct()
+                .limit(10)
+                .toList();
+    }
+
+    private boolean isValid(String url) {
+        return url.startsWith("http")
+                && !url.contains("#")
+                && url.length() < 2000;
+    }
+
+    private void updateProgress(DepthIndexStatus status, HttpSession session) {
+        long start = status.getStartTime()
+                .toInstant(ZoneOffset.UTC)
+                .toEpochMilli();
+        status.updateProgress(start);
+        session.setAttribute("depthIndex", status);
     }
 
     private String truncate(String text, int max) {
-        return text != null && text.length() > max ? text.substring(0, max) + "..." : text;
+        if (text == null) return "";
+        return text.length() > max ? text.substring(0, max) + "..." : text;
     }
 }
