@@ -65,12 +65,6 @@ public interface WebPageRepository extends JpaRepository<WebPage, Long> {
             @Param("likeQuery") String likeQuery,
             Pageable pageable
     );
-    @Query(value = """
-        SELECT COUNT(*) FROM web_pages w 
-        WHERE LOWER(DBMS_LOB.SUBSTR(w.content, 4000, 1)) LIKE LOWER(:query) 
-           OR LOWER(w.title) LIKE LOWER(:query)
-        """, nativeQuery = true)
-    long countByQuery(@Param("query") String query);
 
     // ✅ Stats
     long countByDepth(int depth);
@@ -92,19 +86,7 @@ public interface WebPageRepository extends JpaRepository<WebPage, Long> {
     List<WebPage> findRecentManual(@Param("offset") int offset, @Param("limit") int limit);
 
     Optional<WebPage> findByUrl(String url);
-    @Query(value = """
-        SELECT * FROM web_pages w 
-        WHERE LOWER(DBMS_LOB.SUBSTR(w.content, 4000, 1)) LIKE LOWER(:query) 
-           OR LOWER(w.title) LIKE LOWER(:query)
-        ORDER BY w.scraped_at DESC
-        """,
-            countQuery = """
-        SELECT COUNT(*) FROM web_pages w 
-        WHERE LOWER(DBMS_LOB.SUBSTR(w.content, 4000, 1)) LIKE LOWER(:query) 
-           OR LOWER(w.title) LIKE LOWER(:query)
-        """,
-            nativeQuery = true)
-    Page<WebPage> searchPages(@Param("query") String query, Pageable pageable);
+
     // ✅ Add this method (replaces findByUrl)
     @Query("SELECT w FROM WebPage w WHERE w.url = :url")
     List<WebPage> findByUrlStartingWith(@Param("url") String url);
@@ -152,10 +134,44 @@ public interface WebPageRepository extends JpaRepository<WebPage, Long> {
     // ✅ COUNT QUERY (THIS WAS MISSING)
     @Query(value = """
     SELECT COUNT(*)
-    FROM WEB_PAGE
-    WHERE TITLE LIKE :q OR DESCRIPTION LIKE :q2
+    FROM web_pages
+    WHERE TITLE LIKE :q OR TITLE LIKE :q2
 """, nativeQuery = true)
     long countOracle(@Param("q") String q,
                      @Param("q2") String q2);
+
+    @Query(
+            value = """
+    SELECT *
+    FROM (
+        SELECT t.*, ROWNUM rn
+        FROM (
+            SELECT *
+            FROM web_pages
+            WHERE DBMS_LOB.INSTR(content, :query) > 0
+            ORDER BY scraped_at DESC
+        ) t
+        WHERE ROWNUM <= :endRow
+    )
+    WHERE rn > :startRow
+  """,
+            nativeQuery = true
+    )
+    List<WebPage> searchOracle11gNoIndex(
+            @Param("query") String query,
+            @Param("startRow") int startRow,
+            @Param("endRow") int endRow
+    );
+
+    @Query(
+            value = """
+    SELECT COUNT(*)
+    FROM web_pages
+    WHERE DBMS_LOB.INSTR(LOWER(content), LOWER(:query)) > 0
+  """,
+            nativeQuery = true
+    )
+    long countOracle11gNoIndex(@Param("query") String query);
+
 
 }

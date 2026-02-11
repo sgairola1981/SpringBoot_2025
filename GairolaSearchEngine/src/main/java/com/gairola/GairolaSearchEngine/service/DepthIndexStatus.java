@@ -20,7 +20,7 @@ public class DepthIndexStatus {
     private double speed = 0.0;
     private String timeElapsed = "0s";
     private int currentPage = 0;
-    private List<WebPage> indexedPages = new ArrayList<>();
+    private List<WebPage> indexedPages =  new java.util.concurrent.CopyOnWriteArrayList<>();
 
     public DepthIndexStatus() {}
 
@@ -41,7 +41,10 @@ public class DepthIndexStatus {
     }
 
     public int getHomepageCount() {
-        return (int) indexedPages.stream().filter(p -> p.getDepth() == 0).count();
+        return (int) new ArrayList<>(indexedPages)
+                .stream()
+                .filter(p -> p.getDepth() == 0)
+                .count();
     }
 
     public int getDepth1Count() {

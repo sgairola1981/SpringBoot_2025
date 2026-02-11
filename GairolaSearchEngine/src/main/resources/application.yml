@@ -1,22 +1,47 @@
 spring:
   application:
     name: GairolaSearchEngine
+
+  # Thymeleaf - good for dev
   thymeleaf:
     cache: false
     mode: HTML
+
+  # Oracle XE (2026 likely 23c/21c compatible)
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521:XE
+    url: jdbc:oracle:thin:@localhost:1521/XE  # Service name for XE pluggable DB
     username: hr
     password: vayam
-    driver-class-name: oracle.jdbc.OracleDriver  # ✅ Add this
+    driver-class-name: oracle.jdbc.OracleDriver  # ✅ Correct (ojdbc11+)
+    hikari:  # Add connection pool tuning
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000  # Fix Hikari warnings
+
   jpa:
     hibernate:
-      ddl-auto: update   # NEVER use create-drop on Oracle
+      ddl-auto: validate  # Safer than 'update' for production
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.OracleDialect  # Critical: Oracle 11g dialect
+        # Let Hibernate auto-detect (Hibernate 6+ best practice)
+        # dialect: org.hibernate.dialect.OracleDialect  # Auto-detected now
         format_sql: true
+        use_sql_comments: true
+        jdbc:
+          lob:
+            non_contextual_creation: true  # Oracle CLOB fix
 
 server:
   port: 8888
+  error:
+    include-message: always  # Better error pages
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE  # See bound params
+    com.zaxxer.hikari: WARN  # Reduce Hikari noise

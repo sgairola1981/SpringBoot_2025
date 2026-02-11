@@ -73,27 +73,48 @@ public class SearchService {
         return "✅ Found " + found + "/" + total + " pages for \"" + query + "\"";
     }
 
-    public Page<WebPage> searchOracle(String q, int page, int size) {
+    public Page<WebPage> searchOracle(String query, int page, int size) {
 
         int start = page * size;
-        int end   = start + size;
+        int end = start + size;
 
-        List<WebPage> data = repo.searchOracle(
-                q,
-                "%" + q + "%",
+        List<WebPage> results = repo.searchOracle(
+                query,
+                "%" + query.toLowerCase() + "%",
                 start,
                 end
         );
 
         long total = repo.countOracle(
-                q,
-                "%" + q + "%"
+                query,
+                "%" + query.toLowerCase() + "%"
         );
 
-        Pageable pageable = PageRequest.of(page, size);
-
-        return new PageImpl<>(data, pageable, total);
+        return new PageImpl<>(
+                results,
+                PageRequest.of(page, size),
+                total
+        );
     }
+
+
+    public Page<WebPage> searchOracle_Final(String query, Pageable pageable) {
+
+        int size = pageable.getPageSize();
+        int page = pageable.getPageNumber(); // 0-based
+
+        int startRow = page * size;
+        int endRow   = (page + 1) * size;
+
+        List<WebPage> content =
+                repo.searchOracle11gNoIndex(query, startRow, endRow);
+
+        long total = repo.countOracle11gNoIndex(query);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+
 
 
     public record SearchResult(List<WebPage> results, String summary, long total) {}

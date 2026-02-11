@@ -109,4 +109,10 @@ public class DepthIndexController {
             return defaultValue;
         }
     }
+
+    @GetMapping("/depth-status")
+    public String getStatus(Model model) {
+       // model.addAttribute("status", scraperService.getStatus());
+        return "depth-index";
+    }
 }

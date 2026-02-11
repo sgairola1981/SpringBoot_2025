@@ -24,12 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DepthScraperService {
 
     private final WebPageRepository repository;
-    private final @Qualifier("crawlerExecutor") TaskExecutor executor;
+   // private final TaskExecutor crawlerExecutor;
+    private final @Qualifier("crawlerExecutor") TaskExecutor crawlerExecutor;
 
-    /** Prevent duplicate crawling */
     private final Set<String> visited = ConcurrentHashMap.newKeySet();
-
-    /** 🔍 In-memory search index (keyword -> URLs) */
     private final Map<String, Set<String>> searchIndex = new ConcurrentHashMap<>();
 
     public void startDepthIndex(String rootUrl, HttpSession session) {
@@ -37,52 +35,40 @@ public class DepthScraperService {
         visited.clear();
         searchIndex.clear();
 
-        DepthIndexStatus status = new DepthIndexStatus(rootUrl, 3, 100);
+        DepthIndexStatus status = new DepthIndexStatus(rootUrl, 3, 1000);
         status.setStatus("running");
         session.setAttribute("depthIndex", status);
 
-        // ✅ Run root crawl with completion safety net
-        executor.execute(() -> {
+        crawlerExecutor.execute(() -> {
             try {
                 crawl(rootUrl, 0, status, session);
-            } finally {
-                // ✅ Safety net: always complete if not stopped
-                if (!"completed".equals(status.getStatus()) &&
-                        !"stopped".equals(status.getStatus())) {
-                    status.setStatus("completed");
-                    session.setAttribute("depthIndex", status);
-                    log.info("✅ Depth indexing completed: {}", rootUrl);
-                }
+
+                status.setStatus("completed");
+                session.setAttribute("depthIndex", status);
+                log.info("✅ Depth indexing completed: {}", rootUrl);
+
+            } catch (Exception e) {
+                log.error("❌ Error in depth indexing", e);
+                status.setStatus("error");
             }
         });
     }
-
-    private void crawl(String url, int depth,
+    private void crawl(String url,
+                       int depth,
                        DepthIndexStatus status,
                        HttpSession session) {
 
-        // ✅ STOP CONDITIONS FIRST
-        if ("stopped".equals(status.getStatus()) ||
-                "completed".equals(status.getStatus())) {
-            return;
-        }
-
+        if ("stopped".equals(status.getStatus())) return;
         if (depth > status.getMaxDepth()) return;
-
-        // ✅ COMPLETE WHEN MAX REACHED
-        if (status.getTotalPages().get() >= status.getMaxPages()) {
-            status.setStatus("completed");
-            session.setAttribute("depthIndex", status);
-            log.info("✅ Max pages reached: {}", status.getMaxPages());
-            return;
-        }
-
         if (!visited.add(url)) return;
 
         try {
+            log.info("🌐 Crawling depth {} -> {}", depth, url);
+
             Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (GairolaSearchBot/1.0)")
+                    .userAgent("Mozilla/5.0")
                     .timeout(10000)
+                    .ignoreHttpErrors(true)
                     .get();
 
             WebPage page = saveOrUpdate(url, depth, doc);
@@ -90,24 +76,65 @@ public class DepthScraperService {
             status.getIndexedPages().add(page);
             status.getTotalPages().incrementAndGet();
 
-            indexPage(page);           // 🔍 build search index
+            indexPage(page);
             updateProgress(status, session);
 
-            // ✅ Only recurse if not completed
-            if (depth < status.getMaxDepth() && !"completed".equals(status.getStatus())) {
+            // Recursive call WITHOUT executor
+            if (depth < status.getMaxDepth()) {
                 for (String link : extractInternalLinks(doc, status.getRootUrl())) {
-                    executor.execute(() ->
-                            crawl(link, depth + 1, status, session));
+                    crawl(link, depth + 1, status, session);
                 }
             }
 
         } catch (Exception e) {
-            log.warn("❌ Failed to crawl: {}", url, e);
+            log.warn("❌ Failed to crawl: {}", url);
         }
     }
 
+    private void crawl12(String url,
+                       int depth,
+                       DepthIndexStatus status,
+                       HttpSession session) {
+
+        if ("stopped".equals(status.getStatus())) return;
+        if (depth > status.getMaxDepth()) return;
+        if (!visited.add(url)) return;
+
+        crawlerExecutor.execute(() -> {
+
+            try {
+                log.info("🌐 Crawling depth {} -> {}", depth, url);
+
+                Document doc = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                        .header("Accept-Language", "en-US,en;q=0.9")
+                        .timeout(10000)
+                        .ignoreHttpErrors(true)
+                        .get();
+
+                WebPage page = saveOrUpdate(url, depth, doc);
+
+                status.getIndexedPages().add(page);
+                status.getTotalPages().incrementAndGet();
+
+                indexPage(page);
+                updateProgress(status, session);
+
+                // Multi-threaded child crawling
+                if (depth < status.getMaxDepth()) {
+                    for (String link : extractInternalLinks(doc, status.getRootUrl())) {
+                        crawl(link, depth + 1, status, session);
+                    }
+                }
+
+            } catch (Exception e) {
+                log.warn("❌ Failed to crawl: {}", url);
+            }
+        });
+    }
+
     // -------------------------------------------------
-    // 🔍 SEARCH INDEX
+    // SEARCH
     // -------------------------------------------------
 
     public Set<String> search(String keyword) {
@@ -140,7 +167,8 @@ public class DepthScraperService {
         page.setScrapedAt(LocalDateTime.now());
 
         repository.save(page);
-        log.info("✅ Indexed [D{}] {}", depth, url);
+
+        log.info("✅ Indexed [Depth {}] {}", depth, url);
 
         return page;
     }
@@ -154,7 +182,7 @@ public class DepthScraperService {
                 .filter(this::isValid)
                 .filter(abs -> abs.contains(domain))
                 .distinct()
-                .limit(10)
+                .limit(10)   // Limit to prevent explosion
                 .toList();
     }
 
@@ -168,6 +196,7 @@ public class DepthScraperService {
         long start = status.getStartTime()
                 .toInstant(ZoneOffset.UTC)
                 .toEpochMilli();
+
         status.updateProgress(start);
         session.setAttribute("depthIndex", status);
     }
