@@ -227,6 +227,14 @@
             .result-meta { flex-direction: column; gap: 1rem; align-items: flex-start; }
             .html-preview { font-size: 0.8rem; padding: 1rem; }
         }
+        .result-title {
+    font-size: 20px;
+    font-weight: 400;
+    color: #1a0dab;
+}
+.result-title a:hover {
+    text-decoration: underline;
+}
     </style>
 </head>
 <body>
@@ -268,38 +276,32 @@
 
     <!-- Results -->
     <div th:if="${results != null and !#lists.isEmpty(results)}">
+
         <div th:each="result : ${results}" class="result-card">
-            <h5 class="result-title">
-                <a th:href="${result.url}" th:text="${result.title}" target="_blank" rel="noopener"></a>
-            </h5>
 
+            <!-- Title -->
+            <div class="result-title">
+                <a th:href="${result.url}"
+                   th:text="${result.title}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                </a>
+            </div>
+
+            <!-- URL -->
             <div class="result-url">
-                <i class="bi bi-link-45deg me-2 text-muted"></i>
-                <span th:text="${result.url}"></span>
+                <a th:href="${result.url}"
+                   th:text="${result.url}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                </a>
             </div>
 
-            <p class="result-snippet"
-               th:text="${#strings.abbreviate(result.content, 200)}"></p>
-
-
-
-            <div class="result-meta">
-                <span class="citation">
-                    <i class="bi bi-clock me-2"></i>
-                    <span th:text="${#temporals.format(result.scrapedAt, 'MMM dd, yyyy HH:mm')}"></span>
-                    <i class="bi bi-arrow-right ms-1"></i>
-                    <span th:text="${result.depth == 0 ? 'Homepage' : 'Depth ' + result.depth}"></span>
-                </span>
-                <div>
-                    <a th:href="${result.url}" target="_blank" class="btn btn-sm btn-outline-primary px-3 me-2">
-                        <i class="bi bi-box-arrow-up-right"></i> Visit
-                    </a>
-                    <button class="btn btn-sm btn-outline-secondary copy-btn"
-                            th:attr="data-url=${result.url}" onclick="copyUrl(this)">
-                        <i class="bi bi-copy"></i>
-                    </button>
-                </div>
+            <!-- Snippet -->
+            <div class="result-snippet"
+                 th:text="${#strings.abbreviate(result.content, 160)}">
             </div>
+
         </div>
 
         <nav th:if="${page != null and page.totalPages >= 1}"
