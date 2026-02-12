@@ -74,6 +74,11 @@ public class DepthScraperService {
                        HttpSession session) {
 
         if ("stopped".equals(status.getStatus())) return;
+
+        if (status.getTotalPages().get() >= status.getMaxPages()) {
+            log.info("Reached max pages limit");
+            return;
+        }
         if (depth > status.getMaxDepth()) return;
         if (!visited.add(url)) return;
 
@@ -118,26 +123,29 @@ public class DepthScraperService {
     // SEARCH
     // -------------------------------------------------
 
- public List<SearchResult> search(String keyword) {
+    public List<SearchResult> search(String keyword) {
 
-     if (keyword == null || keyword.isBlank()) {
-         return List.of();
-     }
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
 
-     final String normalizedKeyword = keyword.toLowerCase();
+        final String normalizedKeyword = keyword.toLowerCase();
 
-     Map<String, Integer> urlScores =
-             searchIndex.getOrDefault(normalizedKeyword, Map.of());
+        Map<String, Integer> urlScores =
+                searchIndex.getOrDefault(normalizedKeyword, Map.of());
 
-     return urlScores.entrySet().stream()
-             .map(entry -> {
-                 WebPage page = repository.findByUrl(entry.getKey()).orElse(null);
-                 int score = entry.getValue();  // frequency
-                 return new SearchResult(page, score);
-             })
-             .sorted(Comparator.comparingInt(SearchResult::getScore).reversed())
-             .toList();
- }
+        return urlScores.entrySet().stream()
+                .map(entry -> repository.findByUrl(entry.getKey())
+                        .map(page -> new SearchResult(
+                                page,
+                                calculateScore(page, normalizedKeyword)
+                        ))
+                        .orElse(null)
+                )
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(SearchResult::getScore).reversed())
+                .toList();
+    }
 
     private int calculateScore(WebPage page, String keyword) {
         int score = 0;
