@@ -6,8 +6,8 @@ import com.gairola.GairolaSearchEngine.repository.WebPageRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 @Service
 public class SearchService {
 
@@ -97,8 +97,50 @@ public class SearchService {
         );
     }
 
-
     public Page<WebPage> searchOracle_Final(String query, Pageable pageable) {
+
+        int size = pageable.getPageSize();
+        int page = pageable.getPageNumber();
+
+        int startRow = page * size;
+        int endRow   = (page + 1) * size;
+
+        List<WebPage> rawResults =
+                repo.searchOracle11gNoIndex(query.toLowerCase(), startRow, endRow);
+
+        long total = repo.countOracle11gNoIndex(query.toLowerCase());
+
+        // 🔥 1. Remove duplicate titles
+        Set<String> seenTitles = new HashSet<>();
+        List<WebPage> uniqueResults = new ArrayList<>();
+
+        for (WebPage wp : rawResults) {
+            if (wp.getTitle() != null && seenTitles.add(wp.getTitle())) {
+                uniqueResults.add(wp);
+            }
+        }
+
+        // 🔥 2. Domain diversity (max 2 per domain)
+        Map<String, Integer> domainCount = new HashMap<>();
+        List<WebPage> filtered = new ArrayList<>();
+
+        for (WebPage wp : uniqueResults) {
+            try {
+                String domain = new java.net.URL(wp.getUrl()).getHost();
+
+                if (domainCount.getOrDefault(domain, 0) < 2) {
+                    filtered.add(wp);
+                    domainCount.put(domain,
+                            domainCount.getOrDefault(domain, 0) + 1);
+                }
+
+            } catch (Exception ignored) {}
+        }
+
+        return new PageImpl<>(filtered, pageable, total);
+    }
+
+    public Page<WebPage> searchOracle_Final1234(String query, Pageable pageable) {
 
         int size = pageable.getPageSize();
         int page = pageable.getPageNumber(); // 0-based

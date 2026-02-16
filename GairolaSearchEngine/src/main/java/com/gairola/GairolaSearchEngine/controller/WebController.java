@@ -25,7 +25,6 @@ public class WebController {
     public String index(Model model) {
         model.addAttribute("page", Page.empty());
         model.addAttribute("query", "");
-        model.addAttribute("page", Page.empty()); // 🔥 REQUIRED
         return "index";
     }
 
