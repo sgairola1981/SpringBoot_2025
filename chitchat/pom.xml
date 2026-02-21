@@ -67,12 +67,6 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
-		<!-- Spring AI OpenAI starter -->
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-openai</artifactId>
-		</dependency>
-
 		<!-- WebJars for SockJS and STOMP -->
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -102,5 +96,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
