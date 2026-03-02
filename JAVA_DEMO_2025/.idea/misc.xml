@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/../searchEngine/pom.xml" />
         <option value="$PROJECT_DIR$/../chat/pom.xml" />
         <option value="$PROJECT_DIR$/../chitchat/pom.xml" />
+        <option value="$PROJECT_DIR$/../llm/pom.xml" />
       </list>
     </option>
   </component>
