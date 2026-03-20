@@ -15,7 +15,9 @@ public class AIConfig {
 
         return OllamaChatModel.builder()
                 .baseUrl("http://localhost:11434")
-                .modelName("llama3")
+                .modelName("mistral")
+                .temperature(0.2)
+               .timeout(java.time.Duration.ofMinutes(5))
                 .build();
 
     }

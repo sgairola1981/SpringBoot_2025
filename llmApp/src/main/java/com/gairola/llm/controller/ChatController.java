@@ -2,6 +2,8 @@ package com.gairola.llm.controller;
 
 import com.gairola.llm.service.RagService;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -15,17 +17,18 @@ public class ChatController {
     }
 
     @GetMapping("/ask")
-    public SseEmitter ask(@RequestParam String q){
-
+    public SseEmitter ask(@RequestParam String q, HttpSession session){
+        String sessionId = session.getId();
         SseEmitter emitter = new SseEmitter();
 
         new Thread(() -> {
 
             try{
-                String sessionId = "default-session";
+
                 String answer = ragService.ask(q,sessionId);
 
-                emitter.send(answer);
+                System.out.println("🤖 Answer ===> " + answer);
+               emitter.send(answer);
 
                 emitter.complete();
 
@@ -37,4 +40,6 @@ public class ChatController {
 
         return emitter;
     }
+
+
 }

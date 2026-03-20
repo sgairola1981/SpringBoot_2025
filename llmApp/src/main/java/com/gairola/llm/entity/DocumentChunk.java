@@ -17,6 +17,9 @@ public class DocumentChunk {
     @Lob
     private String embedding;
 
+    private int chunkIndex;
+
+
     public Long getId() { return id; }
 
     public String getContent() { return content; }
@@ -24,4 +27,11 @@ public class DocumentChunk {
 
     public String getEmbedding() { return embedding; }
     public void setEmbedding(String embedding) { this.embedding = embedding; }
+    public int getChunkIndex() {
+        return chunkIndex;
+    }
+
+    public void setChunkIndex(int chunkIndex) {
+        this.chunkIndex = chunkIndex;
+    }
 }

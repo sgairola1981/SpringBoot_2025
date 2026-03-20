@@ -2,12 +2,14 @@ package com.gairola.llm.service;
 
 import com.gairola.llm.entity.DocumentChunk;
 import com.gairola.llm.repository.DocumentRepository;
-import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,53 +20,62 @@ public class VectorSearchService {
 
     public String search(String question) {
 
-        // Generate embedding for question
+        System.out.println("🔍 Question: " + question);
+
         Embedding queryEmbedding = embeddingModel.embed(question).content();
+        List<DocumentChunk> chunks = repository.findAll();
 
-      //  List<DocumentChunk> chunks = repository.findAll();
-        List<DocumentChunk> chunks =repository.searchContent(question);
+        System.out.println("📦 Total chunks in DB: " + chunks.size());
 
-        String bestContext = "";
-        double bestScore = -1;
+        // Score chunks
+        List<ScoredChunk> scored = chunks.stream().limit(5)
+                .map(chunk -> new ScoredChunk(
+                        chunk.getContent(),
+                        cosineSimilarity(
+                                queryEmbedding.vector(),
+                                parseEmbedding(chunk.getEmbedding())
+                        )
+                ))
+                .sorted(Comparator.comparingDouble(ScoredChunk::score).reversed())
+                .collect(Collectors.toList());
 
-        for(DocumentChunk chunk : chunks){
+        if (scored.isEmpty()) return "";
 
-            double score = cosineSimilarity(
-                    queryEmbedding.vector(),
-                    parseEmbedding(chunk.getEmbedding())
-            );
+        double bestScore = scored.get(0).score();
+        System.out.println("🏆 Best Score: " + bestScore);
 
-            if(score > bestScore){
-                bestScore = score;
-                bestContext = chunk.getContent();
-            }
+        // ✅ Similarity threshold
+        if (bestScore < 0.35) {
+            System.out.println("❌ Low similarity");
+            return "";
         }
 
-        return bestContext;
+        // ✅ Top-K context (better RAG)
+        String context = scored.stream()
+                .limit(3)
+                .map(ScoredChunk::content)
+                .collect(Collectors.joining("\n\n"));
+
+        return context;
     }
 
-    private float[] parseEmbedding(String embeddingString){
+    private record ScoredChunk(String content, double score) {}
 
-        String clean = embeddingString.replace("[","").replace("]","");
+    private float[] parseEmbedding(String s) {
+        String clean = s.replace("[", "").replace("]", "");
         String[] parts = clean.split(",");
-
-        float[] vector = new float[parts.length];
-
-        for(int i = 0; i < parts.length; i++){
-            vector[i] = Float.parseFloat(parts[i].trim());
+        float[] v = new float[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            v[i] = Float.parseFloat(parts[i].trim());
         }
-
-        return vector;
+        return v;
     }
 
-    private double cosineSimilarity(float[] a, float[] b){
+    private double cosineSimilarity(float[] a, float[] b) {
+        int len = Math.min(a.length, b.length); // ✅ safe
+        double dot = 0, normA = 0, normB = 0;
 
-        double dot = 0.0;
-        double normA = 0.0;
-        double normB = 0.0;
-
-        for(int i = 0; i < a.length; i++){
-
+        for (int i = 0; i < len; i++) {
             dot += a[i] * b[i];
             normA += a[i] * a[i];
             normB += b[i] * b[i];

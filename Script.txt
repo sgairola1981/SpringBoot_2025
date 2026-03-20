@@ -496,3 +496,12 @@ EXIT;
 
 
 CREATE USER TEST IDENTIFIED BY "Gairola1981";
+
+//*******************************
+docker pull qdrant/qdrant
+docker run -d -p 6333:6333 -p 6334:6334 -v qdrant_storage:/qdrant/storage --name qdrant qdrant/qdrant
+
+ollama pull mistral
+ollama pull nomic-embed-text
+docker pull redis
+docker run -d -p 6379:6379 --name redis redis
