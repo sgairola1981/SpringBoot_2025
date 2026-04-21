@@ -20,45 +20,47 @@ public class VectorSearchService {
 
     public String search(String question) {
 
-        System.out.println("🔍 Question: " + question);
+        long start = System.currentTimeMillis();
 
         Embedding queryEmbedding = embeddingModel.embed(question).content();
-        List<DocumentChunk> chunks = repository.findAll();
 
-        System.out.println("📦 Total chunks in DB: " + chunks.size());
+        // ✅ load limited data
+        List<DocumentChunk> chunks = repository.findTop100();
 
-        // Score chunks
-        List<ScoredChunk> scored = chunks.stream().limit(5)
-                .map(chunk -> new ScoredChunk(
-                        chunk.getContent(),
-                        cosineSimilarity(
-                                queryEmbedding.vector(),
-                                parseEmbedding(chunk.getEmbedding())
-                        )
-                ))
+        List<ScoredChunk> scored = chunks.parallelStream() // 🔥 parallel
+                .map(chunk -> {
+
+                    float[] embedding = parseEmbedding(chunk.getEmbedding()); // still needed (temporary)
+
+                    double score = cosineSimilarity(
+                            queryEmbedding.vector(),
+                            embedding
+                    );
+
+                    return new ScoredChunk(
+                            // ✅ trim content EARLY (important)
+                            chunk.getContent().length() > 200
+                                    ? chunk.getContent().substring(0, 200)
+                                    : chunk.getContent(),
+                            score
+                    );
+                })
+                .filter(sc -> sc.score() > 0.35) // early filter
                 .sorted(Comparator.comparingDouble(ScoredChunk::score).reversed())
-                .collect(Collectors.toList());
+                .limit(2) // 🔥 reduce to 2
+                .toList();
 
         if (scored.isEmpty()) return "";
 
-        double bestScore = scored.get(0).score();
-        System.out.println("🏆 Best Score: " + bestScore);
-
-        // ✅ Similarity threshold
-        if (bestScore < 0.35) {
-            System.out.println("❌ Low similarity");
-            return "";
-        }
-
-        // ✅ Top-K context (better RAG)
         String context = scored.stream()
-                .limit(3)
                 .map(ScoredChunk::content)
                 .collect(Collectors.joining("\n\n"));
 
+        long end = System.currentTimeMillis();
+        System.out.println("⚡ Vector Search Time: " + (end - start) + " ms");
+
         return context;
     }
-
     private record ScoredChunk(String content, double score) {}
 
     private float[] parseEmbedding(String s) {
@@ -83,4 +85,5 @@ public class VectorSearchService {
 
         return dot / (Math.sqrt(normA) * Math.sqrt(normB));
     }
+
 }

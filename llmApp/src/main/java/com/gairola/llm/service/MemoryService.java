@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class MemoryService {
@@ -22,4 +23,28 @@ public class MemoryService {
 
         return String.join("\n", history);
     }
+    public String getLastN(String sessionId, int n) {
+
+        List<String> chat = memory.getOrDefault(sessionId, new ArrayList<>());
+
+        return chat.stream()
+                .skip(Math.max(0, chat.size() - n * 2))
+                .collect(Collectors.joining("\n"));
+    }
+    public void save(String sessionId, String question, String answer) {
+
+        memory.computeIfAbsent(sessionId, k -> new ArrayList<>());
+
+        List<String> chat = memory.get(sessionId);
+
+        chat.add("User: " + question);
+        chat.add("AI: " + answer);
+
+        // keep last 10 entries only
+        if (chat.size() > 10) {
+            chat.subList(0, chat.size() - 10).clear();
+        }
+    }
+
+
 }

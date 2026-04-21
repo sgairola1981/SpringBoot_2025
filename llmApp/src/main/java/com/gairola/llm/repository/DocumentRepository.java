@@ -16,6 +16,9 @@ public interface DocumentRepository
             WHERE DBMS_LOB.INSTR(CONTENT, :text) > 0
             """, nativeQuery = true)
     List<DocumentChunk> searchContent(@Param("text") String text);
+
+    @Query(value = "SELECT * FROM document_chunks WHERE ROWNUM <= 100", nativeQuery = true)
+    List<DocumentChunk> findTop100();
 }
 
 
