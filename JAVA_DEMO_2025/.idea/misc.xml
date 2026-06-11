@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/../llm/pom.xml" />
         <option value="$PROJECT_DIR$/../llmApp/pom.xml" />
         <option value="$PROJECT_DIR$/../aidemo/pom.xml" />
+        <option value="$PROJECT_DIR$/../ollama/pom.xml" />
       </list>
     </option>
   </component>

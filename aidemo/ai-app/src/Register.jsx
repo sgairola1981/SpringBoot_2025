@@ -2,7 +2,8 @@ import axios from "axios";
 import { useState } from "react";
 
 // ✅ Works for localhost + mobile
-const BASE_URL = `http://${window.location.hostname}:8888`;
+//const BASE_URL = `http://${window.location.hostname}:8888`;
+const BASE_URL = `https://${window.location.hostname}:8443`;
 
 export default function Register({ goToLogin }) {
 

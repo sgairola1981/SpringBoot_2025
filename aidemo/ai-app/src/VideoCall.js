@@ -55,6 +55,7 @@ export default function VideoCall({ client, selectedUser, username, onClose }) {
     } catch (err) {
       console.error("Camera error:", err);
 
+
       // 🔥 fallback → audio only
       try {
         const audioStream = await navigator.mediaDevices.getUserMedia({

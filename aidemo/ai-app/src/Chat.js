@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import VideoCall from "./VideoCall";
 
-const BASE_URL = `http://${window.location.hostname}:8888`;
+const BASE_URL = `https://${window.location.hostname}:8443`;
 
 export default function Chat({ setToken }) {
 

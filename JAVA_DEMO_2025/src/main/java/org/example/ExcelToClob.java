@@ -10,8 +10,8 @@ public class ExcelToClob {
 
         String excelFile = "C:/DATA/data.xls";
         String url = "jdbc:oracle:thin:@//localhost:1521/xe";
-        String user = "hr";
-        String pass = "vayam";
+        String user = "HR";
+        String pass = "hr";
         String url1 = "jdbc:oracle:thin:@10.40.228.52:1523:DELMTNL";
         String user1 = "paybill";
         String pass1 = "Wfmspb_2019";

@@ -7,7 +7,8 @@ export default function Login({ setToken, goToRegister }) {
   const [password, setP] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-const BASE_URL = `http://${window.location.hostname}:8888`;
+//const BASE_URL = `http://${window.location.hostname}:8888`;
+const BASE_URL = `https://${window.location.hostname}:8443`;
   const login = async () => {
 
     if (!username || !password) {

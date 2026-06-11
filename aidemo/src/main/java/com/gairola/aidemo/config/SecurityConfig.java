@@ -91,7 +91,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // ✅ DEV (React default port)
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173","http://192.168.1.101:3000"));
+        config.setAllowedOrigins(List.of("http://localhost:3000","https://localhost:3000/", "http://localhost:5173","https://localhost:5173","http://192.168.1.101:3000","https://192.168.1.101:3000","https://localhost:8443"));
 
         // ⚠️ If you need cookies/session:
         config.setAllowCredentials(true);
