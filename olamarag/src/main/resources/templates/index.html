@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Chat Assistant</title>
+    <style>
+        :root {
+            --bg: #f3f6fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --border: #dbe3ee;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+            --response-bg: #f8fbff;
+            --success-border: #dbeafe;
+            --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #eef4ff, #f8fbff);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 32px 16px;
+        }
+
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+            border: 1px solid #edf2f7;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .title {
+            margin: 0 0 8px;
+            font-size: 32px;
+            line-height: 1.2;
+            color: #111827;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-top: 20px;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: 14px 16px;
+            font-size: 16px;
+            line-height: 1.5;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: #fff;
+        }
+
+        .textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .error-box {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: var(--error-bg);
+            color: var(--error);
+            font-size: 14px;
+            border: 1px solid #fecaca;
+        }
+
+        .section-card {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: 14px;
+            background: var(--response-bg);
+            border: 1px solid var(--success-border);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 18px;
+            color: #1e3a8a;
+        }
+
+        .badge {
+            font-size: 13px;
+            color: #475569;
+            background: #eff6ff;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #dbeafe;
+        }
+
+        .response-text {
+            margin: 0;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            color: #1f2937;
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 26px;
+            }
+
+            .textarea {
+                min-height: 120px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .actions {
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="card">
+        <div class="header">
+            <h1 class="title">Chat with Ollama</h1>
+            <p class="subtitle">
+                Ask a question from your local AI model. The app uses RAG with Oracle data and vector retrieval.
+            </p>
+        </div>
+
+        <form th:action="@{/ask}" th:object="${chatForm}" method="post" id="chatFormElement">
+            <div class="form-group">
+                <label class="label" for="prompt">Your prompt</label>
+                <textarea
+                        id="prompt"
+                        class="textarea"
+                        th:field="*{prompt}"
+                        placeholder="Example: What is Spring Boot?"></textarea>
+
+                <div class="error-box"
+                     th:if="${#fields.hasErrors('prompt')}"
+                     th:errors="*{prompt}">
+                    Prompt error
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn" type="submit" id="submitBtn">Ask AI</button>
+                <span class="hint" id="statusText">
+                    Make sure Ollama and your database are both running.
+                </span>
+            </div>
+        </form>
+
+        <div class="error-box"
+             th:if="${errorMessage != null and !#strings.isEmpty(errorMessage)}"
+             th:text="${errorMessage}">
+            Error message
+        </div>
+
+        <div class="section-card"
+             th:if="${response != null and !#strings.isEmpty(response)}">
+            <div class="section-header">
+                <h2 class="section-title">AI Response</h2>
+                <span class="badge"
+                      th:if="${responseTimeMs != null}"
+                      th:text="'Response time: ' + ${responseTimeMs} + ' ms'">
+                    Response time
+                </span>
+            </div>
+
+            <p class="response-text" th:text="${response}">
+                AI answer will appear here.
+            </p>
+        </div>
+
+        <p class="footer-note">
+            Tip: Short prompts usually return faster results, especially with local models.
+        </p>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('chatFormElement');
+    const button = document.getElementById('submitBtn');
+    const statusText = document.getElementById('statusText');
+
+    form.addEventListener('submit', function () {
+        button.disabled = true;
+        button.textContent = 'Thinking...';
+        statusText.textContent = 'Searching vector store and generating response...';
+    });
+</script>
+</body>
+</html>
