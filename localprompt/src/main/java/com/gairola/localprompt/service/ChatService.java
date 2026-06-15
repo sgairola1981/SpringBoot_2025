@@ -1,48 +1,39 @@
 package com.gairola.localprompt.service;
-
-import com.gairola.localprompt.entity.UploadedContent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
+import java.util.concurrent.*;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final FileService fileService;
     private final ChatClient chatClient;
+    private static final int TIMEOUT_SECONDS = 181;
 
     public String answer(String question) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<String> future = executor.submit(() ->
+                chatClient
+                        .prompt()
+                        .user("Answer briefly: " + question)
+                        .call()
+                        .content()
+        );
+
         try {
-            String context = fileService.all().stream()
-                    .map(this::formatContent)
-                    .collect(Collectors.joining("\n\n"));
-
-            String prompt = """
-                Answer the question using only the context below.
-                If the answer is not in the context, say: "I don't have enough information."
-
-                CONTEXT:
-                %s
-
-                QUESTION:
-                %s
-                """.formatted(context, question);
-
-            return chatClient
-                    .prompt()
-                    .user(prompt)
-                    .call()
-                    .content();
+            String result = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            System.out.println("ANSWER_FROM_AI = [" + result + "]");
+            return result;
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            System.out.println("AI CALL TIMED OUT");
+            return "AI call timed out after " + TIMEOUT_SECONDS + " seconds.";
         } catch (Exception e) {
-            e.printStackTrace(); // so you see the real cause in console
+            e.printStackTrace();
             return "Sorry, I could not get an answer from the AI service. Error: " + e.getMessage();
+        } finally {
+            executor.shutdownNow();
         }
-    }
-
-    private String formatContent(UploadedContent c) {
-        return "SOURCE: " + c.getFilename() + "\n" + c.getContent();
     }
 }

@@ -38,12 +38,18 @@ public class HomeController {
         model.addAttribute("files", fileService.all());
         return "index";
     }
-
     @PostMapping("/chat")
-    public String chat(@RequestParam("question") String question, Model model) {
+    public org.springframework.web.servlet.ModelAndView chat(
+            @RequestParam("question") String question) {
+
+        System.out.println("QUESTION=" + question);
         String answer = chatService.answer(question);
-        model.addAttribute("answer", answer);
-        model.addAttribute("files", fileService.all());
-        return "index";
+        System.out.println("ANSWER_TO_VIEW = [" + answer + "]");
+
+        org.springframework.web.servlet.ModelAndView mv =
+                new org.springframework.web.servlet.ModelAndView("index");
+        mv.addObject("answer", answer);
+        mv.addObject("files", fileService.all());
+        return mv;
     }
 }
