@@ -205,6 +205,21 @@
 </head>
 
 <body>
+<!-- HEADER -->
+<div class="glass-header">
+    <!-- ... header content ... -->
+</div>
+
+<!-- SUCCESS MESSAGE -->
+<div th:if="${message}"
+     class="alert alert-success mt-4"
+     th:text="${message}">
+</div>
+
+<!-- UPLOAD SECTION -->
+<div class="row g-4 mt-2">
+    <!-- ... upload cards ... -->
+</div>
 
 <div class="chat-container">
 
