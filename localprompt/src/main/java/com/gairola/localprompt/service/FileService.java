@@ -178,4 +178,7 @@ public class FileService {
             }
         }
     }
+    public void deleteSource(Long id) {
+        repo.deleteById(id);
+    }
 }
