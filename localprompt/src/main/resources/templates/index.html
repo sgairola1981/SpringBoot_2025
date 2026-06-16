@@ -30,12 +30,9 @@
             flex-direction:column;
             border-radius:24px;
             overflow:hidden;
-
             background:rgba(255,255,255,.95);
             backdrop-filter:blur(18px);
-
-            border:1px solid rgba(0,0,0,.08);
-
+            border:1px solid rgba(0,0,255,.08);
             box-shadow:
                 0 10px 40px rgba(0,0,0,.08),
                 0 0 50px rgba(37,99,235,.10);
@@ -135,6 +132,59 @@
             color:#1e293b;
             border-bottom-left-radius:6px;
             border:1px solid rgba(0,0,0,.08);
+        }
+
+        /* ✅ FIXED: Force bullet points on new lines */
+        .assistant .bubble ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+
+        .assistant .bubble ul li {
+            display: block;
+            margin: 10px 0;
+            padding-left: 10px;
+            line-height: 1.5;
+        }
+
+        .assistant .bubble ul li::before {
+            content: "• ";
+            color: #0ea5e9;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .assistant .bubble ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .assistant .bubble ol li {
+            margin: 8px 0;
+        }
+
+        .assistant .bubble p {
+            margin: 12px 0;
+        }
+
+        .assistant .bubble p:last-child {
+            margin: 0;
+        }
+
+        .assistant .bubble strong,
+        .assistant .bubble b {
+            color: #0ea5e9;
+            font-weight: 700;
+        }
+
+        .assistant .bubble code {
+            background: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
         }
 
         .chat-input{
@@ -242,7 +292,7 @@
                         </h4>
 
                         <small class="text-muted">
-                            Ask questions from your uploaded documents
+                            Ask questions
                         </small>
                     </div>
 
@@ -314,7 +364,8 @@
                             Assistant
                         </div>
 
-                        <div th:text="${m.text}">
+                        <!-- FIXED: Changed from th:text to th:utext -->
+                        <div th:utext="${m.text}">
                             Assistant Response
                         </div>
 
