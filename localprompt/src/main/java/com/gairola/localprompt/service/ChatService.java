@@ -17,16 +17,16 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ChatService {
 
     private final ChatClient chatClient;
-    private final UploadedContentRepository contentRepository;  // ✅ ADD THIS
+    private final UploadedContentRepository contentRepository;
 
-    // ✅ Simple in-memory cache for search results
     private final Map<String, List<String>> searchCache = new ConcurrentHashMap<>();
-    private static final long CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+    private static final long CACHE_TTL = 5 * 60 * 1000;
     private final AtomicLong cacheLastCleanup = new AtomicLong(System.currentTimeMillis());
 
-    private static final int TIMEOUT_SECONDS = 180;
+    // ✅ EXECUTION TIME SETTINGS
+    private static final int TIMEOUT_SECONDS = 180;  // Reduced from 180 to 30 seconds
     private static final int MAX_RETRY_ATTEMPTS = 2;
-    private static final int SEARCH_LIMIT = 5; // ✅ Search top 5 documents
+    private static final int SEARCH_LIMIT = 5;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -35,21 +35,25 @@ public class ChatService {
     }
 
     private String answerWithRetry(String question, int attempt) {
+        long startTime = System.currentTimeMillis();  // ✅ Start timing
+
         Future<String> future = executor.submit(() -> {
             // ✅ STEP 1: Search database for relevant content
             List<String> relevantContext = searchDatabase(question);
 
             System.out.println("======================================");
             System.out.println("SEARCH RESULTS FOUND: " + relevantContext.size());
-            for (int i = 0; i < relevantContext.size(); i++) {
-                System.out.println("DOC " + (i+1) + ": " + relevantContext.get(i).length() + " chars");
-            }
+            long searchTime = System.currentTimeMillis() - startTime;
+            System.out.println("SEARCH TIME: " + searchTime + "ms");
             System.out.println("======================================");
 
-            // ✅ STEP 2: Build context string for AI
+            // ✅ STEP 2: Build context string
             String context = buildContextString(relevantContext);
 
             // ✅ STEP 3: Call AI with context (RAG)
+            long aiStartTime = System.currentTimeMillis();
+            System.out.println("🤖 Calling AI... Start time: " + aiStartTime);
+
             String response = chatClient
                     .prompt()
                     .system("""
@@ -72,6 +76,9 @@ public class ChatService {
                     .call()
                     .content();
 
+            long aiTime = System.currentTimeMillis() - aiStartTime;
+            System.out.println("✅ AI Response time: " + aiTime + "ms");
+
             // ✅ STEP 4: Convert Markdown to HTML
             Parser parser = Parser.builder().build();
             HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -84,18 +91,21 @@ public class ChatService {
         });
 
         try {
+            // ✅ STOP EXECUTION if timeout exceeded
             String result = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+            long totalTime = System.currentTimeMillis() - startTime;
 
             System.out.println("======================================");
             System.out.println("QUESTION = " + question);
+            System.out.println("TOTAL EXECUTION TIME = " + totalTime + "ms (" + (totalTime/1000.0) + " seconds)");
             System.out.println("RESPONSE LENGTH = " + (result != null ? result.length() : 0));
             System.out.println("ANSWER_FROM_AI = ");
             System.out.println(result);
             System.out.println("======================================");
 
             if (isResponseIncomplete(result)) {
-                System.out.println("WARNING: Response appears incomplete, retrying...");
-                future.cancel(true);
+                System.out.println("⚠️ WARNING: Response appears incomplete");
 
                 if (attempt < MAX_RETRY_ATTEMPTS) {
                     return answerWithRetry(question, attempt + 1);
@@ -107,19 +117,26 @@ public class ChatService {
             return result;
 
         } catch (TimeoutException e) {
-            future.cancel(true);
+            future.cancel(true);  // ✅ STOP execution
+
+            long totalTime = System.currentTimeMillis() - startTime;
+
+            System.out.println("❌ TIMEOUT: Execution stopped after " + totalTime + "ms");
+            System.out.println("TIMEOUT: Retry attempt " + (attempt + 1));
 
             if (attempt < MAX_RETRY_ATTEMPTS) {
-                System.out.println("TIMEOUT: Retry attempt " + (attempt + 1));
                 return answerWithRetry(question, attempt + 1);
             }
 
             return """
-                    The AI response timed out.
+                    ⏱️ The AI response took too long (exceeded " + TIMEOUT_SECONDS + " seconds).
                     Please try again with a shorter question.
                     """;
 
         } catch (Exception e) {
+            long totalTime = System.currentTimeMillis() - startTime;
+
+            System.out.println("❌ ERROR: Execution failed after " + totalTime + "ms");
             e.printStackTrace();
 
             return """
@@ -129,9 +146,9 @@ public class ChatService {
         }
     }
 
-    // ✅ STEP 1: Search database with caching
     private List<String> searchDatabase(String query) {
-        // ✅ Check cache first
+        long searchStart = System.currentTimeMillis();
+
         long now = System.currentTimeMillis();
         if (now - cacheLastCleanup.get() > CACHE_TTL) {
             searchCache.clear();
@@ -140,21 +157,25 @@ public class ChatService {
 
         if (searchCache.containsKey(query)) {
             System.out.println("✅ CACHE HIT for query: " + query);
+            long cacheTime = System.currentTimeMillis() - searchStart;
+            System.out.println("CACHE SEARCH TIME: " + cacheTime + "ms");
             return searchCache.get(query);
         }
 
         System.out.println("❌ CACHE MISS for query: " + query);
 
-        // ✅ Search database (optimized query)
         List<String> results = new ArrayList<>();
 
         try {
-            // Use native Oracle query with ROWNUM
+            long dbStart = System.currentTimeMillis();
             List<UploadedContent> docs = contentRepository.findFirstMatching(query, SEARCH_LIMIT);
+            long dbTime = System.currentTimeMillis() - dbStart;
+
+            System.out.println("✅ Database query time: " + dbTime + "ms");
+            System.out.println("✅ Found " + docs.size() + " documents");
 
             for (UploadedContent doc : docs) {
                 if (doc.getContent() != null && !doc.getContent().isEmpty()) {
-                    // Extract first 1000 chars to save tokens
                     String content = doc.getContent();
                     String truncated = content.length() > 1000
                             ? content.substring(0, 1000)
@@ -164,19 +185,19 @@ public class ChatService {
                 }
             }
 
-            // ✅ Cache results
             searchCache.put(query, results);
-            System.out.println("✅ Cached " + results.size() + " results");
 
         } catch (Exception e) {
             System.out.println("❌ Database search error: " + e.getMessage());
             e.printStackTrace();
         }
 
+        long totalTime = System.currentTimeMillis() - searchStart;
+        System.out.println("📊 TOTAL SEARCH TIME: " + totalTime + "ms");
+
         return results;
     }
 
-    // ✅ STEP 2: Build context string
     private String buildContextString(List<String> relevantContext) {
         if (relevantContext.isEmpty()) {
             return "No relevant documents found in your uploaded content.";
@@ -189,7 +210,6 @@ public class ChatService {
         return context.toString();
     }
 
-    // ✅ Convert Unicode bullets to HTML list
     private String convertBulletsToList(String html) {
         if (html == null || html.isEmpty()) {
             return html;
@@ -256,10 +276,6 @@ public class ChatService {
 
         int lastOpenP = trimmed.lastIndexOf("<p");
         int lastCloseP = trimmed.lastIndexOf("</p>");
-        if (lastOpenP > lastCloseP) {
-            return true;
-        }
-
-        return false;
+        return lastOpenP > lastCloseP;
     }
 }
