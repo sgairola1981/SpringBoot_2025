@@ -5,15 +5,28 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+import com.gairola.localprompt.repository.UploadedContentRepository;
+import com.gairola.localprompt.entity.UploadedContent;
+
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
     private final ChatClient chatClient;
+    private final UploadedContentRepository contentRepository;  // ✅ ADD THIS
+
+    // ✅ Simple in-memory cache for search results
+    private final Map<String, List<String>> searchCache = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+    private final AtomicLong cacheLastCleanup = new AtomicLong(System.currentTimeMillis());
 
     private static final int TIMEOUT_SECONDS = 180;
     private static final int MAX_RETRY_ATTEMPTS = 2;
+    private static final int SEARCH_LIMIT = 5; // ✅ Search top 5 documents
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -23,29 +36,48 @@ public class ChatService {
 
     private String answerWithRetry(String question, int attempt) {
         Future<String> future = executor.submit(() -> {
+            // ✅ STEP 1: Search database for relevant content
+            List<String> relevantContext = searchDatabase(question);
+
+            System.out.println("======================================");
+            System.out.println("SEARCH RESULTS FOUND: " + relevantContext.size());
+            for (int i = 0; i < relevantContext.size(); i++) {
+                System.out.println("DOC " + (i+1) + ": " + relevantContext.get(i).length() + " chars");
+            }
+            System.out.println("======================================");
+
+            // ✅ STEP 2: Build context string for AI
+            String context = buildContextString(relevantContext);
+
+            // ✅ STEP 3: Call AI with context (RAG)
             String response = chatClient
                     .prompt()
                     .system("""
-                            You are an expert AI assistant.
-
+                            You are an expert AI assistant with access to user's uploaded documents.
+                            
                             Rules:
-                            1. Give complete answers.
-                            2. Never stop in the middle of a sentence.
-                            3. Finish with a proper conclusion.
-                            4. Use HTML bullet points (<ul><li>) when appropriate, NOT Unicode •
-                            5. If the question is technical, provide examples.
-                            6. Keep conclusions brief if approaching token limit.
+                            1. Use the provided context from uploaded documents to answer.
+                            2. If context doesn't contain the answer, say "I don't have information about this in your uploaded documents."
+                            3. Give complete answers.
+                            4. Never stop in the middle of a sentence.
+                            5. Finish with a proper conclusion.
+                            6. Use HTML bullet points (<ul><li>) when appropriate, NOT Unicode •
+                            7. If the question is technical, provide examples from the context.
+                            8. Keep conclusions brief if approaching token limit.
+                            
+                            Context from uploaded documents:
+                            {context}
                             """)
                     .user(question)
                     .call()
                     .content();
 
-            // Convert Markdown to HTML
+            // ✅ STEP 4: Convert Markdown to HTML
             Parser parser = Parser.builder().build();
             HtmlRenderer renderer = HtmlRenderer.builder().build();
             String html = renderer.render(parser.parse(response));
 
-            // ✅ Convert Unicode bullets (•) to HTML <li> tags
+            // ✅ STEP 5: Convert Unicode bullets to HTML
             html = convertBulletsToList(html);
 
             return html;
@@ -97,13 +129,72 @@ public class ChatService {
         }
     }
 
+    // ✅ STEP 1: Search database with caching
+    private List<String> searchDatabase(String query) {
+        // ✅ Check cache first
+        long now = System.currentTimeMillis();
+        if (now - cacheLastCleanup.get() > CACHE_TTL) {
+            searchCache.clear();
+            cacheLastCleanup.set(now);
+        }
+
+        if (searchCache.containsKey(query)) {
+            System.out.println("✅ CACHE HIT for query: " + query);
+            return searchCache.get(query);
+        }
+
+        System.out.println("❌ CACHE MISS for query: " + query);
+
+        // ✅ Search database (optimized query)
+        List<String> results = new ArrayList<>();
+
+        try {
+            // Use native Oracle query with ROWNUM
+            List<UploadedContent> docs = contentRepository.findFirstMatching(query, SEARCH_LIMIT);
+
+            for (UploadedContent doc : docs) {
+                if (doc.getContent() != null && !doc.getContent().isEmpty()) {
+                    // Extract first 1000 chars to save tokens
+                    String content = doc.getContent();
+                    String truncated = content.length() > 1000
+                            ? content.substring(0, 1000)
+                            : content;
+
+                    results.add("Source: " + doc.getFilename() + "\n" + truncated);
+                }
+            }
+
+            // ✅ Cache results
+            searchCache.put(query, results);
+            System.out.println("✅ Cached " + results.size() + " results");
+
+        } catch (Exception e) {
+            System.out.println("❌ Database search error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    // ✅ STEP 2: Build context string
+    private String buildContextString(List<String> relevantContext) {
+        if (relevantContext.isEmpty()) {
+            return "No relevant documents found in your uploaded content.";
+        }
+
+        StringBuilder context = new StringBuilder();
+        for (int i = 0; i < relevantContext.size(); i++) {
+            context.append("[").append(i + 1).append("] ").append(relevantContext.get(i)).append("\n\n");
+        }
+        return context.toString();
+    }
+
     // ✅ Convert Unicode bullets to HTML list
     private String convertBulletsToList(String html) {
         if (html == null || html.isEmpty()) {
             return html;
         }
 
-        // Split by lines
         String[] lines = html.split("\n");
         StringBuilder result = new StringBuilder();
         boolean inList = false;
@@ -111,7 +202,6 @@ public class ChatService {
         for (String line : lines) {
             String trimmed = line.trim();
 
-            // Check if line starts with bullet (•, -, *)
             if (trimmed.matches("^•\\s.*") ||
                     trimmed.matches("^-\\s.*") ||
                     trimmed.matches("^*\\s.*")) {
@@ -121,11 +211,9 @@ public class ChatService {
                     inList = true;
                 }
 
-                // Extract text after bullet
                 String text = trimmed.replaceAll("^•\\s|-\\s|*\\s", "");
                 result.append("<li>").append(text).append("</li>\n");
             } else {
-                // End list if we were in one
                 if (inList) {
                     result.append("</ul>");
                     inList = false;
@@ -134,7 +222,6 @@ public class ChatService {
             }
         }
 
-        // Close any open list
         if (inList) {
             result.append("</ul>");
         }
