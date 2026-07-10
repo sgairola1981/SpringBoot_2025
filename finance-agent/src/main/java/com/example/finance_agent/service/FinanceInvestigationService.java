@@ -1,5 +1,6 @@
 package com.example.finance_agent.service;
 
+import com.example.finance_agent.dto.FinanceResponse;
 import com.example.finance_agent.model.BudgetInfo;
 import com.example.finance_agent.model.GstStatus;
 import com.example.finance_agent.model.PaymentStatus;
@@ -101,54 +102,55 @@ public class FinanceInvestigationService {
     }
 
     /**
-     * Main investigation entry: takes raw user input and returns the
-     * final formatted answer (matching SYSTEM_PROMPT's Response Format).
+     * Main investigation entry: takes raw user input and returns DTO.
      */
-    public String investigate(String rawInput) {
+    public FinanceResponse investigateWithHistory(String query, String sessionId, String historyJson) {
+        // TODO: use history/sessionId later if needed
+        return investigate(query);
+    }
 
-        // 1. Clean user input to get actual voucher number
+    public FinanceResponse investigate(String rawInput) {
+
+        long start = System.currentTimeMillis();
+
+        // 1. Extract voucher number from user input
         String voucherNo = extractVoucherNumber(rawInput);
         if (voucherNo.isEmpty()) {
-            return """
-                    Voucher No : 
-                    Status     : Data not available
-
-                    Workflow   : Data not available
-                    GST        : Data not available
-                    Budget     : Data not available
-                    Payment    : Data not available
-                    """;
+            // No voucher number at all: show only voucher not available
+            return new FinanceResponse(
+                    "",
+                    "Voucher not available",
+                    null,
+                    null,
+                    null,
+                    null,
+                    System.currentTimeMillis() - start,
+                    false
+            );
         }
 
-        // 2. Voucher tool (first, mandatory)
+        // 2. Voucher tool (mandatory first step)
         String voucherResult = voucherTool.getVoucherDetails(voucherNo);
 
-        // If voucher doesn't exist, stop and show only voucher info
-        if (voucherResult.contains("RESULT=NOT_FOUND")) {
-
+        // 2a. Voucher not found in system
+        if (voucherResult == null || voucherResult.contains("RESULT=NOT_FOUND")) {
             String voucherNumberFromTool = extractValue(voucherResult, "Voucher No");
             if (voucherNumberFromTool.isEmpty()) {
                 voucherNumberFromTool = voucherNo;
             }
 
-            String voucherStatus = extractValue(voucherResult, "Status");
-            if (voucherStatus.isEmpty()) {
-               // voucherStatus = "Data not available";
-                return "Voucher " + voucherNo + " was not found.";
-            }
+            // Clear message, no other sections
+            String voucherStatus = "Voucher not available";
 
-
-            return """
-                    Voucher No : %s
-                    Status     : %s
-
-                    Workflow   : Data not available
-                    GST        : Data not available
-                    Budget     : Data not available
-                    Payment    : Data not available
-                    """.formatted(
+            return new FinanceResponse(
                     voucherNumberFromTool,
-                    voucherStatus
+                    voucherStatus,
+                    null,
+                    null,
+                    null,
+                    null,
+                    System.currentTimeMillis() - start,
+                    false
             );
         }
 
@@ -166,24 +168,24 @@ public class FinanceInvestigationService {
         String hoa = extractValue(voucherResult, "HOA");
 
         // 4. Call other tools in parallel
-        String finalVoucherNumberFromTool = voucherNumberFromTool;
+        String finalVoucherForWorkflow = voucherNumberFromTool;
         CompletableFuture<WorkflowStatus> workflowFuture =
                 CompletableFuture.supplyAsync(() ->
-                        workflowTool.getWorkflowStatus(finalVoucherNumberFromTool));
+                        workflowTool.getWorkflowStatus(finalVoucherForWorkflow));
 
-        String finalVoucherNumberFromTool1 = voucherNumberFromTool;
+        String finalVoucherForGst = voucherNumberFromTool;
         CompletableFuture<GstStatus> gstFuture =
                 CompletableFuture.supplyAsync(() ->
-                        gstTool.checkGSTStatus(finalVoucherNumberFromTool1));
+                        gstTool.checkGSTStatus(finalVoucherForGst));
 
         CompletableFuture<BudgetInfo> budgetFuture =
                 CompletableFuture.supplyAsync(() ->
                         budgetTool.checkBudget(hoa));
 
-        String finalVoucherNumberFromTool2 = voucherNumberFromTool;
+        String finalVoucherForPayment = voucherNumberFromTool;
         CompletableFuture<PaymentStatus> paymentFuture =
                 CompletableFuture.supplyAsync(() ->
-                        paymentTool.paymentStatus(finalVoucherNumberFromTool2));
+                        paymentTool.paymentStatus(finalVoucherForPayment));
 
         CompletableFuture.allOf(
                 workflowFuture,
@@ -213,22 +215,18 @@ public class FinanceInvestigationService {
                 ? payment.getMessage()
                 : "Data not available";
 
-        // 5. Final formatted answer (exactly as in SYSTEM_PROMPT)
-        return """
-                Voucher No : %s
-                Status     : %s
+        long elapsed = System.currentTimeMillis() - start;
 
-                Workflow   : %s
-                GST        : %s
-                Budget     : %s
-                Payment    : %s
-                """.formatted(
+        // 5. Voucher exists – full DTO with all sections
+        return new FinanceResponse(
                 voucherNumberFromTool,
                 voucherStatus,
                 workflowMessage,
                 gstMessage,
                 budgetMessage,
-                paymentMessage
+                paymentMessage,
+                elapsed,
+                true
         );
     }
 
@@ -245,24 +243,36 @@ public class FinanceInvestigationService {
         }
 
         String trimmed = rawInput.trim();
-        trimmed = trimmed.replaceFirst("(?i)^voucher\\s+", "");
 
+        // 1. If there is any token that is alphanumeric AND contains at least one digit,
+        //    prefer that as the voucher (handles PP8995, AB123, etc.) [web:164][web:167]
         String[] parts = trimmed.split("\\s+");
+        for (String part : parts) {
+            String token = part.replaceAll("[^A-Za-z0-9]", ""); // strip punctuation around the token
+            if (!token.isEmpty() && token.matches("^(?=.*[0-9])[A-Za-z0-9]+$")) {
+                return token;
+            }
+        }
+
+        // 2. Fallback: digits only from entire input for cases like "voucher 52859 status ?"
+        String digitsOnly = trimmed.replaceAll("\\D", "");
+        if (!digitsOnly.isEmpty()) {
+            return digitsOnly;
+        }
+
+        // 3. Final fallback: first plain alphanumeric token (rare edge cases)
+        trimmed = trimmed.replaceFirst("(?i)^voucher\\s+", "");
+        parts = trimmed.split("\\s+");
         if (parts.length == 0) {
             return "";
         }
 
-        String firstToken = parts[0];
-
-        // If the first token looks like a voucher (letters+digits),
-        // just use it as-is.
+        String firstToken = parts[0].replaceAll("[^A-Za-z0-9]", "");
         if (firstToken.matches("[A-Za-z0-9]+")) {
             return firstToken;
         }
 
-        // Fallback: digits only from entire input (for weird formats)
-        String digitsOnly = trimmed.replaceAll("\\D", "");
-        return digitsOnly;
+        return "";
     }
     /**
      * Extracts a value from a multiline text of form:

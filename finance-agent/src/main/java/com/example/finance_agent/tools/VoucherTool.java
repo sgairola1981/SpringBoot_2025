@@ -21,7 +21,7 @@ public class VoucherTool {
             description = "Returns voucher details using voucher number."
     )
     public String getVoucherDetails(String voucherNo) {
-
+        System.out.println("****************: " + voucherNo);
         String sql = """
                 SELECT
                     VOUCHER_NO AS voucherNo,

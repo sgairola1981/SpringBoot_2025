@@ -1,331 +1,398 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-
+<html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Finance AI — Enterprise Agent</title>
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" rel="stylesheet">
 
-  <title>Finance AI Agent</title>
+    <style>
+        :root{
+          --brand-blue:#0b61d0;
+          --brand-dark:#062a4f;
+          --muted:#6c757d;
+          --bubble-in:#e9f3ff;
+          --bubble-out:#f1f5f9;
+          --accent:#0b61d0;
+          --surface:#ffffff;
+        }
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+        html,body{height:100%}
+        body{
+          background:radial-gradient(circle at top left,#f2f7ff 0%,#e8f0ff 35%,#f7fbff 100%);
+          color:#0b2b4a;
+          font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
 
-  <style>
+        .app-shell{
+          min-height:100vh;
+          display:flex;
+        }
 
-    body{
-        background:#eef2f7;
-        height:100vh;
-        overflow:hidden;
-        font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
-    }
+        /* Sidebar */
+        .sidebar{
+          width:300px;
+          background:#fbfdff;
+          border-right:1px solid #dde5f4;
+          padding:1rem 1rem 1.25rem;
+          display:flex;
+          flex-direction:column;
+        }
+        .sidebar .brand{
+          display:flex;
+          gap:.75rem;
+          align-items:center;
+          margin-bottom:1rem;
+        }
+        .sidebar .logo-dot{
+          width:36px;height:36px;
+          background:linear-gradient(135deg,var(--brand-blue),#1466ff);
+          border-radius:10px;
+          display:flex;align-items:center;justify-content:center;
+          color:white;font-weight:700;font-size:.95rem;
+        }
+        .sidebar .section-title{
+          font-size:.8rem;
+          letter-spacing:.08em;
+          text-transform:uppercase;
+          color:var(--muted);
+          margin:1rem 0 .5rem;
+        }
+        .sidebar .history{
+          flex:1;
+          overflow:auto;
+          margin-top:.25rem;
+        }
+        .history-item{
+          padding:.5rem;
+          border-radius:8px;
+          border:1px solid transparent;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          cursor:pointer;
+        }
+        .history-item:hover{
+          background:#f7fbff;
+          border-color:#e6eef9;
+        }
+        .sidebar .new-btn{
+          width:100%;
+          margin-top:0.5rem;
+        }
 
-    .chat-card{
-        width:100%;
-        max-width:1100px;
-        height:92vh;
-        margin:auto;
-        margin-top:20px;
-        border:none;
-        border-radius:18px;
-        overflow:hidden;
-        box-shadow:0 10px 35px rgba(0,0,0,.12);
-    }
+        /* Main */
+        .main{
+          flex:1;
+          display:flex;
+          flex-direction:column;
+          max-height:100vh;
+          background:linear-gradient(180deg,rgba(255,255,255,0.92),rgba(245,249,255,0.96));
+        }
 
-    .chat-header{
+        /* Header */
+        .header{
+          padding:.85rem 1.25rem;
+          border-bottom:1px solid #dde5f4;
+          background:linear-gradient(90deg, rgba(11,97,208,0.06), rgba(6,42,79,0.01));
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+        }
+        .brand-logo{
+          display:flex;
+          gap:.75rem;
+          align-items:center;
+        }
+        .brand-logo .logo-dot{
+          width:40px;height:40px;
+          background:linear-gradient(135deg,var(--brand-blue),#1466ff);
+          border-radius:12px;
+          display:flex;align-items:center;justify-content:center;
+          color:white;font-weight:700;font-size:1rem;
+          box-shadow:0 6px 14px rgba(11,97,208,0.25);
+        }
+        .header-title{
+          font-weight:700;
+          font-size:1.05rem;
+        }
+        .header-subtitle{
+          font-size:.85rem;
+          color:var(--muted);
+        }
+        .status-strip{
+          display:flex;
+          flex-direction:column;
+          align-items:flex-end;
+          gap:.25rem;
+          font-size:.85rem;
+        }
+        .status-pill{
+          display:inline-flex;
+          align-items:center;
+          gap:.35rem;
+          background:#e6fbf1;
+          color:#0f8a4b;
+          border-radius:999px;
+          padding:.25rem .6rem;
+          font-size:.8rem;
+        }
+        .status-dot{
+          width:8px;height:8px;border-radius:999px;background:#0f8a4b;
+        }
 
-        background:linear-gradient(135deg,#0d6efd,#0b5ed7);
-        color:white;
-        padding:18px 25px;
+        /* Chat area */
+        .chat-wrap{
+          flex:1;
+          padding:1rem 1.25rem 1rem;
+          overflow:auto;
+          display:flex;
+          flex-direction:column;
+          gap:1rem;
+        }
+        .messages{
+          display:flex;
+          flex-direction:column;
+          gap:.85rem;
+          max-width:900px;
+          margin:0 auto;
+        }
+        .msg{
+          display:flex;
+          gap:.75rem;
+          align-items:flex-end;
+        }
+        .msg.system{
+          justify-content:center;
+          color:var(--muted);
+          font-size:.9rem;
+        }
+        .msg.in .bubble{
+          background:var(--bubble-in);
+          color:var(--brand-dark);
+          align-self:flex-start;
+          border-radius:12px 12px 12px 4px;
+          padding:.7rem .9rem;
+          max-width:80%;
+          box-shadow:0 2px 6px rgba(11,97,208,0.08);
+          border:1px solid rgba(11,97,208,0.06);
+        }
+        .msg.out{
+          justify-content:flex-end;
+        }
+        .msg.out .bubble{
+          background:var(--bubble-out);
+          color:#0b2b4a;
+          align-self:flex-end;
+          border-radius:12px 12px 4px 12px;
+          padding:.7rem .9rem;
+          max-width:80%;
+          box-shadow:0 2px 6px rgba(2,6,23,0.06);
+          border:1px solid rgba(15,23,42,0.04);
+        }
+        .avatar{
+          width:34px; height:34px;
+          border-radius:10px;
+          display:flex; align-items:center; justify-content:center;
+          color:white; font-weight:600;
+          background:linear-gradient(135deg,#0b61d0,#1466ff);
+          font-size:.8rem;
+        }
 
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
+        /* Response card */
+        .response-card{
+          background:var(--surface);
+          border:1px solid #e1ebff;
+          border-left:4px solid var(--brand-blue);
+          padding:.75rem;
+          border-radius:10px;
+          box-shadow:0 2px 8px rgba(15,23,42,0.04);
+          display:flex;
+          flex-direction:column;
+          gap:.45rem;
+        }
+        .card-row{
+          display:flex;
+          gap:.5rem;
+          align-items:center;
+          justify-content:space-between;
+        }
+        .badge-status{
+          padding:.25rem .6rem;
+          border-radius:999px;
+          font-size:.75rem;
+          font-weight:500;
+        }
+        .badge-success{
+          background:#e6fbf1;
+          color:#0f8a4b;
+          border:1px solid rgba(15,138,75,0.08);
+        }
+        .badge-warn{
+          background:#fff6e6;
+          color:#b56b00;
+          border:1px solid rgba(181,107,0,0.08);
+        }
+        .time-meta{
+          font-size:.82rem;
+          color:var(--muted);
+        }
 
-    }
+        /* Composer */
+        .composer{
+          padding:.85rem 1.25rem;
+          border-top:1px solid #dde5f4;
+          background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,250,255,0.95));
+          display:flex;
+          gap:.75rem;
+          align-items:flex-end;
+        }
+        .composer .input-wrap{
+          flex:1;
+          position:relative;
+        }
+        .composer textarea{
+          width:100%;
+          min-height:46px;
+          max-height:220px;
+          resize:none;
+          padding:.65rem .9rem;
+          border-radius:10px;
+          border:1px solid #dde5f4;
+          box-shadow:none;
+          font-size:.95rem;
+          background:#fbfdff;
+        }
+        .composer textarea:focus{
+          outline:none;
+          border-color:#0b61d0;
+          box-shadow:0 0 0 2px rgba(11,97,208,0.08);
+        }
+        .composer .input-tools{
+          position:absolute;
+          right:8px;
+          bottom:8px;
+          display:flex;
+          gap:.35rem;
+        }
+        .composer .controls{
+          display:flex;
+          gap:.5rem;
+          align-items:center;
+        }
+        .spinner{
+          width:20px;height:20px;
+          border:3px solid rgba(0,0,0,0.08);
+          border-top-color:var(--brand-blue);
+          border-radius:50%;
+          animation:spin 1s linear infinite;
+          display:inline-block;
+        }
+        @keyframes spin{to{transform:rotate(360deg)}}
 
-    .header-title{
+        .muted{color:var(--muted)}
+        .small{font-size:.85rem}
+        .btn-brand{
+          background:var(--brand-blue);
+          color:white;
+          border:none;
+          border-radius:999px;
+          padding:.45rem 1.1rem;
+          font-size:.9rem;
+        }
 
-        display:flex;
-        align-items:center;
-        gap:15px;
-
-    }
-
-    .header-title i{
-
-        font-size:32px;
-
-    }
-
-    .chat-body{
-
-        background:#f8f9fa;
-        overflow-y:auto;
-        height:calc(92vh - 160px);
-        padding:25px;
-
-    }
-
-    .message{
-
-        display:flex;
-        margin-bottom:20px;
-
-    }
-
-    .message.user{
-
-        justify-content:flex-end;
-
-    }
-
-    .message.ai{
-
-        justify-content:flex-start;
-
-    }
-
-    .bubble{
-
-        max-width:78%;
-        padding:15px 18px;
-        border-radius:18px;
-        font-size:15px;
-        line-height:1.6;
-        white-space:pre-wrap;
-        word-break:break-word;
-         text-align:left;
-
-    }
-
-    .user .bubble{
-
-        background:#0d6efd;
-        color:white;
-        border-bottom-right-radius:5px;
-
-    }
-
-    .ai .bubble{
-
-        background:white;
-        color:#333;
-        border:1px solid #dee2e6;
-        border-bottom-left-radius:5px;
-
-    }
-
-    .chat-footer{
-
-        background:white;
-        border-top:1px solid #dee2e6;
-        padding:15px;
-
-    }
-
-    textarea{
-
-        resize:none;
-        border-radius:15px !important;
-
-    }
-
-    .send-btn{
-
-        width:120px;
-        height:55px;
-        border-radius:15px;
-
-    }
-
-    .typing{
-
-        display:none;
-        color:#6c757d;
-        margin-bottom:10px;
-        font-style:italic;
-
-    }
-
-    .badge-online{
-
-        background:#198754;
-
-    }
-    .send-btn:disabled{
-    opacity:.7;
-    cursor:not-allowed;
-}
-
-.spinner-border-sm{
-    margin-right:6px;
-}
-
-.bubble{
-    animation:fadeIn .3s ease;
-}
-
-@keyframes fadeIn{
-
-    from{
-        opacity:0;
-        transform:translateY(10px);
-    }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-
-}
-
-  </style>
-
+        @media (max-width:992px){
+          .sidebar{display:none}
+          .app-shell{padding:0}
+          .chat-wrap{padding:.75rem;}
+          .composer{padding:.75rem;}
+        }
+    </style>
 </head>
-<script>
-
-  const txt = document.getElementById("question");
-
-  txt.addEventListener("keydown", function(e){
-
-      if(e.key==="Enter" && !e.shiftKey){
-
-          e.preventDefault();
-
-          sendQuestion();
-
-      }
-
-  });
-
-  txt.addEventListener("input", function(){
-
-      this.style.height="auto";
-      this.style.height=this.scrollHeight+"px";
-
-  });
-
-</script>
 <body>
-
-<div class="container-fluid">
-
-  <div class="card chat-card">
-
-    <!-- Header -->
-
-    <div class="chat-header">
-
-      <div class="header-title">
-
-        <i class="fa-solid fa-robot"></i>
-
-        <div>
-
-          <h4 class="mb-0">Finance AI Agent</h4>
-
-          <small>Enterprise Finance Investigation Assistant</small>
-
+<div class="app-shell">
+    <aside class="sidebar shadow-sm">
+        <div class="brand">
+            <div class="logo-dot">FA</div>
+            <div>
+                <div style="font-weight:700">Finance AI</div>
+                <div class="small muted">Enterprise Investigator</div>
+            </div>
         </div>
 
-      </div>
+        <button class="btn btn-brand new-btn" id="btn-new">
+            <i class="fa fa-plus me-1"></i> New Investigation
+        </button>
 
-      <span class="badge badge-online p-2">
-
-                ● Online
-
-            </span>
-
-    </div>
-
-    <!-- Chat -->
-
-    <div id="chatWindow" class="chat-body">
-
-      <div class="message ai">
-
-        <div class="bubble">
-
-          👋 Welcome!
-
-          I can help you investigate:
-
-          • Voucher Status
-          • Workflow Status
-          • GST Status
-          • Budget Availability
-          • Payment Status
-
-          Example:
-          "Voucher 52859 status"
-
+        <div class="section-title">Templates</div>
+        <div class="history" id="history">
+            <div class="history-item">
+                <div>
+                    <div class="small" style="font-weight:500">Voucher Audit Q1</div>
+                    <div class="small muted">Last used 2 days ago</div>
+                </div>
+                <i class="fa fa-arrow-right muted"></i>
+            </div>
         </div>
+    </aside>
 
-      </div>
+    <main class="main">
+        <header class="header">
+            <div class="brand-logo">
+                <div class="logo-dot">FA</div>
+                <div>
+                    <div class="header-title">Finance AI</div>
+                    <div class="header-subtitle">Enterprise-grade finance assistant</div>
+                </div>
+            </div>
+            <div class="status-strip">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span id="agentStatus">Ready</span>
+                </div>
+                <div class="time-meta">Model: Production • Region: IN</div>
+            </div>
+        </header>
 
-      <div class="typing" id="typing">
+        <section class="chat-wrap" id="chatWrap">
+            <div class="messages" id="messages" role="log" aria-live="polite">
+                <div class="msg system">
+                    <div class="muted">
+                        Start a new investigation or ask a question about vouchers, GST, budgets, or payments.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        🤖 Finance AI is analysing your request...
+        <div class="composer">
+            <div class="input-wrap">
+        <textarea id="inputText"
+                  placeholder="Ask Finance AI (press Enter to send, Shift+Enter for newline)"></textarea>
+                <div class="input-tools">
+                    <button class="btn btn-sm btn-outline-secondary" id="btn-clear" title="Clear input">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" id="btn-copy-last" title="Copy last response">
+                        <i class="fa fa-copy"></i>
+                    </button>
+                </div>
+            </div>
 
-      </div>
-
-    </div>
-
-    <!-- Footer -->
-
-    <div class="chat-footer">
-
-      <div class="row">
-
-        <div class="col-md-10">
-
-                    <textarea
-                            id="question"
-                            rows="2"
-                            class="form-control"
-                            placeholder="Ask about voucher, payment, GST, workflow..."></textarea>
-
+            <div class="controls">
+                <div id="loadingIndicator" style="display:none" title="Processing">
+                    <span class="spinner" aria-hidden="true"></span>
+                </div>
+                <button id="btn-ask" class="btn btn-brand" title="Ask AI">
+                    <i class="fa fa-paper-plane me-1"></i> Ask AI
+                </button>
+            </div>
         </div>
-
-        <div class="col-md-2 d-grid">
-
-          <button
-                  class="btn btn-primary send-btn"
-                  onclick="sendQuestion()">
-
-            <i class="fa-solid fa-paper-plane"></i>
-            Ask AI
-
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
+    </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/chat.js"></script>
-
-<script>
-
-  document.getElementById("question").addEventListener("keydown",function(e){
-
-      if(e.key==="Enter" && !e.shiftKey){
-
-          e.preventDefault();
-
-          sendQuestion();
-
-      }
-
-  });
-
-</script>
-
 </body>
 </html>
