@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:oracle:thin:@localhost:1521/XE  # Service name for XE pluggable DB
     username: hr
-    password: vayam
+    password: hr
     driver-class-name: oracle.jdbc.OracleDriver  # ✅ Correct (ojdbc11+)
     hikari:  # Add connection pool tuning
       maximum-pool-size: 20
@@ -36,7 +36,7 @@ spring:
             non_contextual_creation: true  # Oracle CLOB fix
 
 server:
-  port: 8888
+  port: 5555
   error:
     include-message: always  # Better error pages
 

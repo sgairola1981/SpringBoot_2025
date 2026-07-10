@@ -17,6 +17,7 @@
         <option value="$PROJECT_DIR$/../olamarag/pom.xml" />
         <option value="$PROJECT_DIR$/../aiimage/pom.xml" />
         <option value="$PROJECT_DIR$/../localprompt/pom.xml" />
+        <option value="$PROJECT_DIR$/../imageai/pom.xml" />
       </list>
     </option>
   </component>

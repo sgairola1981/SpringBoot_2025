@@ -1,0 +1,32 @@
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  width: 500px;
+  overflow: hidden;
+  background: wheat;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  position: absolute;
+  top: 30%;
+  left: 40%; 
+  z-index: 9999;
+  padding: 10px;
+  text-align: center;
+  display: none;   
+  border-bottom: 1px solid #aaa;  
+   shadow:0 0 60px 10px rgba(0, 0, 0, 0.3);
+  containerBackground:rgba(0,0,0,0.2);
+  containerClass:'';
+  containerZIndex:100;
+  
+ }
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 100%;
+}

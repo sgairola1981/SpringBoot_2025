@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WFMS Login</title>
+
+    <link rel="stylesheet" href="scripts/style.css">
+    <link rel="stylesheet" href="scripts/style_login.css">
+    <link rel="stylesheet" href="scripts/font-awesome_login.css">
+
+    <style>
+        :root {
+            --bg1: #0f172a;
+            --bg2: #1e293b;
+            --card: rgba(15, 23, 42, 0.72);
+            --line: rgba(255,255,255,0.12);
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent2: #8b5cf6;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(139,92,246,0.18), transparent 35%),
+                linear-gradient(135deg, var(--bg1), var(--bg2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .page-wrap {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .login-card {
+            display: grid;
+            grid-template-columns: 1.05fr 1fr;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: var(--card);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand-panel {
+            padding: 48px 40px;
+            background: linear-gradient(160deg, rgba(56,189,248,0.18), rgba(139,92,246,0.14));
+            border-right: 1px solid var(--line);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .brand-panel h1 {
+            margin: 0;
+            font-size: 34px;
+            line-height: 1.2;
+        }
+
+        .brand-panel p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .logo-box {
+            width: 140px;
+            height: 140px;
+            border-radius: 24px;
+            display: grid;
+            place-items: center;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--line);
+        }
+
+        .logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .form-panel {
+            padding: 42px 36px;
+        }
+
+        .form-header {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .form-header span {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .msg {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(239,68,68,0.35);
+            background: rgba(239,68,68,0.12);
+            color: #fecaca;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .field input {
+            width: 100%;
+            height: 48px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            padding: 0 14px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(56,189,248,0.15);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .unit-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .lov-btn {
+            width: 46px;
+            height: 46px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+            cursor: pointer;
+            color: white;
+            transition: 0.2s ease;
+        }
+
+        .lov-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.12);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            height: 48px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .links {
+            margin-top: 22px;
+            display: grid;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .links a {
+            color: #7dd3fc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .login-card {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+            }
+        }
+
+        @media (max-width: 520px) {
+            .brand-panel,
+            .form-panel {
+                padding: 24px 18px;
+            }
+
+            .actions {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+
+    <script src="scripts/validationWFMS.js" type="text/javascript"></script>
+    <script>
+        function fn_lov_login(fieldName, fieldDesc, accntUnit, name, title, fnValue, mValue) {
+            document.forms[0].USER_ID.readOnly = true;
+            var winPopup = window.open(
+                "wfms/common/GenericLov_Search.jsp?LOV_ID=LOGIN&USER_ID=" + document.forms[0].USER_ID.value +
+                "&title=" + title + "&fn=" + fnValue + "&mValue=" + mValue + "&login=Y",
+                "winSearch",
+                "scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=500,height=400"
+            );
+        }
+
+        function fn_go() {
+            document.forms[0].actionFlag.value = 'LOGINSearch';
+            document.forms[0].ims_flag.value = 'S';
+
+            if (!validRequired(document.forms[0].USER_ID, "User Id can not be left blank !")) return false;
+            if (!validRequired(document.forms[0].USER_PASSWD, "Password can not be left blank !")) return false;
+            if (!validRequired(document.forms[0].UNIT_CD, "Physical Unit can not be left blank !")) return false;
+
+            document.forms[0].login.disabled = true;
+            document.forms[0].submit();
+        }
+
+        function fn_cancel() {
+            document.forms[0].USER_ID.readOnly = false;
+            document.forms[0].USER_ID.value = "";
+            document.forms[0].USER_PASSWD.value = "";
+            document.forms[0].UNIT_CD.value = "";
+            document.forms[0].login.disabled = false;
+            document.forms[0].USER_ID.focus();
+        }
+
+        function enterPrss(e) {
+            e = e || window.event;
+            if (e.keyCode === 13) fn_go();
+        }
+
+        function fnbdload() {
+            document.forms[0].USER_ID.focus();
+        }
+
+        function common_login() {
+            document.forms[0].USER_ID.value = "GUIFMSQ";
+            document.forms[0].USER_PASSWD.value = "GUI@fmsq1";
+            document.forms[0].USER_ID.readOnly = true;
+            document.forms[0].USER_PASSWD.readOnly = true;
+            document.forms[0].UNIT_CD.value = "";
+            alert("Please Select Physical Unit !!");
+        }
+
+        function Contact_Us() {
+            window.open(
+                "wfms/Contact_Us.jsp",
+                "winSearch",
+                "scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=750,height=400"
+            );
+        }
+    </script>
+</head>
+
+<body onkeydown="enterPrss(event)" onload="fnbdload()">
+<%
+    String Login_Flag = "";
+    String session_expired = "";
+    if (request.getParameter("session_expired") != null) {
+        session_expired = request.getParameter("session_expired");
+    }
+    if (request.getAttribute("LOGIN_FLAG") != null) {
+        Login_Flag = (String) request.getAttribute("LOGIN_FLAG");
+    }
+
+    Hashtable ht = null;
+    Element reqstData = null;
+    String USER_ID = "";
+    String USER_PASSWD = "";
+    String UNIT_CD = "";
+    String UNIT_DESC = "";
+    String AU_CD = "";
+    String LOCATION = "";
+    String ret_cd = "";
+    String HOST_IP = request.getRemoteAddr();
+%>
+
+<div class="page-wrap">
+    <div class="login-card">
+        <div class="brand-panel">
+            <div class="logo-box">
+                <img src="images/logo.gif" alt="WFMS Logo">
+            </div>
+            <h1>Web-based Financial Management System</h1>
+            <p>
+                Secure access for authorized users with a modern, clean interface.
+                Choose your physical unit and sign in to continue.
+            </p>
+        </div>
+
+        <div class="form-panel">
+            <div class="form-header">
+                <h2>Login</h2>
+                <span>Enter your credentials to continue</span>
+            </div>
+
+            <% if (Login_Flag.equals("F")) { %>
+                <div class="msg">
+                    LOGIN FAILED. Please check your USER ID, PASSWORD, and Physical Unit.
+                </div>
+            <% } %>
+
+            <% if ("true".equals(session_expired)) { %>
+                <div class="msg">
+                    Sorry, your session has expired. Please login again.
+                </div>
+            <% } %>
+
+            <form action="WFMSControllerServlet" method="post">
+                <input type="hidden" value="LoginSearch" name="ACTION">
+                <input type="hidden" name="actionFlag">
+                <input type="hidden" name="ims_flag">
+                <input type="hidden" name="AU_CD" value="<%=AU_CD%>">
+                <input type="hidden" name="HOST_IP" value="<%=HOST_IP%>">
+                <input type="hidden" name="np_flag" value="F">
+                <input type="hidden" name="LOCATION" value="<%=LOCATION%>">
+                <input type="hidden" name="UNIT_DESC" value="<%=UNIT_DESC%>">
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="USER_ID">User Id</label>
+                        <input type="text" id="USER_ID" name="USER_ID" maxlength="50" autocomplete="username">
+                    </div>
+
+                    <div class="field">
+                        <label for="USER_PASSWD">Password</label>
+                        <input type="password" id="USER_PASSWD" name="USER_PASSWD" autocomplete="current-password">
+                    </div>
+
+                    <div class="field">
+                        <label for="UNIT_CD">Physical Unit</label>
+                        <div class="unit-row">
+                            <input type="text" id="UNIT_CD" name="UNIT_CD" readonly>
+                            <button type="button" class="lov-btn" onclick="fn_lov_login('UNIT_CD','UNIT_DESC','AU_CD','LOCATION','Physical Unit - Description - Accounting Unit - Description','2',document.forms[0].USER_ID.value)">
+                                🔍
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="button" name="login" id="login" class="btn btn-primary" onclick="fn_go()">Sign in</button>
+                        <button type="button" name="cancel" id="cancel" class="btn btn-secondary" onclick="fn_cancel()">Clear</button>
+                    </div>
+
+                    <div class="links">
+                        <a href="javascript:common_login()">New User</a>
+                        <a href="javascript:common_login()">Password Change / Reset Request</a>
+                        <a href="javascript:Contact_Us()">Contact Us</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="PUBLIC_BANNER_BAR" style="margin:20px;">
+    <iframe NAME="MSGFRAME" SRC="wfms/WFMS_MSG_Blank.jsp" width="0%" height="0%" FRAMEBORDER="0"></iframe>
+</div>
+</body>
+</html>

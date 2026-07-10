@@ -1,0 +1,33 @@
+BODY {
+	FONT-FAMILY: verdana, helvetica, arial, sans-serif;BACKGROUND-COLOR: #d4E7FF 
+}
+#mainMenu {
+	BORDER-RIGHT: #ccc 1px solid; BORDER-TOP: #ccc 1px solid; BORDER-LEFT: #ccc 1px solid; WIDTH: 203px; COLOR: #000; BORDER-BOTTOM: #ccc 1px solid; BACKGROUND-COLOR: #d4E7FF
+}
+#menuList {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 30px; PADDING-BOTTOM: 10px; MARGIN: 0px; PADDING-TOP: 10px
+}
+LI.menubar {
+	FONT-SIZE: 12px; list-style-image: url('sqpurple.gif'); LIST-STYLE-TYPE: none
+}
+.menu {
+	PADDING-RIGHT: 0px; DISPLAY: none; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN-LEFT: 15px; PADDING-TOP: 0px
+}
+.menu LI {
+ LIST-STYLE-TYPE: none
+}
+A.actuator {
+	FONT-SIZE: 12px; COLOR: #000; BACKGROUND-COLOR: transparent; TEXT-DECORATION: none
+}
+A.actuator:hover {
+	TEXT-DECORATION: underline
+}
+.menu LI A {
+	FONT-SIZE: 12px; COLOR: #000; BACKGROUND-COLOR: transparent; TEXT-DECORATION: none
+}
+.menu LI A:hover {
+	BORDER-BOTTOM: #000 1px dashed
+}
+SPAN.key {
+	TEXT-DECORATION: underline
+}

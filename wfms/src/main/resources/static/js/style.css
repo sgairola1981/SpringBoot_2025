@@ -1,0 +1,776 @@
+  
+H2	
+	{ 
+		color:#000066;
+		background-color:black; 
+		font-family: Arial;
+		font-size: 8px ;
+		font-weight: bold 
+	}
+
+.windowtitle
+	{
+		color:#ffeebc;
+		background-color:#000066;
+		font-family: Arial;
+		font-size: 18px ;
+		font-weight: bold; 
+		text-align:center
+		
+	}
+	.alternateRow
+	{
+		background-color:#efeebb;
+	}
+	.title1
+	{
+		color:white;
+		background-color:395f9b;
+		font-family: Arial;
+		font-size: 15px ;
+		font-weight: bold; 
+		
+		
+	}
+
+.mcraftAdiv
+	{
+		color:black;
+		
+	}
+
+.windowdiv
+	{
+
+	color:black;
+		
+	}
+.nondisp
+        {
+		display:none
+	}
+.bgcol
+        {
+		background-color:#ECEBDB
+	}	
+
+
+.outputdiv
+	{
+		font-family:sans-serif;
+		font-size:13px;
+		font-weight:plain
+	}
+
+.grphdrdiv
+	{
+		color:#FFFFFF;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}
+.grphdrlgnd
+	{
+		font-weight: bold;
+		font-size: 12px;
+		color: black;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		background-color: #ecebdb
+	}
+.assoctext
+	{
+		font-weight: normal;
+		font-size: 12px;
+		color: black;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		/* amit background-color: #ecebdb*/
+		background-color: #efeebb
+
+		
+	}
+	.LinkText
+	{
+		font-weight: bold;
+		font-size: 15px;
+		color: blue;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		background-color: white;
+		vertical-align: text-top;
+
+	}
+
+.radiolbl
+	{
+		font-weight: normal;
+		font-size: 13px;
+		color: red;
+		font-family: 'MS Sans Serif';
+		background-color: #ecebdb
+
+	}
+
+.mandatory
+	{
+		color:red;
+		font-weight: bold
+	}
+.attrdtls
+	{
+		font-weight: normal;
+		font-size: 12px;
+		color: black;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		background-color: #FFFFFF
+
+
+	}
+.udctrl
+	{
+		font-family:sans-serif;font-size:13px;
+		font-weight:plain; color:black
+	}
+.grpbtn
+	{
+		color:black
+	}
+.grplink
+	{
+	}	
+
+/* dw_1.OutPut Table Div */
+.dwtbldiv
+	{
+		border:1px #CCCCFE;overflow:scroll
+	}
+/*.mytbldiv
+	{
+		border:1px #CCCCFE
+	}*/
+.tbl
+	{
+		background-color : white
+	}
+/*Table Row for header*/
+.tblthtr
+	{
+		font-weight: normal;
+		font-size: 10px;
+		color: black;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		background-color: #ecebdb
+
+	}
+.tblhdr
+	{
+		font-weight: bold;
+		font-size: 11px;
+		color: #ffeebc;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		background-color: #395f9b
+
+
+	}
+.tblcell
+	{
+		font-weight: normal;
+		font-size: 12px;
+		color: black;
+		font-family: Arial, 'MS Sans Serif', Verdana;
+		background-color: #FFFFFF
+
+	}
+
+.butstyle
+	{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		border-left: #395f9b 1px solid;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		/*background-color: #eecc99	*/
+	}
+
+
+.rightAlign
+	{
+		font-family:sans-serif;
+		font-size:13px;
+		font-weight:plain;
+		color:black;
+		text-align:right
+
+
+	}
+.centerAlign
+	{
+		font-family:sans-serif;
+		font-size:13px;
+		font-weight:plain;
+		color:black;text-align:center
+
+
+	}	
+.disbtext
+	{
+		font-family:sans-serif;
+		font-size:13px;
+		font-weight:plain;
+		color:black
+	}
+.btlnkgrp
+	{
+		font-family:sans-serif;
+		font-size:13px;
+		font-weight:bold;
+		color:white;
+		background-color:#000066
+		
+	}
+.GrpButton
+	{
+		text-align:center;
+	}
+.TopGrpButton
+	{
+		text-align:right;
+	}
+	
+				
+/* udGroupBox Style */
+.udGroupBoxDiv
+        {
+		border: 1px #CCCCFE;
+		/*background-color:#ecebdb amit*/
+		background-color:#efeebb
+	
+	}	
+.bodyStyle
+        {
+		background-color:#efeebb
+	}	
+
+/*udGroupBox Header Style*/
+.udGroupBoxHdrDiv
+        {
+		color:#ffeebc;
+		font-family:Arial;
+		font-size:12px;
+		font-weight: bold;
+		background-color:#395f9b
+	}
+/* Sub Heading*/
+.SubHeading
+        {
+		color:white;
+		font-family:Arial;
+		font-size:14px;
+		font-weight: bold;
+		background-color:#395f9b
+	}
+
+
+/* udTabGroupBox Style */
+	
+.udTabGroupBoxDiv
+        {
+		border: 1px #CCCCFE;
+		background-color:#ecebdb
+	}	
+
+/*udTabGroupBox Header Style*/
+.udTabGroupBoxHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}		
+
+/* udTable Style */
+.udTableDiv
+        {
+	}	
+/* udTable Header Style */
+.udTableHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+
+.udButtonGroupBoxDiv
+        {
+		border: 1px #CCCCFE;
+		background-color:#ecebdb
+	}	
+
+/* udButtonGroupBox Header Style */
+.udButtonGroupBoxHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+/*udButtonLinks Style*/
+.udButLinksDiv
+        {
+	}	
+/*udButtonControl Style*/
+.udbtnctrl
+	{
+		font-family:sans-serif;
+		font-size:13px;
+		font-weight:bold;
+		color:white;
+		background-color:#000066
+
+	}
+.udButtonsControlDiv
+        {
+	}	
+/*udButtonControl Header Style*/
+.udButtonsControlHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+
+/* udUnionTabe Style */
+.ud_UnionTableDiv
+        {
+	}	
+/* udUnionTabe Header Style */
+.udUnionTableHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+.udTbPnHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+/* udMSelectTable Style */
+.udMSelectTableDiv
+        {
+	}	
+/* udMSelectTable Header Style */
+.udMSelectTableHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+
+/* udTabTable Style */
+.udTabTableDiv
+        {
+	}	
+/* udTabTable Header Style */
+.udTabTableHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}
+/* udNCSTabTable Style */
+.udNCSTabTableDiv
+        {
+	}	
+/* udNCSTabTable Header Style */
+.udNCSTabTableHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+
+/* udTableGroupBox - Table Style */
+.udTableGroupBoxTblDiv
+        {
+	}	
+/* udTableGroupBox - GroupBox Style */
+.udTableGroupBoxGrbDiv
+        {
+		border: 1px #CCCCFE;
+		background-color:#ecebdb
+	}	
+/* udTableGroupBox Header Style */
+.udTableGroupBoxHdrDiv
+        {
+		color:white;font-family:Arial;
+		font-size:12px;font-weight: bold;
+		background-color:#395f9b
+	}	
+.tblHeading
+        {
+		text-align:left;
+		font-weight:bold;
+		color:white
+	}	
+.MCButLinksLnkStyle
+{
+}
+.MCButLinksBtnStyle
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+}
+
+.udUnionTblBtnGrp
+{
+	text-align:center
+}
+.udUnionTblBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align:center
+}
+
+.udButLinksBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+}
+
+.udButtonGroupBoxBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+}
+.udButtonControlBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+}
+
+.udMSelectTableBtnGrp
+{
+	text-align:center
+}
+.udMSelectTableBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align:center
+}
+
+.udTableBtnGrp
+{
+text-align:center;
+}
+.udTable
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align:center
+}
+
+
+.searchBtnGrp
+{
+	text-align:center
+}
+.searchBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align:center
+}
+
+.udTableGroupBoxGrpBtn
+{
+		
+		text-align:center
+
+}
+.udTblGrpBoxGrpBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align:center
+}
+
+.udTableGroupBoxTblBtn
+{
+	text-align:center
+	
+}
+.udTblGrpBoxTblBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align:center
+}
+.udTabTableBtnGrp
+{
+	text-align:center
+}
+.udTabTableBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align: center
+		
+	}
+
+.udNCSTabTableBtnGrp
+{
+	text-align:center
+}
+.udNCSTabTableBtn
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb;
+		text-align: center
+		
+	}
+.tabEnabledColor
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+		
+}
+
+.tabDisabledColor
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+}
+.paneColor
+{
+		border-right: #395f9b 1px solid;
+		border-top: #395f9b 1px solid;
+		font-weight: bold;
+		border-left: #395f9b 1px solid;
+		color: #0057ae;
+		font-size: 8pt;
+		border-bottom: #395f9b 1px solid;
+		font-family: verdana;
+		background-color: #ecebdb
+}
+.webfx-tree-container {
+	margin: 0px;
+	padding: 0px;
+	font: icon;
+	white-space: nowrap;
+}
+
+.webfx-tree-item {
+	padding: 0px;
+	margin: 0px;
+	font: icon;
+	color: black;
+	white-space: nowrap;
+}
+
+.webfx-tree-item a, .webfx-tree-item a:active, .webfx-tree-item a:hover {
+	margin-left: 3px;
+	padding: 1px 2px 1px 2px;
+}
+
+.webfx-tree-item a {
+	color: black;
+	text-decoration: none;
+}
+
+.webfx-tree-item a:hover {
+	color: blue;
+	text-decoration: underline;
+}
+
+.webfx-tree-item a:active {
+	background: highlight;
+	color: highlighttext;
+	text-decoration: none;
+}
+
+.webfx-tree-item img {
+	vertical-align: middle;
+	border: 0px;
+}
+
+.webfx-tree-icon {
+	width: 16px;
+	height: 16px;
+}
+.treeDiv {
+		  overflow: hidden;
+		  border: 2 outset white;
+		  margin: 0;
+		  background: white; 
+		  color: black;
+	     padding: 2px;
+
+}
+.scrolldiv
+{
+		overflow:scroll
+}
+
+.label {
+font-family:ARIAL;
+font-size: 10pt;
+font-weight:bold;
+color:#000000;
+padding-top:0pt;
+padding-bottom: 0pt;
+}
+
+.labelHeading {
+font-family:ARIAL;
+font-size: 10pt;
+font-weight:bold;
+color:white;
+padding-top:0pt;
+padding-bottom: 0pt;
+}
+
+.nTextBox
+{
+	text-align:right;
+}
+.help_cls_bold
+{
+	font-decoration:none;
+	font-family:Arial;
+	font-size:12pt;
+	font-weight:bold;
+	color:blue;
+	text-align:center;
+	background-color: silver;
+	margin: 10px;
+}				
+.help_paragraph
+{
+	text-indent: 0.25in;
+	text-align:justify;
+	line-height: 1.2em;
+	margin: 40px;
+	border-style: outset;
+	padding: 13px;
+	
+}
+.help_cls_normal
+{
+	font-decoration:none;
+	font-family:Arial;
+	font-size:10pt;
+	color:#000000;
+	text-align:left;
+}
+
+.textstyle
+	{
+            background-color:gray;
+            border:solid 1px #6E6E6E;
+            height:25px;
+            font-size:15px;   
+	/*background-color: #eecc99	*/
+	}
+        
+
+
+
+

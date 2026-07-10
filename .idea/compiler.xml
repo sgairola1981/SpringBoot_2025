@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="wfms" />
         <module name="userservice" />
         <module name="ai" />
         <module name="Idempotency" />
@@ -23,6 +24,7 @@
         <module name="secondservice" />
         <module name="LoggingTracing" />
         <module name="email" />
+        <module name="finance-agent" />
       </profile>
       <profile name="Annotation profile for xaconnection" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -54,6 +56,7 @@
       <module name="chat" options="-parameters" />
       <module name="chitchat" options="-parameters" />
       <module name="email" options="-parameters" />
+      <module name="finance-agent" options="-parameters" />
       <module name="firstservice" options="-parameters" />
       <module name="ichr" options="-parameters" />
       <module name="jwtauth" options="-parameters" />
@@ -63,6 +66,7 @@
       <module name="paymentservice" options="-parameters" />
       <module name="secondservice" options="-parameters" />
       <module name="userservice" options="-parameters" />
+      <module name="wfms" options="-parameters" />
       <module name="xaconnection" options="-parameters" />
       <module name="zipkinmicrometer" options="-parameters" />
     </option>

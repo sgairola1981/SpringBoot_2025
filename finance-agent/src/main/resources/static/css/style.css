@@ -1,0 +1,27 @@
+body{
+
+background:#f4f4f4;
+
+}
+
+.card{
+
+margin:auto;
+
+width:900px;
+
+}
+
+#chatWindow{
+
+height:500px;
+
+overflow:auto;
+
+border:1px solid #ddd;
+
+padding:20px;
+
+background:white;
+
+}

@@ -1,0 +1,31 @@
+body {
+	background-color: #E0E0E0;
+	font-family: Helvetica;
+	font-size: 11px;
+}
+a.MO {
+	text-decoration: none;
+	font-family: Helvetica;
+	font-size: 11px;
+	font-weight: bold;
+	color: #309930;
+}
+a.DA {
+	text-decoration: none;
+	font-family: Helvetica;
+	font-size: 11px;
+	font-weight: bold;
+	color: #5050FF;
+}
+b.sun {
+	font-family: Verdana;
+	font-size: 11px;
+	font-weight: normal;
+	background-color: #FF9090;
+}
+b.mon {
+	font-family: Verdana;
+	font-size: 11px;
+	font-weight: normal;
+	background-color: #A0A0FF;
+}

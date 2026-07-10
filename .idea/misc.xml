@@ -26,6 +26,8 @@
         <option value="$PROJECT_DIR$/api-gateway-tracing/pom.xml" />
         <option value="$PROJECT_DIR$/booking-service/pom.xml" />
         <option value="$PROJECT_DIR$/paymentservice/pom.xml" />
+        <option value="$PROJECT_DIR$/wfms/pom.xml" />
+        <option value="$PROJECT_DIR$/finance-agent/pom.xml" />
       </list>
     </option>
   </component>

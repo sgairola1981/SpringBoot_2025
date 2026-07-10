@@ -1,0 +1,57 @@
+body {
+  background-image: linear-gradient(135deg, #FAB2FF 10%, #1904E5 100%);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  font-family: "Open Sans", sans-serif;
+  color: #333333;
+}
+.modal1 {
+ width: 60%;display: table;
+  
+}
+.main {
+ width: 100%; display: table;
+ margin-top: 7%;
+ margin-left:30%;
+ margin-right:20%;
+ box-shadow: 0px 4px 20px 0px #49c628a6;
+  
+}
+
+.left {
+
+ width: 50%; display: table-cell;background:#5961f9ad;
+  
+}
+.right {
+ display: table-cell;background:#5961f9ad;
+   
+}
+/* Set a style for all buttons */
+button {
+  font-size:15px;
+  font-family:Arial;
+  width:140px;
+  height:50px;
+  border-width:1px;
+  color:#fff;
+  border-color:#18ab29;
+  border-top-left-radius:28px;
+  border-top-right-radius:28px;
+  border-bottom-left-radius:28px;
+  border-bottom-right-radius:28px;
+  text-shadow: 1px 1px 0px #2f6627;
+  background:#44c767;
+}
+
+button:hover {
+background: #5cbf2a
+}
+label {
+  display:compact;
+  position: relative;
+  font:Verdana, Arial, Helvetica, sans-serif;
+ 
+}
+
