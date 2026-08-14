@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - WFMS</title>
+
+    <link th:href="@{/js/style.css}" type="text/css" rel="stylesheet">
+
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #333399 0%, #6b6bd6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: #333399;
+            color: #ffff99;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .login-header img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .login-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffff99;
+        }
+
+        .login-body {
+            padding: 25px 20px;
+        }
+
+        .error-messages {
+            margin-bottom: 15px;
+        }
+
+        .error-messages p {
+            background: #ffe6e6;
+            color: #cc0000;
+            padding: 10px;
+            border-left: 4px solid #cc0000;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333399;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="password"]:focus {
+            border-color: #333399;
+            outline: none;
+        }
+
+        .input-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-with-icon input {
+            flex: 1;
+        }
+
+        .input-with-icon img {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-signin {
+            background: #333399;
+            color: #fff;
+        }
+
+        .btn-signin:hover {
+            background: #25257a;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .extra-links {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .extra-links a {
+            color: #333399;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-us {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .contact-us a {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .contact-us a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body onKeyPress="enterPrss()" onload="fnbdload()">
+
+<script th:src="@{/js/validationWFMS.js}" type="text/javascript"></script>
+<script type="text/javascript">
+
+    function fn_lov_login(fieldName, fieldDesc, accntUnit, name, title, fnValue, mValue) {
+        var numOfColumns = 2;
+        document.forms[0].USER_ID.readOnly = true;
+        var parentfield = eval("document.forms[0]." + fieldName);
+        var parentfield1 = eval("document.forms[0]." + fieldDesc);
+        var parentfield2 = eval("document.forms[0]." + accntUnit);
+        var parentfield3 = eval("document.forms[0]." + name);
+
+        var url = "wfms/common/GenericLov_Search.jsp?LOV_ID=LOGIN"
+                + "&USER_ID=" + document.forms[0].USER_ID.value
+                + "&title=" + title
+                + "&fn=" + fnValue
+                + "&mValue=" + mValue
+                + "&login=" + "Y";
+
+        var winPopup = window.open(url, 'winSearch',
+                'scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=500,height=400');
+    }
+
+    function fn_lov_Module(fieldName, fieldDesc, title, fnValue, mValue) {
+        if (!validRequired(document.forms[0].USER_ID, "User Id can not be left blank !")) {
+            return false;
+        } else if (!validRequired(document.forms[0].USER_PASSWD, "Password can not be left blank !")) {
+            return false;
+        } else if (!validRequired(document.forms[0].UNIT_CD, "Physical Unit can not be left blank !")) {
+            return false;
+        }
+
+        var numOfColumns = 0;
+        document.forms[0].USER_ID.readOnly = true;
+        var parentfield = eval("document.forms[0]." + fieldName);
+        var parentfield1 = eval("document.forms[0]." + fieldDesc);
+
+        var url = "wfms/common/GenericLov_Search.jsp?LOV_ID=MODULE_ID_LOV"
+                + "&USER_ID=" + document.forms[0].USER_ID.value
+                + "&title=" + title
+                + "&fn=" + fnValue
+                + "&mValue=" + mValue
+                + "&login=" + "Y";
+
+        var winPopup = window.open(url, 'winSearch',
+                'scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=500,height=400');
+    }
+
+    function clearDepFields(str) {
+        if (str === 'LOGIN') {
+            document.forms[0].USER_ID.readOnly = true;
+            document.forms[0].login.focus();
+        }
+    }
+
+    function fn_go() {
+        document.forms[0].actionFlag.value = 'LOGINSearch';
+        document.forms[0].ims_flag.value = 'S';
+
+        if (!validRequired(document.forms[0].USER_ID, "User Id can not be left blank !")) {
+            return false;
+        } else if (!validRequired(document.forms[0].USER_PASSWD, "Password can not be left blank !")) {
+            return false;
+        } else if (!validRequired(document.forms[0].UNIT_CD, "Physical Unit can not be left blank !")) {
+            return false;
+        } else if (!validRequired(document.forms[0].MODULE_CD, "Module Layout can not be left blank !")) {
+            return false;
+        }
+
+        document.forms[0].login.disabled = true;
+        document.forms[0].submit();
+    }
+
+    function fn_cancel() {
+        document.forms[0].USER_ID.readOnly = false;
+        document.forms[0].USER_ID.value = "";
+        document.forms[0].USER_PASSWD.value = "";
+        document.forms[0].UNIT_CD.value = "";
+        document.forms[0].MODULE_CD.value = "";
+        document.forms[0].login.disabled = false;
+    }
+
+    function enterPrss() {
+        if (event.keyCode === 13) {
+            fn_go();
+        }
+    }
+
+    function fnbdload() {
+        document.forms[0].USER_ID.focus();
+    }
+
+    function common_login() {
+        document.forms[0].USER_ID.value = "GUIFMSQ";
+        document.forms[0].USER_PASSWD.value = "GUI@fmsq1";
+        document.forms[0].USER_ID.readOnly = true;
+        document.forms[0].USER_PASSWD.readOnly = true;
+        document.forms[0].UNIT_CD.value = "";
+        document.forms[0].MODULE_CD.value = "";
+        alert("Please Select Physical Unit !!");
+    }
+
+    function Contact_Us() {
+        var winPopup = window.open("wfms/Contact_Us.jsp", 'winSearch',
+                'scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=750,height=400');
+    }
+</script>
+
+<div class="login-container">
+    <div class="login-header">
+        <img th:src="@{/images/logo1.gif}" alt="Logo">
+        <h1>Web-based Financial Management System</h1>
+    </div>
+
+    <div class="login-body">
+
+        <!-- Error messages -->
+        <div class="error-messages" th:if="${loginFlag == 'F'}">
+            <p th:if="${retCd == '-98'}">
+                LOGIN FAILED !! Please enter a valid USER ID and PASSWORD !!!
+            </p>
+            <p th:if="${retCd == '-97'}">
+                LOGIN FAILED !! You do not have privileges to Login into chosen Physical Unit !!!<br>
+                Please choose a valid Physical Unit !!!
+            </p>
+            <p th:if="${retCd == '-96'}">
+                SORRY!!! No. of tries exceeded the limit. PASSWORD DISABLED !!<br>
+                Please Enable password using Password Change option on Login Page !!!
+            </p>
+            <p th:if="${retCd == '-95'}">
+                USER ID IS INACTIVE !!<br>
+                Please contact System Administrator !!!
+            </p>
+            <p th:if="${retCd == '-94'}">
+                Error while logging !!!<br>
+                Please contact System Administrator !!!
+            </p>
+            <p th:if="${retCd == '-100'}">
+                Error while logging !!!<br>
+                It's now more than 90 days since last password change!!!<br>
+                Please Change the password !!!
+            </p>
+            <p th:if="${retCd == '-299'}">
+                Error while logging !!!<br>
+                You Are Not a Regular Employee !!!
+            </p>
+            <p th:if="${retCd == '-399'}">
+                Error while logging !!!<br>
+                You Are Already Logged in from another PC. Login not allowed !!
+            </p>
+            <p th:if="${retCd == '-499'}">
+                Error while logging !!!<br>
+                Login Failed. Use a valid IP Address.. !
+            </p>
+            <p th:if="${retCd != '-99' and retCd != '-98' and retCd != '-97' and retCd != '-96'
+                      and retCd != '-95' and retCd != '-94' and retCd != '-100'
+                      and retCd != '-299' and retCd != '-399' and retCd != '-499'}">
+                Error while logging !!!<br>
+                Please contact System Administrator !!!
+            </p>
+        </div>
+
+        <div class="error-messages" th:if="${sessionExpired != null and sessionExpired == 'true'}">
+            <p>
+                Sorry, Your Session Has Expired!!!<br>
+                Please Login Again !!!
+            </p>
+        </div>
+
+        <form th:action="@{/login2}" method="post">
+            <input type="hidden" name="ACTION" value="LoginSearch">
+            <input type="hidden" name="actionFlag">
+            <input type="hidden" name="ims_flag">
+            <input type="hidden" name="AU_CD" th:value="${auCd}">
+            <input type="hidden" name="HOST_IP" th:value="${hostIp}">
+            <input type="hidden" name="np_flag" value="F">
+
+            <div class="form-group">
+                <label for="USER_ID">User Id</label>
+                <input type="text" id="USER_ID" name="USER_ID" autocomplete="off"
+                       th:value="${userId}">
+            </div>
+
+            <div class="form-group">
+                <label for="USER_PASSWD">Password</label>
+                <input type="password" id="USER_PASSWD" name="USER_PASSWD" maxlength="16"
+                       autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="UNIT_CD">Physical Unit</label>
+                <div class="input-with-icon">
+                    <input type="text" id="UNIT_CD" name="UNIT_CD" readonly
+                           autocomplete="off" th:value="${unitCd}">
+                    <a href="javascript:void(0)"
+                       th:onclick="'javascript:fn_lov_login(\'UNIT_CD\', \'UNIT_DESC\', \'AU_CD\', \'LOCATION\', \'Physical Unit - Description - Accounting Unit - Description\', \'2\', document.forms[0].USER_ID.value); return false;'">
+                        <img th:src="@{/images/Search.gif}" alt="Search">
+                    </a>
+                </div>
+                <input type="hidden" name="LOCATION" value="">
+                <input type="hidden" name="UNIT_DESC" th:value="${unitDesc}">
+            </div>
+
+            <div class="form-group">
+                <label for="MODULE_CD">Module Layout</label>
+                <div class="input-with-icon">
+                    <input type="text" id="MODULE_CD" name="MODULE_CD" readonly
+                           autocomplete="off" th:value="${moduleCd}">
+                    <a href="javascript:void(0)"
+                       th:onclick="'javascript:fn_lov_Module(\'MODULE_CD\', \'UNIT_DESC1\', \'Select Module Layout\', \'2\', document.forms[0].USER_ID.value); return false;'">
+                        <img th:src="@{/images/Search.gif}" alt="Search">
+                    </a>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-signin" name="login" onclick="fn_go()">Sign in</button>
+                <button type="button" class="btn-clear" name="cancel" onclick="fn_cancel()">Clear</button>
+            </div>
+
+            <div class="extra-links">
+                <a href="javascript:common_login()">New User</a> |
+                <a href="javascript:common_login()">Password Change / Reset Request</a>
+            </div>
+        </form>
+
+        <div class="contact-us">
+            <a href="javascript:Contact_Us()">Contact Us</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

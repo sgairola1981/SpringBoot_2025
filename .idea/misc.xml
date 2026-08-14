@@ -28,6 +28,8 @@
         <option value="$PROJECT_DIR$/paymentservice/pom.xml" />
         <option value="$PROJECT_DIR$/wfms/pom.xml" />
         <option value="$PROJECT_DIR$/finance-agent/pom.xml" />
+        <option value="$PROJECT_DIR$/wfms_Demo/pom.xml" />
+        <option value="$PROJECT_DIR$/springBatch/pom.xml" />
       </list>
     </option>
   </component>

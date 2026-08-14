@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/XE  # Service name for XE pluggable DB
+    username: hr
+    password: hr
+    driver-class-name: oracle.jdbc.OracleDriver
+
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      maximum-lifetime: 1800000
+
+  batch:
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: always
+
+app:
+  batch:
+    chunk-size: 1000

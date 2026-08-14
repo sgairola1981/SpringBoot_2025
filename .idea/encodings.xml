@@ -23,8 +23,10 @@
     <file url="file://$PROJECT_DIR$/keylock/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/paymentservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/secondservice/secondservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springBatch/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/userservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wfms/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/wfms_Demo/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xaconnection/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zipkinmicrometer/src/main/java" charset="UTF-8" />
   </component>

@@ -1,0 +1,430 @@
+<%@ page import="org.w3c.dom.Element,java.net.*,java.io.*,java.util.regex.*,com.wfms.command.packDataXml,com.wfms.util.*,java.util.*" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web-based Financial Management System - Login</title>
+  <link href="scripts/style.css" type="text/css" rel="stylesheet">
+  <style>
+    :root {
+        --primary-color: #1a237e;
+        --primary-light: #3f51b5;
+        --accent-color: #ffd54f;
+        --bg-color: #f4f6f9;
+        --card-bg: #1e293b;
+        --text-color: #ffffff;
+        --error-color: #ff5252;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #333;
+    }
+
+    .login-wrapper {
+        width: 100%;
+        max-width: 480px;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        padding: 30px;
+        color: var(--text-color);
+    }
+
+    .brand-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .brand-header img {
+        width: 60px;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .brand-header h1 {
+        font-size: 1.4rem;
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+
+    .alert-box {
+        background: rgba(255, 82, 82, 0.15);
+        border-left: 4px solid var(--error-color);
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 0.85rem;
+        color: #ff8a80;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+        color: #cfd8dc;
+    }
+
+    .input-row {
+        display: flex;
+        gap: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #455a64;
+        background: #263238;
+        color: #fff;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-color);
+    }
+
+    .search-btn-img {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 11px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: opacity 0.2s;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        color: #1a237e;
+    }
+
+    .btn-secondary {
+        background-color: #455a64;
+        color: #fff;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    .links-container {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .links-container a {
+        color: #80cbc4;
+        text-decoration: none;
+    }
+
+    .links-container a:hover {
+        text-decoration: underline;
+    }
+
+    .footer-links {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .footer-links a {
+        color: #555;
+        text-decoration: none;
+    }
+
+    .footer-links a:hover {
+        text-decoration: underline;
+    }
+  </style>
+
+  <script src="scripts/validationWFMS.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    function fn_lov_login(fieldName, fieldDesc, accntUnit, name, title, fnValue, mValue) {
+        numOfColumns = 2;
+        document.forms[0].USER_ID.readOnly = true;
+        parentfield = eval("document.forms[0]." + fieldName);
+        parentfield1 = eval("document.forms[0]." + fieldDesc);
+        parentfield2 = eval("document.forms[0]." + accntUnit);
+        parentfield3 = eval("document.forms[0]." + name);
+        var winPopup = window.open("wfms/common/GenericLov_Search.jsp?LOV_ID=LOGIN&USER_ID=" + document.forms[0].USER_ID.value + "&title=" + title + "&fn=" + fnValue + "&mValue=" + mValue + "&login=" + "Y", 'winSearch', 'scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=500,height=400');
+    }
+
+    function fn_lov_Module(fieldName, fieldDesc, title, fnValue, mValue) {
+        if (!validRequired(document.forms[0].USER_ID, "User Id can not be left blank !"))
+            return false;
+        else if (!validRequired(document.forms[0].USER_PASSWD, "Password can not be left blank !"))
+            return false;
+        else if (!validRequired(document.forms[0].UNIT_CD, "Physical Unit can not be left blank !"))
+            return false;
+
+        numOfColumns = 0;
+        document.forms[0].USER_ID.readOnly = true;
+        parentfield = eval("document.forms[0]." + fieldName);
+        parentfield1 = eval("document.forms[0]." + fieldDesc);
+        var winPopup = window.open("wfms/common/GenericLov_Search.jsp?LOV_ID=MODULE_ID_LOV&USER_ID=" + document.forms[0].USER_ID.value + "&title=" + title + "&fn=" + fnValue + "&mValue=" + mValue + "&login=" + "Y", 'winSearch', 'scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=500,height=400');
+    }
+
+    function clearDepFields(str) {
+        if (str == 'LOGIN') {
+            document.forms[0].USER_ID.readOnly = true;
+            document.forms[0].login.focus();
+        }
+    }
+
+    function fn_go() {
+        document.forms[0].actionFlag.value = 'LOGINSearch';
+        document.forms[0].ims_flag.value = 'S';
+
+        if (!validRequired(document.forms[0].USER_ID, "User Id can not be left blank !"))
+            return false;
+        else if (!validRequired(document.forms[0].USER_PASSWD, "Password can not be left blank !"))
+            return false;
+        else if (!validRequired(document.forms[0].UNIT_CD, "Physical Unit can not be left blank !"))
+            return false;
+        else if (!validRequired(document.forms[0].MODULE_CD, "Module Layout can not be left blank !"))
+            return false;
+
+        document.forms[0].login.disabled = true;
+        document.forms[0].submit();
+    }
+
+    function fn_cancel() {
+        document.forms[0].USER_ID.readOnly = false;
+        document.forms[0].USER_ID.value = "";
+        document.forms[0].USER_PASSWD.value = "";
+        document.forms[0].UNIT_CD.value = "";
+        document.forms[0].MODULE_CD.value = "";
+        document.forms[0].login.disabled = false;
+    }
+
+    function enterPrss(e) {
+        if (event.keyCode == 13)
+            fn_go();
+    }
+
+    function fnbdload() {
+        document.forms[0].USER_ID.focus();
+    }
+
+    function common_login() {
+        document.forms[0].USER_ID.value = "GUIFMSQ";
+        document.forms[0].USER_PASSWD.value = "GUI@fmsq1";
+        document.forms[0].USER_ID.readOnly = true;
+        document.forms[0].USER_PASSWD.readOnly = true;
+        document.forms[0].UNIT_CD.value = "";
+        document.forms[0].MODULE_CD.value = "";
+        alert("Please Select Physical Unit !!");
+    }
+
+    function Contact_Us() {
+        var winPopup = window.open("wfms/Contact_Us.jsp", 'winSearch', 'scrollbars=yes,dependent=yes,top=50,left=100,resizeable=yes,width=750,height=400');
+    }
+  </script>
+</head>
+
+<body onKeyPress="enterPrss()" onload="fnbdload()">
+
+<%
+String Login_Flag = "";
+String session_expired = "";
+if (request.getParameter("session_expired") != null) {
+session_expired = (String) request.getParameter("session_expired");
+WFMSTrace.traceOutWithDate("...................................." + session_expired);
+}
+if (request.getAttribute("LOGIN_FLAG") != null) {
+Login_Flag = (String) request.getAttribute("LOGIN_FLAG");
+}
+Hashtable ht = null;
+Element reqstData = null;
+String USER_ID = "";
+String USER_PASSWD = "";
+String UNIT_CD = "";
+String UNIT_DESC = "";
+String AU_CD = "";
+String LOCATION = "";
+String ret_cd = "";
+String MAC_ADDRESS = "";
+String MODULE_CD = "";
+String HOST_IP = request.getRemoteAddr();
+String OS = System.getProperty("os.name");
+
+WFMSTrace.traceOutWithDate("OS:	 " + OS);
+if (OS.startsWith("W")) {
+String command = "NBTSTAT -A " + HOST_IP;
+Process p = Runtime.getRuntime().exec(command);
+BufferedReader inn = new BufferedReader(new InputStreamReader(p.getInputStream()));
+Pattern pattern = Pattern.compile(".*MAC Addres* = (.*)");
+
+while (true) {
+String line = inn.readLine();
+if (line == null) break;
+Matcher mm = pattern.matcher(line);
+if (mm.matches()) {
+MAC_ADDRESS = mm.group(1);
+}
+}
+} else {
+MAC_ADDRESS = request.getRemoteAddr();
+}
+
+if (request.getAttribute("ret_ht_srch") != null) {
+ht = (Hashtable) request.getAttribute("ret_ht_srch");
+if (ht.get("ret_cd") != null) {
+ret_cd = "" + (Integer) ht.get("ret_cd");
+}
+if (ht.get("reqstData") != null) {
+reqstData = (Element) ht.get("reqstData");
+}
+packDataXml pd = new packDataXml();
+USER_ID = pd.retFieldValue(reqstData, "USER_ID");
+USER_PASSWD = pd.retFieldValue(reqstData, "USER_PASSWD");
+UNIT_CD = pd.retFieldValue(reqstData, "UNIT_CD1");
+UNIT_DESC = pd.retFieldValue(reqstData, "UNIT_DESC");
+AU_CD = pd.retFieldValue(reqstData, "AU_CD");
+MODULE_CD = pd.retFieldValue(reqstData, "MODULE_CD");
+WFMSTrace.traceOutWithDate("user id " + USER_ID);
+WFMSTrace.traceOutWithDate("AU_CD:	 " + AU_CD);
+}
+%>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="brand-header">
+      <img src="images/logo1.gif" alt="Logo">
+      <h1>Web-based Financial Management System</h1>
+    </div>
+
+    <%-- Error Handling Messages --%>
+    <% if (Login_Flag.equals("F")) {
+    if (ret_cd.equals("-98")) { %>
+    <div class="alert-box">LOGIN FAILED! Please enter a valid USER ID and PASSWORD.</div>
+    <% } else if (ret_cd.equals("-97")) { %>
+    <div class="alert-box">LOGIN FAILED! You do not have privileges to Login into chosen Physical Unit. Please choose a valid unit.</div>
+    <% } else if (ret_cd.equals("-96")) { %>
+    <div class="alert-box">SORRY! No. of tries exceeded the limit. PASSWORD DISABLED! Please Enable password using Password Change option.</div>
+    <% } else if (ret_cd.equals("-95")) { %>
+    <div class="alert-box">USER ID IS INACTIVE! Please contact System Administrator.</div>
+    <% } else if (ret_cd.equals("-94") || ret_cd.equals("-99")) { %>
+    <div class="alert-box">Error while logging! Please contact System Administrator.</div>
+    <% } else if (ret_cd.equals("-100")) { %>
+    <div class="alert-box">It's now more than 90 days since last password change! Please Change your password.</div>
+    <% } else if (ret_cd.equals("-299")) { %>
+    <div class="alert-box">You Are Not a Regular Employee!</div>
+    <% } else if (ret_cd.equals("-399")) { %>
+    <div class="alert-box">You Are Already Logged in from another PC. Login not allowed!</div>
+    <% } else if (ret_cd.equals("-499")) { %>
+    <div class="alert-box">Login Failed. Use a valid IP Address!</div>
+    <% }
+    } %>
+
+    <% if (session_expired.equals("true")) { %>
+    <div class="alert-box">Sorry, Your Session Has Expired! Please Login Again.</div>
+    <% } %>
+
+    <form action="WFMSControllerServlet" method="post">
+      <input type="hidden" value="LoginSearch" name="ACTION">
+      <input type="hidden" name="actionFlag">
+      <input type="hidden" name="ims_flag">
+      <input type="hidden" name="AU_CD" value="<%=AU_CD%>">
+      <input type="hidden" name="HOST_IP" value="<%=HOST_IP%>">
+      <input type="hidden" name="np_flag" value="F">
+      <input type="hidden" id="CALL_LOAD_MESSAGE" name="CALL_LOAD_MESSAGE" value="<%= (session_expired.equals("true")) ? "N" : "Y" %>">
+
+      <div class="form-group">
+        <label>User Id</label>
+        <input type="text" class="form-control" name="USER_ID" autocomplete="off" value="<%=USER_ID%>">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-control" name="USER_PASSWD" maxlength="16" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>Physical Unit</label>
+        <div class="input-row">
+          <input type="text" class="form-control" readonly name="UNIT_CD" autocomplete="off" value="<%=UNIT_CD%>">
+          <button type="button" class="search-btn-img" onClick="javascript:fn_lov_login('UNIT_CD', 'UNIT_DESC', 'AU_CD', 'LOCATION', 'Physical Unit - Description - Accounting Unit - Description', '2', document.forms[0].USER_ID.value);return false">
+            <img src="images/Search.gif" alt="Search">
+          </button>
+        </div>
+        <input type="hidden" name="LOCATION" value="<%=LOCATION%>">
+        <input type="hidden" name="UNIT_DESC" value="<%=UNIT_DESC%>">
+      </div>
+
+      <div class="form-group">
+        <label>Module Layout</label>
+        <div class="input-row">
+          <input type="text" class="form-control" readonly name="MODULE_CD" autocomplete="off" value="<%=MODULE_CD%>">
+          <button type="button" class="search-btn-img" onClick="javascript:fn_lov_Module('MODULE_CD', 'UNIT_DESC1', 'Select Module Layout', '2', document.forms[0].USER_ID.value);return false">
+            <img src="images/Search.gif" alt="Search">
+          </button>
+        </div>
+      </div>
+
+      <div class="btn-container">
+        <button type="button" class="btn btn-primary" name="login" onClick="fn_go()">Sign In</button>
+        <button type="button" class="btn btn-secondary" name="cancel" onClick="fn_cancel()">Clear</button>
+      </div>
+
+      <div class="links-container">
+        <a href="javascript:common_login()">New User</a>
+        <a href="javascript:common_login()">Password Change / Reset Request</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="footer-links">
+    <a href="javascript:Contact_Us()">Contact Us</a>
+  </div>
+</div>
+
+<iframe ALLOWTRANSPARENCY="true" NAME="MSGFRAME" SRC="wfms/WFMS_MSG_Blank.jsp" style="display:none;" width="0" height="0" frameborder="0"></iframe>
+
+</body>
+</html>

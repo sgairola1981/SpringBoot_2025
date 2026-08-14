@@ -9,6 +9,7 @@
         <module name="wfms" />
         <module name="userservice" />
         <module name="ai" />
+        <module name="wfms_Demo" />
         <module name="Idempotency" />
         <module name="demo" />
         <module name="micrometer" />
@@ -25,6 +26,7 @@
         <module name="LoggingTracing" />
         <module name="email" />
         <module name="finance-agent" />
+        <module name="springBatch" />
       </profile>
       <profile name="Annotation profile for xaconnection" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -65,8 +67,10 @@
       <module name="micrometer" options="-parameters" />
       <module name="paymentservice" options="-parameters" />
       <module name="secondservice" options="-parameters" />
+      <module name="springBatch" options="-parameters" />
       <module name="userservice" options="-parameters" />
       <module name="wfms" options="-parameters" />
+      <module name="wfms_Demo" options="-parameters" />
       <module name="xaconnection" options="-parameters" />
       <module name="zipkinmicrometer" options="-parameters" />
     </option>
