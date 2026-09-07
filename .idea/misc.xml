@@ -30,6 +30,9 @@
         <option value="$PROJECT_DIR$/finance-agent/pom.xml" />
         <option value="$PROJECT_DIR$/wfms_Demo/pom.xml" />
         <option value="$PROJECT_DIR$/springBatch/pom.xml" />
+        <option value="$PROJECT_DIR$/elasticsearch/pom.xml" />
+        <option value="$PROJECT_DIR$/livenotification/pom.xml" />
+        <option value="$PROJECT_DIR$/ordernotification/pom.xml" />
       </list>
     </option>
   </component>

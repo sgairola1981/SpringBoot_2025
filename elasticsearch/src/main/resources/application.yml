@@ -1,0 +1,20 @@
+
+server:
+  port: 9999
+
+spring:
+  application:
+    name: elasticsearch
+
+  # Thymeleaf (optional tuning)
+  thymeleaf:
+    cache: false          # disable cache in dev; set true in prod
+    prefix: classpath:/templates/
+    suffix: .html
+
+# Your custom Elasticsearch config
+elk:
+  host: localhost:9200
+  security-enabled: false
+  # username: elastic
+  # password: elastic

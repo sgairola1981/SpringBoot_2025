@@ -1,7 +1,7 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/XE  # Service name for XE pluggable DB
-    username: hr
+    url: jdbc:oracle:thin:@//localhost:1521/XE
+    username: HR
     password: hr
     driver-class-name: oracle.jdbc.OracleDriver
 
@@ -10,6 +10,14 @@ spring:
       minimum-idle: 1
       connection-timeout: 30000
       maximum-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
   batch:
     job:

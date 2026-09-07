@@ -2,8 +2,6 @@ package com.gairola.springbatch.config;
 
 import javax.sql.DataSource;
 
-import com.gairola.springbatch.entity.Customer;
-
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -50,6 +48,7 @@ public class BatchConfig {
     }
 
     @Bean
+
     public JdbcBatchItemWriter<Customer> customerWriter(
             DataSource dataSource) {
 
@@ -100,5 +99,55 @@ public class BatchConfig {
         return new JobBuilder("customerJob", jobRepository)
                 .start(customerStep)
                 .build();
+    }
+
+    public static class Customer {
+
+        private Long customerId;
+        private String customerName;
+        private String email;
+        private String status;
+
+        public Long getCustomerId() {
+            return customerId;
+        }
+
+        public void setCustomerId(Long customerId) {
+            this.customerId = customerId;
+        }
+
+        public String getCustomerName() {
+            return customerName;
+        }
+
+        public void setCustomerName(String customerName) {
+            this.customerName = customerName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        @Override
+        public String toString() {
+            return "Customer{" +
+                    "customerId=" + customerId +
+                    ", customerName='" + customerName + '\'' +
+                    ", email='" + email + '\'' +
+                    ", status='" + status + '\'' +
+                    '}';
+        }
     }
 }

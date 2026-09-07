@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+option java_package =
+    "com.gairola.ordernotification.grpc";
+
+service NotificationService {
+
+  rpc sendNotification(NotificationRequest)
+      returns (NotificationResponse);
+}
+
+message NotificationRequest {
+
+  string userId = 1;
+
+  string message = 2;
+
+  string type = 3;
+}
+
+message NotificationResponse {
+
+  bool success = 1;
+
+  string message = 2;
+}

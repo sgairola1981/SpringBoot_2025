@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Order Application</title>
+
+    <!-- =====================================================
+         SOCKJS
+         ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+
+    <!-- =====================================================
+         STOMP
+         ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f4f6f9,
+                    #e9eef5
+                );
+
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           NAVBAR
+           ===================================================== */
+
+        .navbar {
+
+            height: 70px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #212529,
+                    #343a40
+                );
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 30px;
+
+            box-shadow:
+                0 2px 10px
+                rgba(0, 0, 0, 0.20);
+        }
+
+
+        .logo {
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            letter-spacing: 0.3px;
+        }
+
+
+        /* =====================================================
+           NOTIFICATION ICON
+           ===================================================== */
+
+        .notification-wrapper {
+
+            position: relative;
+
+            cursor: pointer;
+
+            width: 45px;
+
+            height: 45px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 50%;
+
+            transition: 0.2s;
+        }
+
+
+        .notification-wrapper:hover {
+
+            background:
+                rgba(255, 255, 255, 0.12);
+        }
+
+
+        .bell {
+
+            font-size: 28px;
+
+            line-height: 1;
+        }
+
+
+        .badge {
+
+            position: absolute;
+
+            top: 0;
+
+            right: -2px;
+
+            background: #dc3545;
+
+            color: white;
+
+            min-width: 21px;
+
+            height: 21px;
+
+            padding: 0 5px;
+
+            border-radius: 50%;
+
+            font-size: 11px;
+
+            font-weight: bold;
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border: 2px solid #212529;
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+           ===================================================== */
+
+        .container {
+
+            width: 850px;
+
+            max-width: 94%;
+
+            margin: 40px auto;
+        }
+
+
+        /* =====================================================
+           CARD
+           ===================================================== */
+
+        .card {
+
+            background: white;
+
+            padding: 28px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0, 0, 0, 0.10);
+
+            margin-bottom: 25px;
+        }
+
+
+        .card h2 {
+
+            margin-top: 0;
+
+            margin-bottom: 10px;
+
+            color: #212529;
+        }
+
+
+        .card p {
+
+            color: #6c757d;
+
+            margin-bottom: 20px;
+        }
+
+
+        /* =====================================================
+           BUTTON
+           ===================================================== */
+
+        .button {
+
+            padding: 12px 22px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0d6efd,
+                    #0b5ed7
+                );
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            transition: 0.2s;
+        }
+
+
+        .button:hover {
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 4px 10px
+                rgba(13, 110, 253, 0.30);
+        }
+
+
+        .button:active {
+
+            transform: translateY(0);
+        }
+
+
+        .button:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+
+        /* =====================================================
+           STATUS
+           ===================================================== */
+
+        .status {
+
+            margin-top: 18px;
+
+            padding: 10px 14px;
+
+            border-radius: 6px;
+
+            background: #f8f9fa;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: #6c757d;
+        }
+
+
+        /* =====================================================
+           NOTIFICATION HEADER
+           ===================================================== */
+
+        .notification-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+
+        .notification-header h2 {
+
+            margin: 0;
+        }
+
+
+        .clear-button {
+
+            border: none;
+
+            background: transparent;
+
+            color: #0d6efd;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .clear-button:hover {
+
+            text-decoration: underline;
+        }
+
+
+        /* =====================================================
+           NOTIFICATION LIST
+           ===================================================== */
+
+        .notification-list {
+
+            max-height: 500px;
+
+            overflow-y: auto;
+
+            padding-right: 5px;
+        }
+
+
+        .notification {
+
+            background: #ffffff;
+
+            border-left:
+                5px solid #0d6efd;
+
+            padding: 16px;
+
+            margin-bottom: 12px;
+
+            border-radius: 7px;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.08);
+
+            animation:
+                slideIn 0.3s ease;
+        }
+
+
+        .notification.success {
+
+            border-left-color: #198754;
+        }
+
+
+        .notification.warning {
+
+            border-left-color: #ffc107;
+        }
+
+
+        .notification.error {
+
+            border-left-color: #dc3545;
+        }
+
+
+        .notification-title {
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+
+            color: #212529;
+        }
+
+
+        .notification-message {
+
+            color: #495057;
+
+            line-height: 1.5;
+
+            word-break: break-word;
+        }
+
+
+        .notification-time {
+
+            font-size: 12px;
+
+            color: #888;
+
+            margin-top: 8px;
+        }
+
+
+        /* =====================================================
+           EMPTY MESSAGE
+           ===================================================== */
+
+        .empty-notification {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #888;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           CONNECTION INDICATOR
+           ===================================================== */
+
+        .connection-dot {
+
+            display: inline-block;
+
+            width: 9px;
+
+            height: 9px;
+
+            border-radius: 50%;
+
+            margin-right: 7px;
+
+            background: #ffc107;
+        }
+
+
+        .connection-dot.connected {
+
+            background: #198754;
+        }
+
+
+        .connection-dot.disconnected {
+
+            background: #dc3545;
+        }
+
+
+        /* =====================================================
+           ANIMATION
+           ===================================================== */
+
+        @keyframes slideIn {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(-12px);
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media (max-width: 600px) {
+
+            .navbar {
+
+                padding: 0 15px;
+            }
+
+
+            .logo {
+
+                font-size: 18px;
+            }
+
+
+            .container {
+
+                margin-top: 25px;
+            }
+
+
+            .card {
+
+                padding: 20px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVBAR
+     ========================================================= -->
+
+<div class="navbar">
+
+    <div class="logo">
+
+        My Order Application
+
+    </div>
+
+
+    <div class="notification-wrapper"
+         onclick="clearNotifications()"
+         title="Notifications">
+
+        <span class="bell">
+
+            🔔
+
+        </span>
+
+
+        <span id="notificationBadge"
+              class="badge">
+
+            0
+
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+
+<div class="container">
+
+
+    <!-- =====================================================
+         ORDER CARD
+         ===================================================== -->
+
+    <div class="card">
+
+        <h2>
+
+            Create Order
+
+        </h2>
+
+
+        <p>
+
+            Click the button to create a new order.
+
+            A live notification will be sent through
+            the Notification Service.
+
+        </p>
+
+
+        <button id="createOrderButton"
+                class="button"
+                onclick="createOrder()">
+
+            Create Order
+
+        </button>
+
+
+        <div id="status"
+             class="status">
+
+            <span id="connectionDot"
+                  class="connection-dot">
+            </span>
+
+            Connecting WebSocket...
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOTIFICATION CARD
+         ===================================================== -->
+
+    <div class="card">
+
+        <div class="notification-header">
+
+            <h2>
+
+                Live Notifications
+
+            </h2>
+
+
+            <button class="clear-button"
+                    onclick="clearNotificationList()">
+
+                Clear All
+
+            </button>
+
+        </div>
+
+
+        <div id="notificationList"
+             class="notification-list">
+
+            <div id="emptyNotification"
+                 class="empty-notification">
+
+                🔔 Waiting for notifications...
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+    /* =====================================================
+       CONFIGURATION
+       ===================================================== */
+
+
+    /*
+     * Demo User ID.
+     *
+     * This MUST match the user ID used when the
+     * Order Service sends the notification.
+     */
+
+    const userId = "101";
+
+
+    /*
+     * Order Service.
+     */
+
+    const ORDER_SERVICE_URL =
+        "http://localhost:8081";
+
+
+    /*
+     * Notification Service.
+     *
+     * HTTP/WebSocket port = 8888
+     */
+
+    const WEBSOCKET_URL =
+        "http://localhost:8888/ws";
+
+
+    /*
+     * User-specific notification destination.
+     */
+
+    const NOTIFICATION_DESTINATION =
+        "/user/queue/notifications";
+
+
+    /* =====================================================
+       GLOBAL VARIABLES
+       ===================================================== */
+
+    let stompClient = null;
+
+    let unreadCount = 0;
+
+    let reconnectTimer = null;
+
+    let isConnecting = false;
+
+
+    /* =====================================================
+       UPDATE CONNECTION STATUS
+       ===================================================== */
+
+    function updateConnectionStatus(
+        connected,
+        message
+    ) {
+
+        const status =
+            document.getElementById("status");
+
+
+        status.innerHTML = "";
+
+
+        const dot =
+            document.createElement("span");
+
+
+        dot.className =
+            "connection-dot";
+
+
+        if (connected) {
+
+            dot.classList.add(
+                "connected"
+            );
+
+        } else {
+
+            dot.classList.add(
+                "disconnected"
+            );
+        }
+
+
+        status.appendChild(dot);
+
+
+        status.appendChild(
+            document.createTextNode(
+                message
+            )
+        );
+    }
+
+
+    /* =====================================================
+       CONNECT WEBSOCKET
+       ===================================================== */
+
+    function connectWebSocket() {
+
+        /*
+         * Prevent duplicate connections.
+         */
+
+        if (isConnecting) {
+
+            return;
+        }
+
+
+        /*
+         * If already connected, don't reconnect.
+         */
+
+        if (
+            stompClient !== null &&
+            stompClient.connected
+        ) {
+
+            return;
+        }
+
+
+        isConnecting = true;
+
+
+        console.log(
+            "Connecting WebSocket:",
+            WEBSOCKET_URL
+        );
+
+
+        updateConnectionStatus(
+            false,
+            "Connecting WebSocket..."
+        );
+
+
+        /*
+         * Create SockJS connection.
+         */
+
+        const socket =
+            new SockJS(
+                WEBSOCKET_URL
+            );
+
+
+        /*
+         * Create STOMP client.
+         */
+
+        stompClient =
+            Stomp.over(socket);
+
+
+        /*
+         * Disable STOMP debug logging.
+         */
+
+        stompClient.debug = null;
+
+
+        /*
+         * STOMP CONNECT.
+         *
+         * IMPORTANT:
+         * userId is sent to the server.
+         */
+
+        stompClient.connect(
+
+            {
+                userId: userId
+            },
+
+
+            /*
+             * CONNECTED
+             */
+
+            function(frame) {
+
+                isConnecting = false;
+
+
+                console.log(
+                    "WebSocket CONNECTED:",
+                    frame
+                );
+
+
+                updateConnectionStatus(
+                    true,
+                    "WebSocket Connected - User " +
+                    userId
+                );
+
+
+                console.log(
+                    "Subscribing:",
+                    NOTIFICATION_DESTINATION
+                );
+
+
+                /*
+                 * Subscribe to user-specific queue.
+                 */
+
+                stompClient.subscribe(
+
+                    NOTIFICATION_DESTINATION,
+
+                    function(message) {
+
+                        console.log(
+                            "================================"
+                        );
+
+                        console.log(
+                            "NOTIFICATION RECEIVED:"
+                        );
+
+                        console.log(
+                            message.body
+                        );
+
+                        console.log(
+                            "================================"
+                        );
+
+
+                        handleNotification(
+                            message.body
+                        );
+
+                    }
+
+                );
+
+            },
+
+
+            /*
+             * STOMP ERROR
+             */
+
+            function(error) {
+
+                isConnecting = false;
+
+
+                console.error(
+                    "WebSocket connection error:",
+                    error
+                );
+
+
+                updateConnectionStatus(
+                    false,
+                    "WebSocket Disconnected"
+                );
+
+
+                scheduleReconnect();
+
+            }
+
+        );
+
+
+        /*
+         * SockJS connection closed.
+         */
+
+        socket.onclose =
+            function() {
+
+                console.log(
+                    "SockJS connection closed"
+                );
+
+
+                isConnecting = false;
+
+
+                stompClient = null;
+
+
+                updateConnectionStatus(
+                    false,
+                    "WebSocket Disconnected"
+                );
+
+
+                scheduleReconnect();
+
+            };
+
+    }
+
+
+    /* =====================================================
+       RECONNECT
+       ===================================================== */
+
+    function scheduleReconnect() {
+
+        /*
+         * Don't create multiple timers.
+         */
+
+        if (
+            reconnectTimer !== null
+        ) {
+
+            return;
+        }
+
+
+        console.log(
+            "Reconnecting in 5 seconds..."
+        );
+
+
+        reconnectTimer =
+            setTimeout(
+
+                function() {
+
+                    reconnectTimer = null;
+
+                    connectWebSocket();
+
+                },
+
+                5000
+
+            );
+    }
+
+
+    /* =====================================================
+       HANDLE NOTIFICATION
+       ===================================================== */
+
+    function handleNotification(
+        messageBody
+    ) {
+
+        let notification;
+
+
+        try {
+
+            notification =
+                JSON.parse(
+                    messageBody
+                );
+
+        } catch (error) {
+
+            console.error(
+                "Invalid notification JSON:",
+                error
+            );
+
+
+            /*
+             * Fallback if backend sends plain text.
+             */
+
+            notification = {
+
+                type: "Notification",
+
+                message: messageBody
+
+            };
+        }
+
+
+        displayNotification(
+            notification
+        );
+    }
+
+
+    /* =====================================================
+       DISPLAY NOTIFICATION
+       ===================================================== */
+
+    function displayNotification(
+        notification
+    ) {
+
+        /*
+         * Remove empty message.
+         */
+
+        const empty =
+            document.getElementById(
+                "emptyNotification"
+            );
+
+
+        if (empty) {
+
+            empty.remove();
+        }
+
+
+        /*
+         * Increase unread count.
+         */
+
+        unreadCount++;
+
+        updateBadge();
+
+
+        /*
+         * Notification type.
+         */
+
+        const type =
+            String(
+                notification.type ||
+                "Notification"
+            ).toLowerCase();
+
+
+        let cssClass = "";
+
+
+        if (
+
+            type.includes("success") ||
+
+            type.includes("created") ||
+
+            type.includes("confirmed") ||
+
+            type.includes("complete")
+
+        ) {
+
+            cssClass = "success";
+
+        }
+
+
+        else if (
+
+            type.includes("warning")
+
+        ) {
+
+            cssClass = "warning";
+
+        }
+
+
+        else if (
+
+            type.includes("error") ||
+
+            type.includes("failed")
+
+        ) {
+
+            cssClass = "error";
+
+        }
+
+
+        /*
+         * Notification container.
+         */
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+
+        div.className =
+            "notification " +
+            cssClass;
+
+
+        /*
+         * Title.
+         */
+
+        const title =
+            document.createElement(
+                "div"
+            );
+
+
+        title.className =
+            "notification-title";
+
+
+        title.innerText =
+            "🔔 " +
+            (
+                notification.type ||
+                "Notification"
+            );
+
+
+        /*
+         * Message.
+         */
+
+        const message =
+            document.createElement(
+                "div"
+            );
+
+
+        message.className =
+            "notification-message";
+
+
+        message.innerText =
+            notification.message ||
+            "";
+
+
+        /*
+         * Time.
+         */
+
+        const time =
+            document.createElement(
+                "div"
+            );
+
+
+        time.className =
+            "notification-time";
+
+
+        time.innerText =
+            formatNotificationTime(
+                notification
+            );
+
+
+        /*
+         * Build notification.
+         */
+
+        div.appendChild(
+            title
+        );
+
+
+        div.appendChild(
+            message
+        );
+
+
+        div.appendChild(
+            time
+        );
+
+
+        /*
+         * Add newest notification at top.
+         */
+
+        const list =
+            document.getElementById(
+                "notificationList"
+            );
+
+
+        list.prepend(
+            div
+        );
+
+
+        /*
+         * Browser notification.
+         */
+
+        showBrowserNotification(
+            notification
+        );
+    }
+
+
+    /* =====================================================
+       NOTIFICATION TIME
+       ===================================================== */
+
+    function formatNotificationTime(
+        notification
+    ) {
+
+        if (
+            notification.timestamp
+        ) {
+
+            try {
+
+                return new Date(
+                    notification.timestamp
+                ).toLocaleString();
+
+            } catch (e) {
+
+                return "Just now";
+            }
+        }
+
+
+        return "Just now";
+    }
+
+
+    /* =====================================================
+       UPDATE BADGE
+       ===================================================== */
+
+    function updateBadge() {
+
+        const badge =
+            document.getElementById(
+                "notificationBadge"
+            );
+
+
+        badge.innerText =
+            unreadCount;
+
+
+        if (
+            unreadCount > 0
+        ) {
+
+            badge.style.display =
+                "flex";
+
+        } else {
+
+            badge.style.display =
+                "none";
+        }
+    }
+
+
+    /* =====================================================
+       CLEAR UNREAD COUNT
+       ===================================================== */
+
+    function clearNotifications() {
+
+        unreadCount = 0;
+
+        updateBadge();
+    }
+
+
+    /* =====================================================
+       CLEAR NOTIFICATION LIST
+       ===================================================== */
+
+    function clearNotificationList() {
+
+        const list =
+            document.getElementById(
+                "notificationList"
+            );
+
+
+        list.innerHTML = "";
+
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+
+        empty.id =
+            "emptyNotification";
+
+
+        empty.className =
+            "empty-notification";
+
+
+        empty.innerText =
+            "🔔 No notifications";
+
+
+        list.appendChild(
+            empty
+        );
+
+
+        unreadCount = 0;
+
+        updateBadge();
+    }
+
+
+    /* =====================================================
+       CREATE ORDER
+       ===================================================== */
+
+    function createOrder() {
+
+        console.log(
+            "Creating order for user:",
+            userId
+        );
+
+
+        const button =
+            document.getElementById(
+                "createOrderButton"
+            );
+
+
+        /*
+         * Disable button.
+         */
+
+        button.disabled = true;
+
+        button.innerText =
+            "Creating Order...";
+
+
+        /*
+         * Create order.
+         */
+
+        fetch(
+
+            ORDER_SERVICE_URL +
+            "/orders?userId=" +
+            encodeURIComponent(userId),
+
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                }
+
+            }
+
+        )
+
+
+        .then(
+
+            function(response) {
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        "HTTP Error: " +
+                        response.status
+                    );
+                }
+
+
+                return response.text();
+
+            }
+
+        )
+
+
+        .then(
+
+            function(orderId) {
+
+                console.log(
+                    "Order Created:",
+                    orderId
+                );
+
+
+                updateConnectionStatus(
+                    true,
+                    "Order Created: " +
+                    orderId
+                );
+
+            }
+
+        )
+
+
+        .catch(
+
+            function(error) {
+
+                console.error(
+                    "Order creation failed:",
+                    error
+                );
+
+
+                updateConnectionStatus(
+                    false,
+                    "Order creation failed"
+                );
+
+            }
+
+        )
+
+
+        .finally(
+
+            function() {
+
+                button.disabled =
+                    false;
+
+
+                button.innerText =
+                    "Create Order";
+
+            }
+
+        );
+
+    }
+
+
+    /* =====================================================
+       BROWSER NOTIFICATION
+       ===================================================== */
+
+    function showBrowserNotification(
+        notification
+    ) {
+
+        if (
+            !("Notification" in window)
+        ) {
+
+            return;
+        }
+
+
+        if (
+            Notification.permission ===
+            "granted"
+        ) {
+
+            new Notification(
+
+                notification.type ||
+                "New Notification",
+
+                {
+
+                    body:
+                        notification.message ||
+                        "You have a new notification."
+
+                }
+
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       REQUEST BROWSER NOTIFICATION PERMISSION
+       ===================================================== */
+
+    function requestNotificationPermission() {
+
+        if (
+            !("Notification" in window)
+        ) {
+
+            return;
+        }
+
+
+        if (
+            Notification.permission ===
+            "default"
+        ) {
+
+            Notification.requestPermission();
+
+        }
+
+    }
+
+
+    /* =====================================================
+       PAGE LOAD
+       ===================================================== */
+
+    document.addEventListener(
+
+        "DOMContentLoaded",
+
+        function() {
+
+            /*
+             * Ask browser notification permission.
+             */
+
+            requestNotificationPermission();
+
+
+            /*
+             * Connect WebSocket.
+             */
+
+            connectWebSocket();
+
+        }
+
+    );
+
+</script>
+
+
+</body>
+
+</html>
