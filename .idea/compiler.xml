@@ -8,28 +8,30 @@
         <outputRelativeToContentRoot value="true" />
         <module name="wfms" />
         <module name="userservice" />
-        <module name="ai" />
-        <module name="wfms_Demo" />
         <module name="Idempotency" />
         <module name="demo" />
         <module name="micrometer" />
-        <module name="apigateway" />
-        <module name="chitchat" />
+        <module name="kafaka-order-notification" />
         <module name="elasticsearch" />
         <module name="ichr" />
         <module name="firstservice" />
-        <module name="chat" />
         <module name="Clenetapp" />
-        <module name="livenotification" />
-        <module name="smile-ml-example" />
         <module name="jwtauth" />
-        <module name="keylock" />
         <module name="ordernotification" />
         <module name="secondservice" />
         <module name="LoggingTracing" />
         <module name="email" />
         <module name="finance-agent" />
         <module name="springBatch" />
+        <module name="kafaka-notification" />
+        <module name="ai" />
+        <module name="wfms_Demo" />
+        <module name="apigateway" />
+        <module name="chitchat" />
+        <module name="chat" />
+        <module name="livenotification" />
+        <module name="smile-ml-example" />
+        <module name="keylock" />
       </profile>
       <profile name="Annotation profile for xaconnection" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -67,6 +69,8 @@
       <module name="ichr" options="-parameters" />
       <module name="jwtauth" options="-parameters" />
       <module name="kafaka" options="-parameters" />
+      <module name="kafaka-notification" options="-parameters" />
+      <module name="kafaka-order-notification" options="-parameters" />
       <module name="keylock" options="-parameters" />
       <module name="livenotification" options="-parameters" />
       <module name="micrometer" options="-parameters" />

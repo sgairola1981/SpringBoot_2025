@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Order Notification System</title>
+
+    <!-- SockJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+
+    <!-- STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .connection {
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: #374151;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .order-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 7px;
+            padding: 11px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .order-result {
+            margin-top: 18px;
+            padding: 14px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .notification-count {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        #notificationList {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification {
+            border: 1px solid #e5e7eb;
+            border-left: 5px solid #2563eb;
+            border-radius: 8px;
+            padding: 16px;
+            background: #ffffff;
+            transition: 0.2s;
+        }
+
+        .notification:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .notification.unread {
+            background: #eff6ff;
+            border-left-color: #2563eb;
+        }
+
+        .notification.read {
+            opacity: 0.75;
+            border-left-color: #9ca3af;
+        }
+
+        .notification-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .notification-type {
+            font-weight: bold;
+            color: #1d4ed8;
+            font-size: 14px;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .notification-message {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #374151;
+        }
+
+        .notification-status {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #9ca3af;
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success {
+            color: #166534;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 600px) {
+
+            .header {
+                padding: 15px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 0 10px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .notification-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<div class="header">
+
+    <h1>My Order Application 🔔</h1>
+
+    <div id="connectionStatus"
+         class="connection">
+        🔴 Disconnected
+    </div>
+
+</div>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+
+    <!-- ================= ORDER CARD ================= -->
+
+    <div class="card">
+
+        <h2>Create Order</h2>
+
+        <div class="order-section">
+
+            <button class="btn-primary"
+                    onclick="createOrder()">
+                🛒 Create Order
+            </button>
+
+            <span>
+                User ID:
+                <strong id="userIdDisplay"></strong>
+            </span>
+
+        </div>
+
+        <div id="orderResult"
+             class="order-result">
+        </div>
+
+        <div id="errorMessage"
+             class="error">
+        </div>
+
+    </div>
+
+
+    <!-- ================= NOTIFICATION CARD ================= -->
+
+    <div class="card">
+
+        <div class="notification-header">
+
+            <div>
+
+                <h2>
+                    Live Notifications 🔔
+                </h2>
+
+                <div class="notification-count">
+
+                    Total:
+                    <strong id="notificationCount">0</strong>
+
+                    &nbsp;&nbsp;|&nbsp;&nbsp;
+
+                    Unread:
+                    <strong id="unreadCount">0</strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="notification-actions">
+
+                <button class="btn-success"
+                        onclick="markAllRead()">
+                    ✓ Mark All Read
+                </button>
+
+                <button class="btn-secondary"
+                        onclick="loadNotifications()">
+                    ↻ Refresh
+                </button>
+
+                <button class="btn-danger"
+                        onclick="clearAll()">
+                    🗑 Clear All
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div id="notificationList">
+
+            <div class="loading">
+                Loading notifications...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // =========================================================
+    // CONFIGURATION
+    // =========================================================
+
+    const USER_ID = "101";
+
+    const NOTIFICATION_SERVICE_URL =
+        window.location.origin;
+
+    const ORDER_SERVICE_URL =
+        "http://localhost:8081";
+
+    const WEBSOCKET_URL =
+        NOTIFICATION_SERVICE_URL + "/ws";
+
+    const DESTINATION =
+        "/user/queue/notifications";
+
+
+    // =========================================================
+    // GLOBAL VARIABLES
+    // =========================================================
+
+    let stompClient = null;
+
+    let notifications = [];
+
+    let websocketConnected = false;
+
+
+    // =========================================================
+    // PAGE INITIALIZATION
+    // =========================================================
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.getElementById("userIdDisplay").textContent =
+            USER_ID;
+
+        connectWebSocket();
+
+    });
+
+
+    // =========================================================
+    // WEBSOCKET CONNECTION
+    // =========================================================
+
+    function connectWebSocket() {
+
+        updateConnectionStatus("🟡 Connecting...", false);
+
+        console.log(
+            "Connecting WebSocket:",
+            WEBSOCKET_URL
+        );
+
+        const socket =
+            new SockJS(WEBSOCKET_URL);
+
+        stompClient =
+            Stomp.over(socket);
+
+        // Disable STOMP debug logs
+        stompClient.debug = null;
+
+
+        stompClient.connect(
+
+            {
+                userId: USER_ID
+            },
+
+            function (frame) {
+
+                console.log(
+                    "STOMP CONNECTED:",
+                    frame
+                );
+
+                websocketConnected = true;
+
+                updateConnectionStatus(
+                    "🟢 Connected",
+                    true
+                );
+
+
+                // =============================================
+                // SUBSCRIBE TO USER NOTIFICATIONS
+                // =============================================
+
+                console.log(
+                    "Subscribing:",
+                    DESTINATION
+                );
+
+                stompClient.subscribe(
+
+                    DESTINATION,
+
+                    function (message) {
+
+                        console.log(
+                            "================================"
+                        );
+
+                        console.log(
+                            "LIVE NOTIFICATION RECEIVED"
+                        );
+
+                        console.log(
+                            "Raw message:",
+                            message.body
+                        );
+
+                        console.log(
+                            "================================"
+                        );
+
+
+                        try {
+
+                            const notification =
+                                JSON.parse(message.body);
+
+
+                            // Add notification to top
+                            notifications.unshift(
+                                notification
+                            );
+
+
+                            // Remove duplicates
+                            notifications =
+                                removeDuplicateNotifications(
+                                    notifications
+                                );
+
+
+                            renderNotifications();
+
+
+                        } catch (error) {
+
+                            console.error(
+                                "Invalid notification JSON:",
+                                error
+                            );
+
+                        }
+
+                    }
+
+                );
+
+
+                // =============================================
+                // LOAD EXISTING NOTIFICATIONS
+                // =============================================
+
+                loadNotifications();
+
+            },
+
+            function (error) {
+
+                console.error(
+                    "WebSocket error:",
+                    error
+                );
+
+                websocketConnected = false;
+
+                updateConnectionStatus(
+                    "🔴 Disconnected",
+                    false
+                );
+
+
+                // Retry after 3 seconds
+
+                setTimeout(
+                    connectWebSocket,
+                    3000
+                );
+
+            }
+
+        );
+
+    }
+
+
+    // =========================================================
+    // CONNECTION STATUS
+    // =========================================================
+
+    function updateConnectionStatus(
+        text,
+        connected
+    ) {
+
+        const element =
+            document.getElementById(
+                "connectionStatus"
+            );
+
+        element.textContent = text;
+
+        if (connected) {
+
+            element.style.background =
+                "#166534";
+
+        } else {
+
+            element.style.background =
+                "#374151";
+
+        }
+
+    }
+
+
+    // =========================================================
+    // CREATE ORDER
+    // =========================================================
+
+    async function createOrder() {
+
+        hideError();
+
+        const result =
+            document.getElementById(
+                "orderResult"
+            );
+
+        result.style.display = "none";
+
+
+        try {
+
+            console.log(
+                "Creating order..."
+            );
+
+
+            const response =
+                await fetch(
+                    ORDER_SERVICE_URL +
+                    "/api/orders",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            userId: USER_ID
+
+                        })
+
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Order Service returned HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            const order =
+                await response.json();
+
+
+            console.log(
+                "Order Created:",
+                order
+            );
+
+
+            result.innerHTML =
+                "✅ Order Created: <strong>" +
+                escapeHtml(order.orderId) +
+                "</strong>";
+
+            result.style.display =
+                "block";
+
+
+        } catch (error) {
+
+            console.error(
+                "Create Order Error:",
+                error
+            );
+
+            showError(
+                "Unable to create order. " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // LOAD NOTIFICATIONS FROM DATABASE
+    // =========================================================
+
+    async function loadNotifications() {
+
+        console.log(
+            "Loading notifications..."
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+
+                    NOTIFICATION_SERVICE_URL +
+                    "/api/notifications/user/" +
+                    USER_ID
+
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Notification API returned HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "Database notifications:",
+                data
+            );
+
+
+            /*
+             * Replace the current list with DB data.
+             *
+             * Then render.
+             */
+
+            notifications =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+
+            notifications =
+                removeDuplicateNotifications(
+                    notifications
+                );
+
+
+            renderNotifications();
+
+
+        } catch (error) {
+
+            console.error(
+                "Load notifications error:",
+                error
+            );
+
+            showError(
+                "Unable to load notifications. " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // RENDER NOTIFICATIONS
+    // =========================================================
+
+    function renderNotifications() {
+
+        const container =
+            document.getElementById(
+                "notificationList"
+            );
+
+
+        const total =
+            notifications.length;
+
+
+        const unread =
+            notifications.filter(
+                n => !isRead(n)
+            ).length;
+
+
+        document.getElementById(
+            "notificationCount"
+        ).textContent = total;
+
+
+        document.getElementById(
+            "unreadCount"
+        ).textContent = unread;
+
+
+        // No notifications
+
+        if (total === 0) {
+
+            container.innerHTML = `
+
+                <div class="empty">
+
+                    🔔 No notifications
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML =
+            notifications.map(
+                (notification, index) => {
+
+                    const read =
+                        isRead(notification);
+
+
+                    const type =
+                        notification.type ||
+                        notification.eventType ||
+                        "NOTIFICATION";
+
+
+                    const message =
+                        notification.message ||
+                        "No message";
+
+
+                    const createdAt =
+                        notification.createdAt;
+
+
+                    const orderId =
+                        notification.orderId ||
+                        "";
+
+
+                    return `
+
+                        <div class="notification
+                            ${read ? "read" : "unread"}">
+
+                            <div class="notification-title">
+
+                                <span class="notification-type">
+
+                                    🔔
+                                    ${escapeHtml(type)}
+
+                                </span>
+
+                                <span class="notification-time">
+
+                                    ${formatTime(createdAt)}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="notification-message">
+
+                                ${escapeHtml(message)}
+
+                            </div>
+
+
+                            ${
+                                orderId
+                                ?
+                                `
+                                <div class="notification-status">
+
+                                    Order:
+                                    <strong>
+                                        ${escapeHtml(orderId)}
+                                    </strong>
+
+                                </div>
+                                `
+                                :
+                                ""
+                            }
+
+
+                            <div class="notification-status">
+
+                                ${
+                                    read
+                                    ? "✓ Read"
+                                    : "● Unread"
+                                }
+
+                            </div>
+
+
+                            ${
+                                !read
+                                ?
+                                `
+                                <div style="margin-top:10px;">
+
+                                    <button
+                                        class="btn-secondary"
+                                        onclick="markRead(
+                                            ${notification.id},
+                                            ${index}
+                                        )">
+
+                                        Mark Read
+
+                                    </button>
+
+                                </div>
+                                `
+                                :
+                                ""
+                            }
+
+                        </div>
+
+                    `;
+
+                }
+            ).join("");
+
+    }
+
+
+    // =========================================================
+    // MARK SINGLE NOTIFICATION READ
+    // =========================================================
+
+    async function markRead(
+        id,
+        index
+    ) {
+
+        if (!id) {
+
+            console.error(
+                "Notification ID missing"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+
+                    NOTIFICATION_SERVICE_URL +
+                    "/api/notifications/" +
+                    id +
+                    "/read",
+
+                    {
+                        method: "PUT"
+                    }
+
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            if (
+                notifications[index]
+            ) {
+
+                notifications[index].read =
+                    true;
+
+            }
+
+
+            renderNotifications();
+
+
+        } catch (error) {
+
+            console.error(
+                "Mark read error:",
+                error
+            );
+
+            showError(
+                "Unable to mark notification as read."
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // MARK ALL READ
+    // =========================================================
+
+    async function markAllRead() {
+
+        try {
+
+            const response =
+                await fetch(
+
+                    NOTIFICATION_SERVICE_URL +
+                    "/api/notifications/user/" +
+                    USER_ID +
+                    "/read-all",
+
+                    {
+                        method: "PUT"
+                    }
+
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            notifications.forEach(
+                notification => {
+
+                    notification.read = true;
+
+                }
+            );
+
+
+            renderNotifications();
+
+
+        } catch (error) {
+
+            console.error(
+                "Mark all read error:",
+                error
+            );
+
+            showError(
+                "Unable to mark all notifications as read."
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // CLEAR ALL
+    // =========================================================
+
+    async function clearAll() {
+
+        if (
+            !confirm(
+                "Are you sure you want to clear all notifications?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+
+                    NOTIFICATION_SERVICE_URL +
+                    "/api/notifications/user/" +
+                    USER_ID,
+
+                    {
+                        method: "DELETE"
+                    }
+
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            notifications = [];
+
+            renderNotifications();
+
+
+        } catch (error) {
+
+            console.error(
+                "Clear notifications error:",
+                error
+            );
+
+            showError(
+                "Unable to clear notifications."
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // CHECK READ STATUS
+    // =========================================================
+
+    function isRead(notification) {
+
+        return notification.read === true;
+
+    }
+
+
+    // =========================================================
+    // FORMAT DATE/TIME
+    // =========================================================
+
+    function formatTime(value) {
+
+        if (!value) {
+
+            return "";
+
+        }
+
+
+        try {
+
+            return new Date(
+                value
+            ).toLocaleString();
+
+        } catch (error) {
+
+            return value;
+
+        }
+
+    }
+
+
+    // =========================================================
+    // REMOVE DUPLICATES
+    // =========================================================
+
+    function removeDuplicateNotifications(
+        list
+    ) {
+
+        const seen =
+            new Set();
+
+
+        return list.filter(
+            notification => {
+
+                /*
+                 * Prefer database ID.
+                 */
+
+                if (
+                    notification.id !== undefined &&
+                    notification.id !== null
+                ) {
+
+                    const key =
+                        "id-" +
+                        notification.id;
+
+
+                    if (seen.has(key)) {
+
+                        return false;
+
+                    }
+
+
+                    seen.add(key);
+
+                    return true;
+
+                }
+
+
+                /*
+                 * For live notifications before
+                 * database ID is available.
+                 */
+
+                const key =
+                    [
+                        notification.orderId,
+                        notification.type ||
+                        notification.eventType,
+                        notification.message,
+                        notification.createdAt
+                    ].join("|");
+
+
+                if (seen.has(key)) {
+
+                    return false;
+
+                }
+
+
+                seen.add(key);
+
+                return true;
+
+            }
+        );
+
+    }
+
+
+    // =========================================================
+    // ESCAPE HTML
+    // =========================================================
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+
+        const div =
+            document.createElement("div");
+
+
+        div.textContent =
+            String(value);
+
+
+        return div.innerHTML;
+
+    }
+
+
+    // =========================================================
+    // SHOW ERROR
+    // =========================================================
+
+    function showError(message) {
+
+        const element =
+            document.getElementById(
+                "errorMessage"
+            );
+
+
+        element.textContent =
+            "❌ " + message;
+
+
+        element.style.display =
+            "block";
+
+    }
+
+
+    // =========================================================
+    // HIDE ERROR
+    // =========================================================
+
+    function hideError() {
+
+        const element =
+            document.getElementById(
+                "errorMessage"
+            );
+
+
+        element.style.display =
+            "none";
+
+    }
+
+
+</script>
+
+</body>
+
+</html>

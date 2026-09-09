@@ -5,6 +5,8 @@
     <file url="file://$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-starter-parent/3.4.3/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Clenetapp/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Idempotency/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Live-kafka-notification/kafaka-notification/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Live-kafka-notification/kafaka-order-notification/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/LoggingTracing/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ai/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/api-gateway-tracing/src/main/java" charset="UTF-8" />

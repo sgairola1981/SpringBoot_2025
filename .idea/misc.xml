@@ -33,6 +33,8 @@
         <option value="$PROJECT_DIR$/elasticsearch/pom.xml" />
         <option value="$PROJECT_DIR$/livenotification/pom.xml" />
         <option value="$PROJECT_DIR$/ordernotification/pom.xml" />
+        <option value="$PROJECT_DIR$/Live-kafka-notification/kafaka-notification/pom.xml" />
+        <option value="$PROJECT_DIR$/Live-kafka-notification/kafaka-order-notification/pom.xml" />
       </list>
     </option>
   </component>
