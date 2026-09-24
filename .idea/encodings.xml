@@ -8,6 +8,8 @@
     <file url="file://$PROJECT_DIR$/Live-kafka-notification/kafaka-notification/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Live-kafka-notification/kafaka-order-notification/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/LoggingTracing/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SpringApp/Dashboard/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SpringApp/auth-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ai/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/api-gateway-tracing/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/apigateway/src/main/java" charset="UTF-8" />

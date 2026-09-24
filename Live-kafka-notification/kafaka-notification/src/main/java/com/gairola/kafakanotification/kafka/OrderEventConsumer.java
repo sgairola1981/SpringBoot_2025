@@ -4,20 +4,18 @@ import com.gairola.kafakanotification.model.OrderEvent;
 import com.gairola.kafakanotification.service.NotificationService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class OrderEventConsumer {
 
     private final NotificationService notificationService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public OrderEventConsumer(
-            NotificationService notificationService,
-            ObjectMapper objectMapper) {
-
+    public OrderEventConsumer(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.objectMapper = objectMapper;
+        // Jackson 3 supports java.time natively without extra modules
+        this.jsonMapper = JsonMapper.builder().build();
     }
 
     @KafkaListener(
@@ -25,24 +23,15 @@ public class OrderEventConsumer {
             groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consume(String message) {
-
         try {
-
-            System.out.println();
             System.out.println("========================================");
             System.out.println("KAFKA MESSAGE RECEIVED");
             System.out.println("Raw JSON : " + message);
 
-            OrderEvent event =
-                    objectMapper.readValue(
-                            message,
-                            OrderEvent.class
-                    );
+            OrderEvent event = jsonMapper.readValue(message, OrderEvent.class);
 
             System.out.println("Order ID : " + event.orderId());
             System.out.println("User ID  : " + event.userId());
-            System.out.println("Type     : " + event.eventType());
-            System.out.println("Message  : " + event.message());
             System.out.println("========================================");
 
             notificationService.createAndSend(
@@ -52,13 +41,8 @@ public class OrderEventConsumer {
                     event.message(),
                     event.createdAt()
             );
-
         } catch (Exception e) {
-
-            System.err.println(
-                    "ERROR processing Kafka message"
-            );
-
+            System.err.println("ERROR processing Kafka message: " + e.getMessage());
             e.printStackTrace();
         }
     }

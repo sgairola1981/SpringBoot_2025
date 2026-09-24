@@ -1,9 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -87,6 +87,11 @@
             font-size: 14px;
             cursor: pointer;
             transition: 0.2s;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .btn-primary {
@@ -214,6 +219,20 @@
             color: #6b7280;
         }
 
+        .mark-read-container {
+            margin-top: 12px;
+        }
+
+        .mark-read-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        .mark-read-btn.loading {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
         .empty {
             text-align: center;
             padding: 35px;
@@ -233,7 +252,13 @@
         }
 
         .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
             color: #166534;
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
         }
 
         .loading {
@@ -269,30 +294,37 @@
 
     </style>
 
+
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
+<!-- =========================================================
+     HEADER
+========================================================= -->
 
 <div class="header">
 
-    <h1>My Order Application 🔔</h1>
+       <h1>My Order Application 🔔</h1>
 
     <div id="connectionStatus"
          class="connection">
+
         🔴 Disconnected
+
     </div>
 
 </div>
 
-
-<!-- ================= MAIN ================= -->
+<!-- =========================================================
+     MAIN
+========================================================= -->
 
 <div class="container">
 
-
-    <!-- ================= ORDER CARD ================= -->
+        <!-- =====================================================
+         CREATE ORDER
+    ====================================================== -->
 
     <div class="card">
 
@@ -302,28 +334,41 @@
 
             <button class="btn-primary"
                     onclick="createOrder()">
+
                 🛒 Create Order
+
             </button>
 
             <span>
-                User ID:
-                <strong id="userIdDisplay"></strong>
-            </span>
+
+            User ID:
+            <strong id="userIdDisplay"></strong>
+
+        </span>
 
         </div>
+
 
         <div id="orderResult"
              class="order-result">
         </div>
 
+
         <div id="errorMessage"
              class="error">
+        </div>
+
+
+        <div id="successMessage"
+             class="success">
         </div>
 
     </div>
 
 
-    <!-- ================= NOTIFICATION CARD ================= -->
+    <!-- =====================================================
+         NOTIFICATION CARD
+    ====================================================== -->
 
     <div class="card">
 
@@ -354,17 +399,25 @@
 
                 <button class="btn-success"
                         onclick="markAllRead()">
+
                     ✓ Mark All Read
+
                 </button>
+
 
                 <button class="btn-secondary"
                         onclick="loadNotifications()">
+
                     ↻ Refresh
+
                 </button>
+
 
                 <button class="btn-danger"
                         onclick="clearAll()">
+
                     🗑 Clear All
+
                 </button>
 
             </div>
@@ -375,7 +428,9 @@
         <div id="notificationList">
 
             <div class="loading">
+
                 Loading notifications...
+
             </div>
 
         </div>
@@ -383,7 +438,6 @@
     </div>
 
 </div>
-
 
 <script>
 
@@ -421,14 +475,66 @@
     // PAGE INITIALIZATION
     // =========================================================
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
 
-        document.getElementById("userIdDisplay").textContent =
-            USER_ID;
+            document.getElementById(
+                "userIdDisplay"
+            ).textContent = USER_ID;
 
-        connectWebSocket();
+            /*
+             * IMPORTANT:
+             * Mark Read buttons are dynamically generated.
+             *
+             * Therefore we use event delegation instead
+             * of inline onclick.
+             */
 
-    });
+            document.addEventListener(
+                "click",
+                function (event) {
+
+                    const button =
+                        event.target.closest(
+                            ".mark-read-btn"
+                        );
+
+                    if (!button) {
+                        return;
+                    }
+
+                    const id =
+                        button.getAttribute(
+                            "data-notification-id"
+                        );
+
+                    console.log(
+                        "================================"
+                    );
+
+                    console.log(
+                        "MARK READ BUTTON CLICKED"
+                    );
+
+                    console.log(
+                        "Notification ID:",
+                        id
+                    );
+
+                    console.log(
+                        "================================"
+                    );
+
+                    markRead(id, button);
+
+                }
+            );
+
+            connectWebSocket();
+
+        }
+    );
 
 
     // =========================================================
@@ -437,7 +543,10 @@
 
     function connectWebSocket() {
 
-        updateConnectionStatus("🟡 Connecting...", false);
+        updateConnectionStatus(
+            "🟡 Connecting...",
+            false
+        );
 
         console.log(
             "Connecting WebSocket:",
@@ -445,14 +554,14 @@
         );
 
         const socket =
-            new SockJS(WEBSOCKET_URL);
+            new SockJS(
+                WEBSOCKET_URL
+            );
 
         stompClient =
             Stomp.over(socket);
 
-        // Disable STOMP debug logs
         stompClient.debug = null;
-
 
         stompClient.connect(
 
@@ -473,11 +582,6 @@
                     "🟢 Connected",
                     true
                 );
-
-
-                // =============================================
-                // SUBSCRIBE TO USER NOTIFICATIONS
-                // =============================================
 
                 console.log(
                     "Subscribing:",
@@ -507,28 +611,23 @@
                             "================================"
                         );
 
-
                         try {
 
                             const notification =
-                                JSON.parse(message.body);
+                                JSON.parse(
+                                    message.body
+                                );
 
-
-                            // Add notification to top
                             notifications.unshift(
                                 notification
                             );
 
-
-                            // Remove duplicates
                             notifications =
                                 removeDuplicateNotifications(
                                     notifications
                                 );
 
-
                             renderNotifications();
-
 
                         } catch (error) {
 
@@ -542,11 +641,6 @@
                     }
 
                 );
-
-
-                // =============================================
-                // LOAD EXISTING NOTIFICATIONS
-                // =============================================
 
                 loadNotifications();
 
@@ -565,9 +659,6 @@
                     "🔴 Disconnected",
                     false
                 );
-
-
-                // Retry after 3 seconds
 
                 setTimeout(
                     connectWebSocket,
@@ -619,6 +710,7 @@
     async function createOrder() {
 
         hideError();
+        hideSuccess();
 
         const result =
             document.getElementById(
@@ -627,20 +719,19 @@
 
         result.style.display = "none";
 
-
         try {
 
             console.log(
                 "Creating order..."
             );
 
-
             const response =
                 await fetch(
+
                     ORDER_SERVICE_URL +
                     "/api/orders",
-                    {
 
+                    {
                         method: "POST",
 
                         headers: {
@@ -649,14 +740,12 @@
                         },
 
                         body: JSON.stringify({
-
                             userId: USER_ID
-
                         })
 
                     }
-                );
 
+                );
 
             if (!response.ok) {
 
@@ -667,25 +756,23 @@
 
             }
 
-
             const order =
                 await response.json();
-
 
             console.log(
                 "Order Created:",
                 order
             );
 
-
             result.innerHTML =
                 "✅ Order Created: <strong>" +
-                escapeHtml(order.orderId) +
+                escapeHtml(
+                    order.orderId
+                ) +
                 "</strong>";
 
             result.style.display =
                 "block";
-
 
         } catch (error) {
 
@@ -705,7 +792,7 @@
 
 
     // =========================================================
-    // LOAD NOTIFICATIONS FROM DATABASE
+    // LOAD NOTIFICATIONS
     // =========================================================
 
     async function loadNotifications() {
@@ -714,18 +801,20 @@
             "Loading notifications..."
         );
 
-
         try {
 
+            const url =
+                NOTIFICATION_SERVICE_URL +
+                "/api/notifications/user/" +
+                encodeURIComponent(USER_ID);
+
+            console.log(
+                "GET:",
+                url
+            );
+
             const response =
-                await fetch(
-
-                    NOTIFICATION_SERVICE_URL +
-                    "/api/notifications/user/" +
-                    USER_ID
-
-                );
-
+                await fetch(url);
 
             if (!response.ok) {
 
@@ -736,37 +825,25 @@
 
             }
 
-
             const data =
                 await response.json();
-
 
             console.log(
                 "Database notifications:",
                 data
             );
 
-
-            /*
-             * Replace the current list with DB data.
-             *
-             * Then render.
-             */
-
             notifications =
                 Array.isArray(data)
                     ? data
                     : [];
-
 
             notifications =
                 removeDuplicateNotifications(
                     notifications
                 );
 
-
             renderNotifications();
-
 
         } catch (error) {
 
@@ -796,28 +873,28 @@
                 "notificationList"
             );
 
-
         const total =
             notifications.length;
 
-
         const unread =
             notifications.filter(
-                n => !isRead(n)
-            ).length;
+                function (notification) {
 
+                    return !isRead(
+                        notification
+                    );
+
+                }
+            ).length;
 
         document.getElementById(
             "notificationCount"
         ).textContent = total;
 
-
         document.getElementById(
             "unreadCount"
         ).textContent = unread;
 
-
-        // No notifications
 
         if (total === 0) {
 
@@ -832,35 +909,82 @@
             `;
 
             return;
-
         }
 
 
         container.innerHTML =
             notifications.map(
-                (notification, index) => {
+
+                function (notification) {
 
                     const read =
-                        isRead(notification);
-
+                        isRead(
+                            notification
+                        );
 
                     const type =
                         notification.type ||
                         notification.eventType ||
                         "NOTIFICATION";
 
-
                     const message =
                         notification.message ||
                         "No message";
 
-
                     const createdAt =
                         notification.createdAt;
 
-
                     const orderId =
                         notification.orderId ||
+                        "";
+
+                    const notificationId =
+                        notification.id;
+
+
+                    console.log(
+                        "Rendering notification:",
+                        {
+                            id: notificationId,
+                            read: notification.read,
+                            message: message
+                        }
+                    );
+
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * Do NOT use:
+                     *
+                     * onclick="markRead(...)"
+                     *
+                     * Instead use data-notification-id.
+                     */
+
+                    const markReadButton =
+                        !read &&
+                        notificationId !== undefined &&
+                        notificationId !== null
+                            ?
+
+                        `
+                        <div class="mark-read-container">
+
+                            <button
+                                type="button"
+                                class="btn-secondary mark-read-btn"
+                                data-notification-id="${escapeHtml(notificationId)}">
+
+                                ✓ Mark Read
+
+                            </button>
+
+                        </div>
+                        `
+
+                            :
+
                         "";
 
 
@@ -877,6 +1001,7 @@
                                     ${escapeHtml(type)}
 
                                 </span>
+
 
                                 <span class="notification-time">
 
@@ -897,6 +1022,7 @@
                             ${
                                 orderId
                                 ?
+
                                 `
                                 <div class="notification-status">
 
@@ -907,7 +1033,9 @@
 
                                 </div>
                                 `
+
                                 :
+
                                 ""
                             }
 
@@ -916,41 +1044,23 @@
 
                                 ${
                                     read
-                                    ? "✓ Read"
-                                    : "● Unread"
+                                    ?
+                                    "✓ Read"
+                                    :
+                                    "● Unread"
                                 }
 
                             </div>
 
 
-                            ${
-                                !read
-                                ?
-                                `
-                                <div style="margin-top:10px;">
-
-                                    <button
-                                        class="btn-secondary"
-                                        onclick="markRead(
-                                            ${notification.id},
-                                            ${index}
-                                        )">
-
-                                        Mark Read
-
-                                    </button>
-
-                                </div>
-                                `
-                                :
-                                ""
-                            }
+                            ${markReadButton}
 
                         </div>
 
                     `;
 
                 }
+
             ).join("");
 
     }
@@ -962,69 +1072,223 @@
 
     async function markRead(
         id,
-        index
+        button
     ) {
 
-        if (!id) {
+        console.log(
+            "================================"
+        );
+
+        console.log(
+            "MARK READ"
+        );
+
+        console.log(
+            "Notification ID:",
+            id
+        );
+
+
+        // -----------------------------------------------------
+        // Validate ID
+        // -----------------------------------------------------
+
+        if (
+            id === undefined ||
+            id === null ||
+            id === "" ||
+            id === "undefined" ||
+            id === "null"
+        ) {
 
             console.error(
-                "Notification ID missing"
+                "Notification ID is missing."
+            );
+
+            showError(
+                "Notification ID is missing."
             );
 
             return;
-
         }
+
+
+        hideError();
+
+
+        // -----------------------------------------------------
+        // Find notification
+        // -----------------------------------------------------
+
+        const notification =
+            notifications.find(
+                function (item) {
+
+                    return String(item.id) ===
+                           String(id);
+
+                }
+            );
+
+
+        console.log(
+            "Notification object:",
+            notification
+        );
+
+
+        // -----------------------------------------------------
+        // EXACT BACKEND URL
+        //
+        // Controller:
+        //
+        // @RequestMapping("/api/notifications")
+        //
+        // @PutMapping("/{id}/read")
+        //
+        // Result:
+        //
+        // PUT /api/notifications/{id}/read
+        // -----------------------------------------------------
+
+        const url =
+            NOTIFICATION_SERVICE_URL +
+            "/api/notifications/" +
+            encodeURIComponent(id) +
+            "/read";
+
+
+        console.log(
+            "PUT URL:",
+            url
+        );
 
 
         try {
 
+            // -------------------------------------------------
+            // Disable button while request is running
+            // -------------------------------------------------
+
+            if (button) {
+
+                button.disabled = true;
+
+                button.classList.add(
+                    "loading"
+                );
+
+                button.textContent =
+                    "⏳ Marking...";
+
+            }
+
+
+            // -------------------------------------------------
+            // CALL BACKEND
+            // -------------------------------------------------
+
             const response =
                 await fetch(
 
-                    NOTIFICATION_SERVICE_URL +
-                    "/api/notifications/" +
-                    id +
-                    "/read",
+                    url,
 
                     {
-                        method: "PUT"
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
                     }
 
                 );
 
 
+            console.log(
+                "HTTP STATUS:",
+                response.status
+            );
+
+
+            // -------------------------------------------------
+            // Controller returns 204 NO CONTENT
+            //
+            // Therefore DO NOT call response.json()
+            // -------------------------------------------------
+
             if (!response.ok) {
+
+                const errorText =
+                    await response.text();
 
                 throw new Error(
                     "HTTP " +
-                    response.status
+                    response.status +
+                    (
+                        errorText
+                        ?
+                        " - " + errorText
+                        :
+                        ""
+                    )
                 );
 
             }
 
 
-            if (
-                notifications[index]
-            ) {
+            console.log(
+                "✅ Backend successfully marked notification as READ."
+            );
 
-                notifications[index].read =
-                    true;
+
+            // -------------------------------------------------
+            // Update local notification
+            // -------------------------------------------------
+
+            if (notification) {
+
+                notification.read = true;
 
             }
 
 
+            // -------------------------------------------------
+            // Re-render screen
+            // -------------------------------------------------
+
             renderNotifications();
 
+
+            console.log(
+                "✅ UI updated."
+            );
 
         } catch (error) {
 
             console.error(
-                "Mark read error:",
+                "❌ Mark Read Error:",
                 error
             );
 
+
+            if (button) {
+
+                button.disabled = false;
+
+                button.classList.remove(
+                    "loading"
+                );
+
+                button.textContent =
+                    "✓ Mark Read";
+
+            }
+
+
             showError(
-                "Unable to mark notification as read."
+                "Unable to mark notification as read. " +
+                error.message
             );
 
         }
@@ -1038,15 +1302,27 @@
 
     async function markAllRead() {
 
+        hideError();
+
         try {
+
+            const url =
+                NOTIFICATION_SERVICE_URL +
+                "/api/notifications/user/" +
+                encodeURIComponent(USER_ID) +
+                "/read-all";
+
+
+            console.log(
+                "PUT:",
+                url
+            );
+
 
             const response =
                 await fetch(
 
-                    NOTIFICATION_SERVICE_URL +
-                    "/api/notifications/user/" +
-                    USER_ID +
-                    "/read-all",
+                    url,
 
                     {
                         method: "PUT"
@@ -1055,26 +1331,48 @@
                 );
 
 
+            console.log(
+                "Mark All Read HTTP Status:",
+                response.status
+            );
+
+
             if (!response.ok) {
+
+                const errorText =
+                    await response.text();
 
                 throw new Error(
                     "HTTP " +
-                    response.status
+                    response.status +
+                    (
+                        errorText
+                        ?
+                        " - " + errorText
+                        :
+                        ""
+                    )
                 );
 
             }
 
 
             notifications.forEach(
-                notification => {
+                function (notification) {
 
-                    notification.read = true;
+                    notification.read =
+                        true;
 
                 }
             );
 
 
             renderNotifications();
+
+
+            console.log(
+                "✅ All notifications marked as READ."
+            );
 
 
         } catch (error) {
@@ -1084,8 +1382,10 @@
                 error
             );
 
+
             showError(
-                "Unable to mark all notifications as read."
+                "Unable to mark all notifications as read. " +
+                error.message
             );
 
         }
@@ -1110,20 +1410,39 @@
         }
 
 
+        hideError();
+
+
         try {
+
+            const url =
+                NOTIFICATION_SERVICE_URL +
+                "/api/notifications/user/" +
+                encodeURIComponent(USER_ID);
+
+
+            console.log(
+                "DELETE:",
+                url
+            );
+
 
             const response =
                 await fetch(
 
-                    NOTIFICATION_SERVICE_URL +
-                    "/api/notifications/user/" +
-                    USER_ID,
+                    url,
 
                     {
                         method: "DELETE"
                     }
 
                 );
+
+
+            console.log(
+                "Clear All HTTP Status:",
+                response.status
+            );
 
 
             if (!response.ok) {
@@ -1141,6 +1460,11 @@
             renderNotifications();
 
 
+            console.log(
+                "✅ All notifications cleared."
+            );
+
+
         } catch (error) {
 
             console.error(
@@ -1148,8 +1472,10 @@
                 error
             );
 
+
             showError(
-                "Unable to clear notifications."
+                "Unable to clear notifications. " +
+                error.message
             );
 
         }
@@ -1183,13 +1509,27 @@
 
         try {
 
-            return new Date(
-                value
-            ).toLocaleString();
+            const date =
+                new Date(value);
+
+
+            if (
+                isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return String(value);
+
+            }
+
+
+            return date.toLocaleString();
+
 
         } catch (error) {
 
-            return value;
+            return String(value);
 
         }
 
@@ -1209,7 +1549,8 @@
 
 
         return list.filter(
-            notification => {
+
+            function (notification) {
 
                 /*
                  * Prefer database ID.
@@ -1225,7 +1566,9 @@
                         notification.id;
 
 
-                    if (seen.has(key)) {
+                    if (
+                        seen.has(key)
+                    ) {
 
                         return false;
 
@@ -1240,8 +1583,7 @@
 
 
                 /*
-                 * For live notifications before
-                 * database ID is available.
+                 * Fallback.
                  */
 
                 const key =
@@ -1254,7 +1596,9 @@
                     ].join("|");
 
 
-                if (seen.has(key)) {
+                if (
+                    seen.has(key)
+                ) {
 
                     return false;
 
@@ -1266,6 +1610,7 @@
                 return true;
 
             }
+
         );
 
     }
@@ -1288,7 +1633,9 @@
 
 
         const div =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         div.textContent =
@@ -1339,6 +1686,45 @@
 
     }
 
+
+    // =========================================================
+    // SHOW SUCCESS
+    // =========================================================
+
+    function showSuccess(message) {
+
+        const element =
+            document.getElementById(
+                "successMessage"
+            );
+
+
+        element.textContent =
+            "✅ " + message;
+
+
+        element.style.display =
+            "block";
+
+    }
+
+
+    // =========================================================
+    // HIDE SUCCESS
+    // =========================================================
+
+    function hideSuccess() {
+
+        const element =
+            document.getElementById(
+                "successMessage"
+            );
+
+
+        element.style.display =
+            "none";
+
+    }
 
 </script>
 

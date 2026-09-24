@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="wfms" />
         <module name="userservice" />
+        <module name="Dashboard" />
         <module name="Idempotency" />
         <module name="demo" />
         <module name="micrometer" />
@@ -24,6 +25,7 @@
         <module name="finance-agent" />
         <module name="springBatch" />
         <module name="kafaka-notification" />
+        <module name="auth-server" />
         <module name="ai" />
         <module name="wfms_Demo" />
         <module name="apigateway" />
@@ -54,11 +56,13 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Clenetapp" options="-parameters" />
+      <module name="Dashboard" options="-parameters" />
       <module name="Idempotency" options="-parameters" />
       <module name="LoggingTracing" options="-parameters" />
       <module name="ai" options="-parameters" />
       <module name="api-gateway-tracing" options="-parameters" />
       <module name="apigateway" options="-parameters" />
+      <module name="auth-server" options="-parameters" />
       <module name="booking-service" options="-parameters" />
       <module name="chat" options="-parameters" />
       <module name="chitchat" options="-parameters" />

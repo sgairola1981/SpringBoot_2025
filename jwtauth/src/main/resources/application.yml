@@ -3,14 +3,14 @@ spring:
     name: auth-service
 
   datasource:
-    url: jdbc:oracle:thin:@localhost:1555/XEPDB1
-    username: GAIROLA
-    password: Gairola1981
+    url: jdbc:oracle:thin:@localhost:1521/XE
+    username: HR
+    password: hr
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
-    show-sql: true0
+    show-sql: true
     open-in-view: false
     hibernate:
       ddl-auto: update

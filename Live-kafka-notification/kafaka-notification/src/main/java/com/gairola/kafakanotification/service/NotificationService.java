@@ -90,14 +90,16 @@ public class NotificationService {
     @Transactional
     public void markRead(Long id) {
 
-        repository
-                .findById(id)
-                .ifPresent(notification -> {
+        Notification notification =
+                repository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Notification not found: " + id
+                                ));
 
-                    notification.markRead();
+        notification.setRead(true);
 
-                    repository.save(notification);
-                });
+        repository.save(notification);
     }
 
     @Transactional

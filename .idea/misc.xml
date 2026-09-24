@@ -35,6 +35,8 @@
         <option value="$PROJECT_DIR$/ordernotification/pom.xml" />
         <option value="$PROJECT_DIR$/Live-kafka-notification/kafaka-notification/pom.xml" />
         <option value="$PROJECT_DIR$/Live-kafka-notification/kafaka-order-notification/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringApp/auth-server/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringApp/Dashboard/pom.xml" />
       </list>
     </option>
   </component>
