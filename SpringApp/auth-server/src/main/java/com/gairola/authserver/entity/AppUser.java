@@ -21,7 +21,6 @@ public class AppUser {
     @Column(name = "ID")
     private Long id;
 
-
     @Column(
             name = "USERNAME",
             nullable = false,
@@ -30,7 +29,6 @@ public class AppUser {
     )
     private String username;
 
-
     @Column(
             name = "PASSWORD",
             nullable = false,
@@ -38,43 +36,37 @@ public class AppUser {
     )
     private String password;
 
-
     @Column(
             name = "ROLE",
             nullable = false,
             length = 50
     )
-    private String role;
+    private String role = "USER";
 
-
-    @Column(name = "ENABLED")
-    private Boolean enabled;
-
+    @Column(
+            name = "ENABLED",
+            nullable = false
+    )
+    private Boolean enabled = true;
 
     @Column(name = "CREATED_DATE")
     private LocalDateTime createdDate;
 
-
-    public AppUser() {
-    }
-
-
     @PrePersist
-    public void beforeCreate() {
+    public void prePersist() {
 
-        if (role == null) {
+        if (createdDate == null) {
+            createdDate = LocalDateTime.now();
+        }
+
+        if (role == null || role.isBlank()) {
             role = "USER";
         }
 
         if (enabled == null) {
             enabled = true;
         }
-
-        if (createdDate == null) {
-            createdDate = LocalDateTime.now();
-        }
     }
-
 
     public Long getId() {
         return id;
@@ -84,7 +76,6 @@ public class AppUser {
         this.id = id;
     }
 
-
     public String getUsername() {
         return username;
     }
@@ -92,7 +83,6 @@ public class AppUser {
     public void setUsername(String username) {
         this.username = username;
     }
-
 
     public String getPassword() {
         return password;
@@ -102,7 +92,6 @@ public class AppUser {
         this.password = password;
     }
 
-
     public String getRole() {
         return role;
     }
@@ -111,7 +100,6 @@ public class AppUser {
         this.role = role;
     }
 
-
     public Boolean getEnabled() {
         return enabled;
     }
@@ -119,7 +107,6 @@ public class AppUser {
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
-
 
     public LocalDateTime getCreatedDate() {
         return createdDate;

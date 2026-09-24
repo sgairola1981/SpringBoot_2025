@@ -17,56 +17,88 @@ public class DashboardController {
         this.authService = authService;
     }
 
+    // ===============================
+    // HOME
+    // ===============================
+
     @GetMapping("/")
-    public String home() {
+    public String home(HttpSession session) {
+
+        if (session.getAttribute("USERNAME") != null) {
+            return "dashboard";
+        }
+
         return "login";
     }
+
+    // ===============================
+    // LOGIN PAGE
+    // ===============================
 
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
+    // ===============================
+    // LOGIN
+    // ===============================
+
     @PostMapping("/login")
     public String login(
             @RequestParam String username,
             @RequestParam String password,
-            HttpSession session) {
+            HttpSession session,
+            Model model) {
 
         try {
 
-            // Authentication is performed by AUTH SERVER
-            Map<String, Object> result =
+            Map<String, Object> response =
                     authService.login(username, password);
 
             String token =
-                    (String) result.get("token");
+                    (String) response.get("token");
 
-            String loginUsername =
-                    (String) result.get("username");
+            String loggedUsername =
+                    (String) response.get("username");
 
             String role =
-                    (String) result.get("role");
+                    (String) response.get("role");
 
-            // Store authentication information
-            // in Dashboard server session
-            session.setAttribute("JWT_TOKEN", token);
-            session.setAttribute("USERNAME", loginUsername);
-            session.setAttribute("ROLE", role);
+            // Store JWT
+            session.setAttribute(
+                    "JWT_TOKEN",
+                    token
+            );
 
-            // Go to welcome page
+            // Store username
+            session.setAttribute(
+                    "USERNAME",
+                    loggedUsername
+            );
+
+            // Store role
+            session.setAttribute(
+                    "ROLE",
+                    role
+            );
+
             return "redirect:/dashboard";
 
         } catch (Exception e) {
 
-            System.out.println(
-                    "Authentication failed: "
-                            + e.getMessage()
+            model.addAttribute(
+                    "error",
+                    "Invalid username or password"
             );
 
-            return "redirect:/login?error=true";
+            return "login";
         }
     }
+
+    // ===============================
+    // DASHBOARD
+    // ===============================
 
     @GetMapping("/dashboard")
     public String dashboard(
@@ -93,9 +125,12 @@ public class DashboardController {
         return "dashboard";
     }
 
+    // ===============================
+    // LOGOUT
+    // ===============================
+
     @PostMapping("/logout")
-    public String logout(
-            HttpSession session) {
+    public String logout(HttpSession session) {
 
         session.invalidate();
 

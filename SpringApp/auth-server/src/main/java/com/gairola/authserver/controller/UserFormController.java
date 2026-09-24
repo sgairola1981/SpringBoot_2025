@@ -1,9 +1,7 @@
 package com.gairola.authserver.controller;
 
 import com.gairola.authserver.entity.AppUser;
-import com.gairola.authserver.repository.AppUserRepository;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.gairola.authserver.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,21 +10,37 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserFormController {
 
-    private final AppUserRepository repository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    public UserFormController(
-            AppUserRepository repository,
-            PasswordEncoder passwordEncoder) {
+    public UserFormController(UserService userService) {
+        this.userService = userService;
+    }
 
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
+    @GetMapping("/list")
+    public String listUsers(Model model) {
+
+        model.addAttribute(
+                "users",
+                userService.findAll()
+        );
+
+        return "user-list";
     }
 
     @GetMapping("/create")
-    public String showCreateUserForm() {
+    public String createPage(Model model) {
 
-        return "user-create";
+        model.addAttribute(
+                "user",
+                new AppUser()
+        );
+
+        model.addAttribute(
+                "mode",
+                "create"
+        );
+
+        return "user-form";
     }
 
     @PostMapping("/create")
@@ -36,41 +50,120 @@ public class UserFormController {
             @RequestParam String role,
             Model model) {
 
-        System.out.println("Creating user: " + username);
+        try {
 
-        if (repository.countByUsername(username) > 0) {
+            userService.createUser(
+                    username,
+                    password,
+                    role
+            );
+
+            return "redirect:/user/list";
+
+        } catch (Exception e) {
 
             model.addAttribute(
                     "error",
-                    "Username already exists"
+                    e.getMessage()
             );
 
-            return "user-create";
+            AppUser user = new AppUser();
+            user.setUsername(username);
+            user.setRole(role);
+
+            model.addAttribute("user", user);
+            model.addAttribute("mode", "create");
+
+            return "user-form";
         }
+    }
 
-        AppUser user = new AppUser();
+    // ============================
+    // EDIT USER
+    // ============================
 
-        user.setUsername(username);
+    @GetMapping("/edit/{id}")
+    public String editUser(
+            @PathVariable Long id,
+            Model model) {
 
-        user.setPassword(
-                passwordEncoder.encode(password)
-        );
-
-        user.setRole(
-                role == null || role.isBlank()
-                        ? "USER"
-                        : role
-        );
-
-        user.setEnabled(true);
-
-        repository.save(user);
+        AppUser user = userService.findById(id);
 
         model.addAttribute(
-                "success",
-                "User created successfully"
+                "user",
+                user
         );
 
-        return "user-create";
+        model.addAttribute(
+                "mode",
+                "edit"
+        );
+
+        return "user-form";
+    }
+
+    // ============================
+    // UPDATE USER
+    // ============================
+
+    @PostMapping("/update")
+    public String updateUser(
+            @RequestParam Long id,
+            @RequestParam String username,
+            @RequestParam(required = false) String password,
+            @RequestParam String role,
+            @RequestParam Boolean enabled,
+            Model model) {
+
+        try {
+
+            userService.updateUser(
+                    id,
+                    username,
+                    password,
+                    role,
+                    enabled
+            );
+
+            return "redirect:/user/list";
+
+        } catch (Exception e) {
+
+            model.addAttribute(
+                    "error",
+                    e.getMessage()
+            );
+
+            AppUser user = userService.findById(id);
+
+            user.setUsername(username);
+            user.setRole(role);
+            user.setEnabled(enabled);
+
+            model.addAttribute(
+                    "user",
+                    user
+            );
+
+            model.addAttribute(
+                    "mode",
+                    "edit"
+            );
+
+            return "user-form";
+        }
+    }
+
+    // ============================
+    // DELETE
+    // ============================
+
+    @GetMapping("/delete/{id}")
+    public String deleteUser(
+            @PathVariable Long id) {
+
+        userService.deleteUser(id);
+
+        return "redirect:/user/list";
     }
 }

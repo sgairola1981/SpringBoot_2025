@@ -430,11 +430,17 @@
         <span>Dashboard</span>
     </a>
 
-    <a href="#">
+    <a href="http://localhost:9000/admin"
+       th:if="${role == 'ADMIN'}">
         <i class="bi bi-people"></i>
         <span>Users</span>
     </a>
-
+    <!-- Quick Actions -->
+    <a href="http://localhost:9000/admin"
+       th:if="${role == 'ADMIN'}">
+        <i class="bi bi-people"></i>
+        <span>Manage Users</span>
+    </a>
     <a href="#">
         <i class="bi bi-bar-chart"></i>
         <span>Reports</span>

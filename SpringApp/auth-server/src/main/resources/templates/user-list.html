@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
   <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
   <title>User Management</title>
 
@@ -16,107 +17,128 @@
 
 </head>
 
-
 <body class="bg-light">
 
+<div class="container mt-5">
 
-<nav class="navbar navbar-dark bg-dark">
+  <div class="d-flex justify-content-between align-items-center mb-4">
 
-  <div class="container-fluid">
+    <h2>
+      User Management
+    </h2>
 
-        <span class="navbar-brand">
+    <a href="/user/create"
+       class="btn btn-primary">
 
-            Authentication Server
-
-        </span>
-
-
-    <form
-            th:action="@{/logout}"
-            method="post">
-
-      <button
-              class="btn btn-danger">
-
-        Logout
-
-      </button>
-
-    </form>
-
-  </div>
-
-</nav>
-
-
-<div class="container mt-4">
-
-
-  <div class="d-flex justify-content-between">
-
-    <h2>User Management</h2>
-
-
-    <a
-            href="/users/new"
-            class="btn btn-primary">
-
-      + Create User
+      <i class="bi bi-person-plus"></i>
+      Create User
 
     </a>
 
   </div>
 
 
-  <hr>
+  <div class="card shadow-sm">
 
+    <div class="card-body">
 
-  <table class="table table-bordered table-striped">
+      <table class="table table-hover">
 
+        <thead class="table-dark">
 
-    <thead class="table-dark">
+        <tr>
 
-    <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Action</th>
 
-      <th>ID</th>
+        </tr>
 
-      <th>Username</th>
+        </thead>
 
-      <th>Role</th>
+        <tbody>
 
-      <th>Enabled</th>
+        <tr th:each="user : ${users}">
 
-      <th>Created Date</th>
+          <td th:text="${user.id}">
+            1
+          </td>
 
-    </tr>
+          <td th:text="${user.username}">
+            admin
+          </td>
 
-    </thead>
+          <td>
 
+                        <span
+                                class="badge bg-primary"
+                                th:text="${user.role}">
 
-    <tbody>
+                            USER
 
-    <tr th:each="u : ${users}">
+                        </span>
 
-      <td th:text="${u.id}"></td>
+          </td>
 
-      <td th:text="${u.username}"></td>
+          <td>
 
-      <td th:text="${u.role}"></td>
+                        <span
+                                th:if="${user.enabled}"
+                                class="badge bg-success">
 
-      <td th:text="${u.enabled}"></td>
+                            Active
 
-      <td th:text="${u.createdDate}"></td>
+                        </span>
 
-    </tr>
+            <span
+                    th:unless="${user.enabled}"
+                    class="badge bg-danger">
 
-    </tbody>
+                            Disabled
 
+                        </span>
 
-  </table>
+          </td>
 
+          <td th:text="${user.createdDate}">
+            -
+          </td>
+
+          <td>
+
+            <a
+                    th:href="@{/user/edit/{id}(id=${user.id})}"
+                    class="btn btn-sm btn-warning">
+
+              Edit
+
+            </a>
+
+            <a
+                    th:href="@{/user/delete/{id}(id=${user.id})}"
+                    class="btn btn-sm btn-danger"
+                    onclick="return confirm('Delete this user?');">
+
+              Delete
+
+            </a>
+
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
 
 </div>
-
 
 </body>
 

@@ -10,14 +10,16 @@ import java.util.Map;
 @Service
 public class AuthService {
 
+    private final RestTemplate restTemplate;
+
     @Value("${auth.server.url}")
     private String authServerUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    public AuthService() {
+        this.restTemplate = new RestTemplate();
+    }
 
-    public Map<String, Object> login(
-            String username,
-            String password) {
+    public Map<String, Object> login(String username, String password) {
 
         String url = authServerUrl + "/api/auth/login";
 
@@ -39,10 +41,12 @@ public class AuthService {
                         Map.class
                 );
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new RuntimeException("Authentication failed");
+        if (response.getStatusCode() == HttpStatus.OK
+                && response.getBody() != null) {
+
+            return response.getBody();
         }
 
-        return response.getBody();
+        throw new RuntimeException("Authentication failed");
     }
 }
