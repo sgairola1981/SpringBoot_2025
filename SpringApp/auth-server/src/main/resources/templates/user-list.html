@@ -1,33 +1,225 @@
-<!DOCTYPE html>
 
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
-
   <meta charset="UTF-8">
-
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>User Management</title>
 
   <!-- Bootstrap -->
-  <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
   <!-- Bootstrap Icons -->
-  <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-          rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
 
   <style>
+    * {
+        box-sizing: border-box;
+    }
 
     body {
+        margin: 0;
         background: #f4f6f9;
         font-family: "Segoe UI", Arial, sans-serif;
+        color: #1f2937;
+    }
+
+    /* FIXED SIDEBAR */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 100vh;
+        height: 100dvh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: #171b24;
+        color: white;
+        padding: 22px 15px 90px;
+        z-index: 1000;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 5px 12px 25px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .brand-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 12px;
+        background: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+    }
+
+    .brand-text h5 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    .brand-text small {
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .menu-title {
+        margin: 28px 12px 10px;
+        color: #6b7280;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .menu-link {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 12px 13px;
+        margin-bottom: 5px;
+        border-radius: 9px;
+        color: #b9c0cc;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background .2s ease, color .2s ease;
+    }
+
+    .menu-link i {
+        width: 22px;
+        min-width: 22px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .menu-link:hover {
+        background: #222938;
+        color: white;
+    }
+
+    .menu-link.active {
+        background: #2563eb;
+        color: white;
+    }
+
+    /* LOGOUT */
+    .sidebar-bottom {
+        position: fixed;
+        left: 15px;
+        bottom: 0;
+        width: 220px;
+        padding: 12px 0 15px;
+        background: #171b24;
+        border-top: 1px solid rgba(255,255,255,.08);
+        z-index: 1001;
+    }
+
+    .logout-btn {
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: #b9c0cc;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 12px 13px;
+        border-radius: 9px;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .logout-btn:hover {
+        background: #2b2024;
+        color: #ff6b6b;
+    }
+
+    .logout-btn i {
+        width: 22px;
+        min-width: 22px;
+        font-size: 18px;
+    }
+
+    /* MAIN AREA */
+    .main {
+        margin-left: 250px;
+        min-height: 100vh;
+        min-width: 0;
+    }
+
+    /* TOP BAR */
+    .topbar {
+        min-height: 72px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 30px;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .profile-info {
+        text-align: right;
+    }
+
+    .profile-info strong {
+        display: block;
+        font-size: 14px;
+    }
+
+    .profile-info span {
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .profile-avatar {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 50%;
+        background: #e8efff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    /* PAGE CONTENT */
+    .content {
+        padding: 25px;
     }
 
     .page-header {
@@ -35,32 +227,40 @@
         border-radius: 12px;
         padding: 20px 24px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 10px rgba(0,0,0,.05);
     }
 
-    .page-title {
+    .header-title {
         font-weight: 600;
         color: #212529;
         margin: 0;
+        font-size: 22px;
     }
 
-    .page-subtitle {
+    .header-subtitle {
         color: #6c757d;
         font-size: 14px;
         margin-top: 4px;
     }
 
+    /* TABLE CARD */
     .user-card {
         border: none;
         border-radius: 12px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.07);
+        box-shadow: 0 3px 15px rgba(0,0,0,.07);
         overflow: hidden;
+        background: white;
     }
 
     .user-card-header {
         background: white;
         padding: 18px 20px;
         border-bottom: 1px solid #e9ecef;
+    }
+
+    .search-box {
+        max-width: 280px;
+        width: 100%;
     }
 
     .table {
@@ -76,16 +276,13 @@
         letter-spacing: .4px;
         padding: 14px 16px;
         border: none;
+        white-space: nowrap;
     }
 
     .table tbody td {
         padding: 15px 16px;
         vertical-align: middle;
         color: #343a40;
-    }
-
-    .table tbody tr {
-        transition: background .2s ease;
     }
 
     .table tbody tr:hover {
@@ -100,12 +297,14 @@
     .username {
         font-weight: 600;
         color: #212529;
+        white-space: nowrap;
     }
 
     .badge-role {
         padding: 7px 11px;
         border-radius: 20px;
         font-size: 12px;
+        white-space: nowrap;
     }
 
     .badge-admin {
@@ -137,15 +336,12 @@
     .date-text {
         color: #6c757d;
         font-size: 13px;
+        white-space: nowrap;
     }
 
     .action-btn {
-        margin-right: 5px;
+        margin: 2px 3px 2px 0;
         min-width: 70px;
-    }
-
-    .search-box {
-        max-width: 280px;
     }
 
     .empty-message {
@@ -154,387 +350,343 @@
         color: #6c757d;
     }
 
-    @media (max-width: 768px) {
+    /* RESPONSIVE: SIDEBAR REMAINS VISIBLE */
+    @media (max-width: 900px) {
+        .sidebar {
+            width: 250px;
+        }
+
+        .main {
+            margin-left: 250px;
+        }
+
+        .content {
+            padding: 18px;
+        }
+
+        .topbar {
+            padding: 12px 18px;
+        }
+
+        .profile-info {
+            display: none;
+        }
 
         .page-header {
             padding: 16px;
         }
+    }
 
-        .page-header .btn {
-            margin-top: 10px;
+    @media (max-width: 576px) {
+        .content {
+            padding: 12px;
+        }
+
+        .topbar {
+            padding: 12px;
+        }
+
+        .page-title {
+            font-size: 17px;
+        }
+
+        .page-subtitle {
+            font-size: 11px;
+        }
+
+        .header-title {
+            font-size: 19px;
         }
 
         .search-box {
             max-width: 100%;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .table {
             min-width: 850px;
         }
-
     }
-
   </style>
-
-
 </head>
 
 <body>
 
-<div class="container-fluid px-4 py-4">
+<!-- FIXED SIDEBAR -->
+<aside class="sidebar">
 
+  <div class="brand">
+    <div class="brand-icon">
+      <i class="bi bi-shield-lock-fill"></i>
+    </div>
 
-  <!-- ========================= -->
-  <!-- PAGE HEADER -->
-  <!-- ========================= -->
+    <div class="brand-text">
+      <h5>Auth Server</h5>
+      <small>Administration</small>
+    </div>
+  </div>
 
-  <div class="page-header">
+  <div class="menu-title">Main Menu</div>
 
-    <div class="d-flex
-                flex-wrap
-                justify-content-between
-                align-items-center">
+  <a th:href="@{/admin}" class="menu-link">
+    <i class="bi bi-speedometer2"></i>
+    <span>Dashboard</span>
+  </a>
 
-      <div>
+  <a th:href="@{/user/list}" class="menu-link active">
+    <i class="bi bi-people-fill"></i>
+    <span>Users</span>
+  </a>
 
-        <h3 class="page-title">
-          <i class="bi bi-people-fill me-2"></i>
-          User Management
-        </h3>
+  <a href="#" class="menu-link">
+    <i class="bi bi-bar-chart-fill"></i>
+    <span>Reports</span>
+  </a>
 
-        <div class="page-subtitle">
-          Manage application users, roles and account status
-        </div>
+  <a href="#" class="menu-link">
+    <i class="bi bi-file-earmark-text-fill"></i>
+    <span>Documents</span>
+  </a>
 
+  <div class="menu-title">Administration</div>
+
+  <a href="#" class="menu-link">
+    <i class="bi bi-gear-fill"></i>
+    <span>Settings</span>
+  </a>
+
+  <a href="#" class="menu-link">
+    <i class="bi bi-person-circle"></i>
+    <span>My Profile</span>
+  </a>
+
+  <div class="sidebar-bottom">
+    <form th:action="@{/logout}" method="post">
+      <button type="submit" class="logout-btn">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+      </button>
+    </form>
+  </div>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div>
+      <h4 class="page-title">User Management</h4>
+      <div class="page-subtitle">
+        Authentication Server Administration
+      </div>
+    </div>
+
+    <div class="profile">
+      <div class="profile-info">
+        <strong th:text="${username != null ? username : 'admin'}">admin</strong>
+        <span th:text="${role != null ? role : 'ADMIN'}">ADMIN</span>
       </div>
 
-      <div>
+      <div class="profile-avatar">
+        <i class="bi bi-person-fill"></i>
+      </div>
+    </div>
+  </header>
 
-        <a href="/user/create"
-           class="btn btn-primary">
+  <!-- PAGE CONTENT -->
+  <div class="content">
 
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+        <div>
+          <h3 class="header-title">
+            <i class="bi bi-people-fill me-2"></i>
+            User Management
+          </h3>
+
+          <div class="header-subtitle">
+            Manage application users, roles and account status
+          </div>
+        </div>
+
+        <a th:href="@{/user/create}" class="btn btn-primary">
           <i class="bi bi-person-plus-fill me-1"></i>
-
           Create User
-
         </a>
 
       </div>
-
     </div>
 
-  </div>
+    <!-- USER TABLE CARD -->
+    <div class="card user-card">
 
+      <div class="user-card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
 
-  <!-- ========================= -->
-  <!-- USER TABLE CARD -->
-  <!-- ========================= -->
+          <div>
+            <h5 class="mb-1">
+              <i class="bi bi-person-lines-fill me-2"></i>
+              Users
+            </h5>
 
-  <div class="card user-card">
+            <small class="text-muted">
+              List of registered users
+            </small>
+          </div>
 
-    <!-- Card Header -->
+          <!-- SEARCH -->
+          <div class="search-box">
+            <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search"></i>
+                            </span>
 
-    <div class="user-card-header">
-
-      <div class="d-flex
-                    flex-wrap
-                    justify-content-between
-                    align-items-center">
-
-        <div>
-
-          <h5 class="mb-1">
-
-            <i class="bi bi-person-lines-fill me-2"></i>
-
-            Users
-
-          </h5>
-
-          <small class="text-muted">
-
-            List of registered users
-
-          </small>
-
-        </div>
-
-
-        <!-- Search -->
-
-        <div class="search-box">
-
-          <div class="input-group">
-
-                    <span class="input-group-text bg-white">
-
-                        <i class="bi bi-search"></i>
-
-                    </span>
-
-            <input
-                    type="text"
-                    id="searchUser"
-                    class="form-control"
-                    placeholder="Search users...">
-
+              <input type="text"
+                     id="searchUser"
+                     class="form-control"
+                     placeholder="Search users..."
+                     aria-label="Search users">
+            </div>
           </div>
 
         </div>
+      </div>
 
+      <!-- TABLE -->
+      <div class="table-responsive">
+        <table class="table table-hover" id="userTable">
+
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+
+          <tbody>
+
+          <tr th:each="user : ${users}">
+
+            <!-- ID -->
+            <td class="user-id" th:text="${user.id}">1</td>
+
+            <!-- USERNAME -->
+            <td>
+                            <span class="username">
+                                <i class="bi bi-person-circle me-2 text-secondary"></i>
+                                <span th:text="${user.username}">admin</span>
+                            </span>
+            </td>
+
+            <!-- ROLE -->
+            <td>
+                            <span th:if="${user.role == 'ADMIN'}"
+                                  class="badge badge-role badge-admin">
+                                <i class="bi bi-shield-lock-fill me-1"></i>
+                                ADMIN
+                            </span>
+
+              <span th:unless="${user.role == 'ADMIN'}"
+                    class="badge badge-role badge-user">
+                                <i class="bi bi-person-fill me-1"></i>
+                                <span th:text="${user.role}">USER</span>
+                            </span>
+            </td>
+
+            <!-- STATUS -->
+            <td>
+                            <span th:if="${user.enabled}" class="badge badge-active">
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                Active
+                            </span>
+
+              <span th:unless="${user.enabled}" class="badge badge-disabled">
+                                <i class="bi bi-x-circle-fill me-1"></i>
+                                Disabled
+                            </span>
+            </td>
+
+            <!-- CREATED DATE -->
+            <td>
+                            <span class="date-text"
+                                  th:text="${user.createdDate != null ? #temporals.format(user.createdDate, 'dd MMM yyyy, hh:mm a') : 'N/A'}">
+                                23 Sep 2026, 04:11 PM
+                            </span>
+            </td>
+
+            <!-- ACTIONS -->
+            <td>
+              <a th:href="@{/user/edit/{id}(id=${user.id})}"
+                 class="btn btn-sm btn-warning action-btn">
+                <i class="bi bi-pencil-square me-1"></i>
+                Edit
+              </a>
+
+              <a th:href="@{/user/delete/{id}(id=${user.id})}"
+                 class="btn btn-sm btn-danger action-btn"
+                 onclick="return confirm('Are you sure you want to delete this user?');">
+                <i class="bi bi-trash3 me-1"></i>
+                Delete
+              </a>
+            </td>
+
+          </tr>
+
+          <!-- EMPTY RESULT -->
+          <tr th:if="${#lists.isEmpty(users)}">
+            <td colspan="6">
+              <div class="empty-message">
+                <i class="bi bi-people fs-1 d-block mb-2"></i>
+                <strong>No users found</strong>
+                <div>There are currently no users in the system.</div>
+              </div>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
       </div>
 
     </div>
 
-
-    <!-- ========================= -->
-    <!-- TABLE -->
-    <!-- ========================= -->
-
-    <div class="table-responsive">
-
-      <table class="table table-hover"
-             id="userTable">
-
-        <thead>
-
-        <tr>
-
-          <th>
-            ID
-          </th>
-
-          <th>
-            Username
-          </th>
-
-          <th>
-            Role
-          </th>
-
-          <th>
-            Status
-          </th>
-
-          <th>
-            Created
-          </th>
-
-          <th>
-            Action
-          </th>
-
-        </tr>
-
-        </thead>
-
-
-        <tbody>
-
-        <!-- USERS -->
-
-        <tr th:each="user : ${users}">
-
-          <!-- ID -->
-
-          <td class="user-id"
-              th:text="${user.id}">
-
-            1
-
-          </td>
-
-
-          <!-- USERNAME -->
-
-          <td>
-
-                    <span class="username">
-
-                        <i class="bi bi-person-circle me-2 text-secondary"></i>
-
-                        <span th:text="${user.username}">
-                            admin
-                        </span>
-
-                    </span>
-
-          </td>
-
-
-          <!-- ROLE -->
-
-          <td>
-
-                    <span
-                            th:if="${user.role == 'ADMIN'}"
-                            class="badge badge-role badge-admin">
-
-                        <i class="bi bi-shield-lock-fill me-1"></i>
-
-                        ADMIN
-
-                    </span>
-
-            <span
-                    th:unless="${user.role == 'ADMIN'}"
-                    class="badge badge-role badge-user">
-
-                        <i class="bi bi-person-fill me-1"></i>
-
-                        <span th:text="${user.role}">
-                            USER
-                        </span>
-
-                    </span>
-
-          </td>
-
-
-          <!-- STATUS -->
-
-          <td>
-
-                    <span
-                            th:if="${user.enabled}"
-                            class="badge badge-active">
-
-                        <i class="bi bi-check-circle-fill me-1"></i>
-
-                        Active
-
-                    </span>
-
-
-            <span
-                    th:unless="${user.enabled}"
-                    class="badge badge-disabled">
-
-                        <i class="bi bi-x-circle-fill me-1"></i>
-
-                        Disabled
-
-                    </span>
-
-          </td>
-
-
-          <!-- CREATED DATE -->
-
-          <td>
-
-                    <span
-                            class="date-text"
-                            th:text="${#temporals.format(user.createdDate, 'dd MMM yyyy, hh:mm a')}">
-
-                        23 Sep 2026, 04:11 PM
-
-                    </span>
-
-          </td>
-
-
-          <!-- ACTION -->
-
-          <td>
-
-            <a
-                    th:href="@{/user/edit/{id}(id=${user.id})}"
-                    class="btn btn-sm btn-warning action-btn">
-
-              <i class="bi bi-pencil-square me-1"></i>
-
-              Edit
-
-            </a>
-
-
-            <a
-                    th:href="@{/user/delete/{id}(id=${user.id})}"
-                    class="btn btn-sm btn-danger action-btn"
-                    onclick="return confirm('Are you sure you want to delete this user?');">
-
-              <i class="bi bi-trash3 me-1"></i>
-
-              Delete
-
-            </a>
-
-          </td>
-
-        </tr>
-
-
-        <!-- NO USERS -->
-
-        <tr th:if="${#lists.isEmpty(users)}">
-
-          <td colspan="6">
-
-            <div class="empty-message">
-
-              <i class="bi bi-people fs-1 d-block mb-2"></i>
-
-              <strong>No users found</strong>
-
-              <div>
-                There are currently no users in the system.
-              </div>
-
-            </div>
-
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
   </div>
-
-
-</div>
-
-<!-- ========================= -->
+</main>
 
 <!-- SEARCH SCRIPT -->
-
-<!-- ========================= -->
-
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      var searchInput = document.getElementById("searchUser");
+      var table = document.getElementById("userTable");
 
-  document
-      .getElementById("searchUser")
-      .addEventListener("keyup", function () {
+      if (!searchInput || !table) {
+          return;
+      }
 
-          const searchValue =
-              this.value.toLowerCase();
-
-          const rows =
-              document.querySelectorAll(
-                  "#userTable tbody tr"
-              );
+      searchInput.addEventListener("input", function () {
+          var searchValue = this.value.toLowerCase();
+          var rows = table.querySelectorAll("tbody tr");
 
           rows.forEach(function (row) {
+              if (row.querySelector(".empty-message")) {
+                  return;
+              }
 
-              const text =
-                  row.innerText.toLowerCase();
-
-              row.style.display =
-                  text.includes(searchValue)
-                      ? ""
-                      : "none";
-
+              var text = (row.innerText || row.textContent || "").toLowerCase();
+              row.style.display = text.indexOf(searchValue) !== -1 ? "" : "none";
           });
-
       });
-
+  });
 </script>
 
-</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+</body>
 </html>

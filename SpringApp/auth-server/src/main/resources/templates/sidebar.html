@@ -1,0 +1,32 @@
+
+<aside th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+        <h4>WFMS Admin</h4>
+        <small>Management Console</small>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin}"
+           th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
+            <span>🏠</span> Dashboard
+        </a>
+
+        <a th:href="@{/user/list}"
+           th:classappend="${activePage == 'users'} ? ' active' : ''">
+            <span>👥</span> Users
+        </a>
+
+        <a th:href="@{/user/create}"
+           th:classappend="${activePage == 'create-user'} ? ' active' : ''">
+            <span>➕</span> Create User
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-link">
+                <span>🚪</span> Logout
+            </button>
+        </form>
+    </div>
+</aside>

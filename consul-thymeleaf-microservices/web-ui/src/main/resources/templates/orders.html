@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark"><div class="container"><span class="navbar-brand">Order Management</span><span class="text-white-50">Spring Boot · Thymeleaf · Consul</span></div></nav>
+<main class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <section class="card shadow-sm"><div class="card-header fw-semibold">Create order</div><div class="card-body">
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+        <form method="post" th:action="@{/orders}">
+          <div class="mb-3"><label class="form-label" for="customerName">Customer name</label><input class="form-control" id="customerName" name="customerName" required maxlength="100"></div>
+          <div class="mb-3"><label class="form-label" for="amount">Amount</label><input class="form-control" id="amount" name="amount" type="number" min="0.01" step="0.01" required></div>
+          <button class="btn btn-primary w-100" type="submit">Create order</button>
+        </form>
+      </div></section>
+      <div class="small text-secondary mt-3">Demo note: data is held in memory and resets when the Order Service restarts.</div>
+    </div>
+    <div class="col-lg-8">
+      <section class="card shadow-sm"><div class="card-header d-flex justify-content-between"><span class="fw-semibold">Orders</span><span class="badge text-bg-secondary" th:text="${#lists.size(orders)} + ' total'"></span></div>
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-light"><tr><th>ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Payment</th></tr></thead>
+          <tbody><tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td><td th:text="${order.customerName}"></td>
+            <td th:text="${#numbers.formatDecimal(order.amount, 1, 2)}"></td>
+            <td><span class="badge text-bg-success" th:text="${order.status}"></span></td>
+            <td th:text="${order.paymentStatus}"></td>
+          </tr><tr th:if="${#lists.isEmpty(orders)}"><td colspan="5" class="text-center text-secondary py-4">No orders yet. Create your first order.</td></tr></tbody>
+        </table></div>
+      </section>
+    </div>
+  </div>
+</main>
+</body></html>

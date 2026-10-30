@@ -37,6 +37,11 @@
         <option value="$PROJECT_DIR$/Live-kafka-notification/kafaka-order-notification/pom.xml" />
         <option value="$PROJECT_DIR$/SpringApp/auth-server/pom.xml" />
         <option value="$PROJECT_DIR$/SpringApp/Dashboard/pom.xml" />
+        <option value="$PROJECT_DIR$/consul-thymeleaf-microservices/pom.xml" />
+        <option value="$PROJECT_DIR$/consul-thymeleaf-microservices/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/consul-thymeleaf-microservices/order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/consul-thymeleaf-microservices/payment-service/pom.xml" />
+        <option value="$PROJECT_DIR$/consul-thymeleaf-microservices/web-ui/pom.xml" />
       </list>
     </option>
   </component>

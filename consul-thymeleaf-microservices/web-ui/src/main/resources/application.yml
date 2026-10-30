@@ -1,0 +1,10 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: web-ui
+  thymeleaf:
+    cache: false
+app:
+ #gateway-url: ${GATEWAY_URL:http://localhost:8085}
+  gateway-url: ${GATEWAY_URL:http://192.168.1.101:8085}
