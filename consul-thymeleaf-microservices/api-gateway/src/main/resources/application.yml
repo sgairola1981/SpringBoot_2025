@@ -13,6 +13,7 @@ spring:
       discovery:
         register: true
         service-name: api-gateway
+        instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
@@ -23,6 +24,7 @@ spring:
           discovery:
             locator:
               enabled: false
+
           routes:
             - id: order-service
               uri: lb://order-service

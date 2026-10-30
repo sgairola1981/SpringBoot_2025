@@ -1,8 +1,11 @@
+
 server:
   port: 8082
+
 spring:
   application:
     name: payment-service
+
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
@@ -10,9 +13,11 @@ spring:
       discovery:
         register: true
         service-name: payment-service
+        instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
+
 management:
   endpoints:
     web:
